@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v9">
+  <meta name="sm-ver" content="v10">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 개별번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -33,7 +33,7 @@
     .up-gauge.done .ug-bar i{background:#087a55}.up-gauge.err .ug-bar i{background:#b42318}
     .up-gauge.done .ug-pct{color:#087a55}.up-gauge.err .ug-pct{color:#b42318}.ug-pct{font-size:12px;color:#1d2b44;min-width:36px;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}.ug-txt{flex-basis:100%;font-size:10.5px;line-height:1.2;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .del-toggle{height:35px}#resetBtn:hover{background:#b42318;border-color:#b42318;color:#fff}
-    .last-s{height:35px;display:flex;align-items:center;gap:5px;padding:0 8px;border:1px dashed #94a3b8;border-radius:6px;background:#f8fafc;color:#475569;font-size:12px;white-space:nowrap}.last-s b{color:#ad5a00;font-size:13px;font-variant-numeric:tabular-nums}
+    .last-s{height:35px;display:flex;align-items:center;gap:5px;padding:0 8px;border:1px dashed #94a3b8;border-radius:6px;background:#f8fafc;color:#475569;font-size:12px;white-space:nowrap}.last-s b{color:#ad5a00;font-size:13px;font-variant-numeric:tabular-nums}.last-s{cursor:pointer;font:inherit;font-size:12px}.last-s:hover{border-color:#2f6ac6;background:#eef4ff}.last-s .ls-edit{color:#94a3b8;font-size:11px}.last-s.manual{border-style:solid;border-color:#f59e0b;background:#fffbeb}
     .cat-btns{display:flex;gap:4px;height:35px}.cat-btn{height:35px;padding:0 9px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px;font-weight:700;white-space:nowrap}.cat-btn:hover{background:#f8fafc}.cat-btn small{font-weight:600;color:#94a3b8;margin-left:4px}.cat-btn.on{background:#2f6ac6;border-color:#2f6ac6;color:#fff}.cat-btn.on small{color:#dbeafe}
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
     .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px}.notice.show{display:block}
@@ -187,7 +187,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field"><label for="dateFrom">출고일자 기간</label><div class="date-range"><input type="date" id="dateFrom" title="시작일"><span>~</span><input type="date" id="dateTo" title="종료일"><select id="datePreset" title="빠른 선택"><option value="">빠른 선택</option><option value="last">마지막 출고일</option><option value="today">오늘</option><option value="7">최근 7일</option><option value="month">이번 달</option><option value="prev">지난 달</option><option value="all">전체 기간</option></select></div></div>
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 개별번호 검색"></div>
-        <label class="toggle"><input type="checkbox" id="missingOnly"> 자동 부여 행만</label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><div class="last-s" id="lastS" title="지금까지 나간 S번호 중 가장 큰 번호 (지운 행·초기화 전 번호 포함). 다음 자동 부여는 이 번호 다음부터">마지막 자동번호 <b>—</b></div>
+        <label class="toggle"><input type="checkbox" id="missingOnly"> 자동 부여 행만</label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
         <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제">🗑 삭제</button><button type="button" class="btn small price-toggle" id="priceToggle" aria-pressed="false">공급가 보기</button>
       </div>
       <div class="del-bar" id="delBar" hidden><b id="delCount">0건 선택</b><button type="button" class="btn small" id="delAllVisible">보이는 행 모두 선택</button><button type="button" class="btn small" id="delNone">선택 해제</button><span class="spacer"></span><button type="button" class="btn small danger" id="delGo" disabled>선택 삭제</button><button type="button" class="btn small" id="delCancel">취소</button></div>
@@ -499,16 +499,16 @@ function localPush(d,p){
 }
 
 /* ───────── 저장소: 매출분석 로그인 서버 (shipmatch.gs) ───────── */
-const SM_ACT={ping:'smPing',get:'smGet',push:'smPush',del:'smDel',reset:'smReset'};
+const SM_ACT={ping:'smPing',get:'smGet',push:'smPush',del:'smDel',reset:'smReset',setCounter:'smSetCounter'};
 async function backendCall(p){
   const q={...p,action:SM_ACT[p.action]||p.action};delete q.user;   // 등록자 이름은 서버가 로그인 계정으로 기록
   try{return await smCall(q,90000)}
   catch(e){if(e.auth&&await auExpired())return await smCall(q,90000);throw e}
 }
 function cacheKey(){return 'cache:sm:'+(AU.id||'')}
-async function loadCache(){try{const c=await idb.get(cacheKey());if(!c)return;const db=emptyDb();db.rev=c.rev||0;db.counter=c.counter||0;db.epoch=c.epoch||'';(c.ship||[]).forEach(x=>db.ship.set(x.k,x));(c.order||[]).forEach(x=>db.order.set(x.k,x));(c.upload||[]).forEach(x=>db.upload.set(x.id,x));state.db=db}catch(_){}}
+async function loadCache(){try{const c=await idb.get(cacheKey());if(!c)return;const db=emptyDb();db.rev=c.rev||0;db.counter=c.counter||0;db.manual=!!c.manual;db.epoch=c.epoch||'';(c.ship||[]).forEach(x=>db.ship.set(x.k,x));(c.order||[]).forEach(x=>db.order.set(x.k,x));(c.upload||[]).forEach(x=>db.upload.set(x.id,x));state.db=db}catch(_){}}
 let cacheTimer=null;
-function saveCache(){if(!isRemote())return;clearTimeout(cacheTimer);cacheTimer=setTimeout(()=>{const db=state.db;idb.set(cacheKey(),{rev:db.rev,counter:db.counter,epoch:db.epoch||'',ship:[...db.ship.values()],order:[...db.order.values()],upload:[...db.upload.values()]}).catch(()=>{})},400)}
+function saveCache(){if(!isRemote())return;clearTimeout(cacheTimer);cacheTimer=setTimeout(()=>{const db=state.db;idb.set(cacheKey(),{rev:db.rev,counter:db.counter,manual:!!db.manual,epoch:db.epoch||'',ship:[...db.ship.values()],order:[...db.order.values()],upload:[...db.upload.values()]}).catch(()=>{})},400)}
 // 서버에 보내지 못한 수정 (인터넷 끊김 등) — 다음 동기화 때 다시 보냄
 function pendingKey(){return 'shipMatch.pending:sm'}
 function loadPending(){try{return JSON.parse(localStorage.getItem(pendingKey())||'[]')}catch(_){return []}}
@@ -518,7 +518,7 @@ function addPending(u){const list=loadPending().filter(x=>x.k!==u.k);list.push(u
 /* ───────── 동기화 (한 번에 하나씩 순서대로) ───────── */
 let chain=Promise.resolve();
 function queue(fn){const p=chain.then(fn,fn);chain=p.catch(()=>{});return p}
-function mergeRes(res){let n=0;if(res.reset){state.db=emptyDb();savePending([]);editHistory.undo=[];editHistory.redo=[];state.sel.clear();n++}const db=state.db;if(res.epoch!=null)db.epoch=String(res.epoch);(res.ship||[]).forEach(x=>{if(x.del){if(db.ship.delete(x.k))n++;state.sel.delete(x.k);return}db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null)db.counter=Number(res.counter);return n}
+function mergeRes(res){let n=0;if(res.reset){state.db=emptyDb();savePending([]);editHistory.undo=[];editHistory.redo=[];state.sel.clear();n++}const db=state.db;if(res.epoch!=null)db.epoch=String(res.epoch);(res.ship||[]).forEach(x=>{if(x.del){if(db.ship.delete(x.k))n++;state.sel.delete(x.k);return}db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null){if(db.counter!==Number(res.counter))n++;db.counter=Number(res.counter)}if(res.manual!=null)db.manual=!!res.manual;return n}
 async function sendPush(payload){
   const res=await backendCall({action:'push',...payload});
   if(res.conflicts&&res.conflicts.length)alert(`이미 사용 중인 개별번호라서 저장하지 않았습니다: ${res.conflicts.map(c=>c.code).join(', ')}`);
@@ -615,7 +615,18 @@ function catOfShip(s){const n=String(s.n||''),p=String(s.p||'');
   if(/상하\s*보강|이너\s*프레임|INNER\s*FRAME/i.test(n))return '내부보강';
   return '부자재'}
 /* 버튼 숫자 = 지금 일자·상태·검색 조건에서 구분별 행 수 */
-function renderLastS(){const el=document.getElementById('lastS');if(!el)return;const n=Math.max(Number(state.db.counter||0),maxSInDb());el.querySelector('b').textContent=n?'S'+String(n).padStart(5,'0'):'없음'}
+function renderLastS(){const el=document.getElementById('lastS');if(!el)return;const c=Number(state.db.counter||0),n=state.db.manual?c:Math.max(c,maxSInDb());
+  el.querySelector('b').textContent='S'+String(n).padStart(5,'0');el.classList.toggle('manual',!!state.db.manual);
+  el.title=(state.db.manual?'직접 지정한 마지막 번호':'지금까지 나간 S번호 중 가장 큰 번호 (지운 행·초기화 전 번호 포함)')+`\n다음 자동 부여: S${String(n+1).padStart(5,'0')}부터 (이미 쓴 번호는 건너뜀)\n눌러서 마지막 번호 바꾸기 (관리자)`}
+document.getElementById('lastS').onclick=async()=>{
+  const c=Number(state.db.counter||0),cur=state.db.manual?c:Math.max(c,maxSInDb());
+  const v=prompt(`마지막 자동번호를 입력하세요 (예: S00120 또는 120)\n\n· 다음 자동 부여는 입력한 번호 다음부터 나옴\n· 이미 쓴 번호를 만나면 자동으로 건너뜀 (번호가 겹치지 않음)\n· 모든 PC에 같이 적용됨\n· 비우고 확인하면 «가장 큰 번호 다음부터»(기본 방식)로 되돌림\n\n지금: S${String(cur).padStart(5,'0')}${state.db.manual?' (직접 지정)':''}`,'S'+String(cur).padStart(5,'0'));
+  if(v===null)return;
+  if(v.trim()&&!/^\s*S?\s*\d{1,5}\s*$/i.test(v)){alert('번호 형식이 맞지 않습니다 (예: S00120 또는 120).');return}
+  try{const r=await queue(()=>backendCall({action:'setCounter',n:v.trim()}));state.db.counter=Number(r.counter);state.db.manual=!!r.manual;saveCache();renderLastS();
+    showInfo(r.manual?`마지막 자동번호를 S${String(r.counter).padStart(5,'0')}로 바꿨습니다. 다음 자동 부여는 S${String(r.counter+1).padStart(5,'0')}부터입니다.`:`기본 방식으로 되돌렸습니다. 다음 자동 부여는 가장 큰 번호 S${String(r.counter).padStart(5,'0')} 다음부터입니다.`)}
+  catch(e){showError('마지막 자동번호를 바꾸지 못했습니다: '+(e.message||e))}
+};
 function renderCatBtns(){renderLastS();const f=state.filters,cnt={};const q=norm(f.search);
   state.rows.forEach(r=>{if(!inDateRange(r['출고일자']))return;if(f.status&&r.__status!==f.status)return;if(f.missingOnly&&r.__status!=='auto')return;
     if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','개별번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return;cnt[r.__cat]=(cnt[r.__cat]||0)+1});
