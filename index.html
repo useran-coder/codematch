@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
+  <meta name="sm-ver" content="v9">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 개별번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -210,7 +211,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
      · 중복 제외·S번호 자동 부여는 서버가 잠금을 걸고 처리 → 여러 PC가 동시에 올려도 번호가 겹치지 않음
    - 비밀키는 공개 저장소에 넣지 않음 — 같은 브라우저의 매출분석·견적기 설정에서 찾거나 처음 한 번 입력
    ═══════════════════════════════════════════════════════════ */
-var SM_VER='v8';
+var SM_VER=(document.querySelector('meta[name="sm-ver"]')||{}).content||'v0';   /* 버전은 맨 위 meta sm-ver 한 곳에서만 바꿈 (새 버전 확인이 파일 앞부분만 읽음) */
 var AU_URL_DEFAULT='https://script.google.com/macros/s/AKfycbxSlND4ZKOpxISNQMRdV2d-LA5YxXS1BDe0k2TXKq6g7Tfm6PZ1Rse3mp0Nm4ndZXZdiQ/exec';
 var AU_KEY_DEFAULT='';
 var AU_ROLE={admin:'관리자',uploader:'업로더',user:'일반'};
@@ -817,6 +818,63 @@ let dataStarted=false;
 async function startData(){renderSyncBtn();state.db=emptyDb();state.firstView=true;await loadCache();rebuildView();await sync()}
 function appStart(){if(dataStarted){sync({quiet:true});return}dataStarted=true;startData().then(startPoll)}
 auBoot();
+</script>
+<script id="sm-new-version-popup">
+/* 새 버전 알림 팝업 (매출분석도구·원자재 사용현황과 같은 모양)
+   GitHub 주소로 연 창은 20초 뒤 한 번, 그다음 5분마다, 그리고 창으로 돌아올 때 새 버전이 있는지 확인함.
+   파일이 커서(약 2MB) 맨 앞의 meta sm-ver 만 읽고 받기를 멈춤.
+   새 버전이 있으면 화면 가운데 «새 버전 있음» 카드 → «새로고침» 누르면 새 버전으로 열림, «나중에»는 닫기(같은 버전은 다시 안 띄움). */
+(function(){
+'use strict';
+var HERE=String(SM_VER||''), busy=false, shownFor='';
+function bn(v){ return +(String(v||'').replace(/\D/g,''))||0; }
+function onPages(){ try{ return location.protocol==='https:'&&/\.github\.io$/i.test(location.hostname); }catch(_e){ return false; } }
+function pop(ver){
+  var b=document.getElementById('newVerPopSm');
+  if(!b){ b=document.createElement('div'); b.id='newVerPopSm';
+    b.style.cssText='position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.28);display:flex;align-items:center;justify-content:center;padding:16px';
+    document.body.appendChild(b); }
+  b.style.display='flex';
+  b.innerHTML='<div style="background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(15,23,42,.25);width:300px;max-width:100%;padding:26px 24px 20px;text-align:center;font-family:inherit">'
+    +'<div style="font-size:30px;line-height:1">🔄</div>'
+    +'<div style="margin-top:12px;font-size:17px;font-weight:800;color:#0f172a">새 버전 있음</div>'
+    +'<div style="margin-top:6px;font-size:13px;color:#64748b"><b style="color:#1d4ed8">'+ver+'</b> · 지금 화면 '+HERE+'</div>'
+    +'<div style="margin-top:4px;font-size:12px;color:#94a3b8">새로고침하면 새 버전으로 열립니다</div>'
+    +'<div style="display:flex;gap:8px;margin-top:18px">'
+    +'<button type="button" data-k="later" style="flex:1;font:inherit;font-size:13px;font-weight:700;border:1px solid #cbd5e1;border-radius:9px;padding:9px 0;background:#fff;color:#475569;cursor:pointer">나중에</button>'
+    +'<button type="button" data-k="go" style="flex:1;font:inherit;font-size:13px;font-weight:800;border:0;border-radius:9px;padding:9px 0;background:#17243b;color:#fff;cursor:pointer">새로고침</button>'
+    +'</div></div>';
+  b.querySelector('[data-k="go"]').onclick=function(){ location.reload(); };
+  b.querySelector('[data-k="later"]').onclick=function(){ b.style.display='none'; };
+}
+window.smShowNewVerPop=pop;
+var RE=/<meta name="sm-ver" content="([^"]+)"/;
+function headVer(){
+  return fetch(location.origin+location.pathname+'?_v='+Date.now(),{cache:'no-store'}).then(function(r){
+    if(!r.ok)return '';
+    if(!r.body||!r.body.getReader)return r.text().then(function(t){var m=t.match(RE);return m?m[1]:'';});
+    var rd=r.body.getReader(), dec=new TextDecoder(), txt='';
+    function step(){ return rd.read().then(function(x){
+      if(x.value)txt+=dec.decode(x.value,{stream:true});
+      var m=txt.match(RE); if(m||x.done||txt.length>20000){ try{rd.cancel();}catch(_e){} return m?m[1]:''; }
+      return step(); }); }
+    return step();
+  });
+}
+window.smCheckNewVer=function(){ return headVer(); };
+function check(){
+  if(!onPages()||busy)return; busy=true;
+  headVer().then(function(there){
+    if(!there||bn(there)<=bn(HERE)||shownFor===there)return;
+    shownFor=there; pop(there);
+  }).catch(function(){}).then(function(){ busy=false; });
+}
+if(onPages()){
+  setTimeout(check,20000);
+  setInterval(check,5*60*1000);
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible')setTimeout(check,1500); });
+}
+})();
 </script>
 </body>
 </html>
