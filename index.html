@@ -20,7 +20,10 @@
     .rule-card h2{font-size:14px;margin:0 0 8px;color:#254a80}.rule-list{margin:0;padding-left:18px;color:#4b5d75;font-size:12px;line-height:1.7}
     .summary{display:grid;grid-template-columns:repeat(2,minmax(200px,1.4fr)) repeat(4,minmax(120px,1fr));gap:10px;margin-bottom:14px}.metric{padding:14px 16px}.metric .label{font-size:12px;color:var(--muted);margin-bottom:4px}.metric .value{font-size:25px;font-weight:800;color:#1d2b44}.metric.ok .value{color:var(--ok)}.metric.bad .value{color:var(--bad)}.metric .sub{font-size:11px;color:#94a3b8;margin-top:3px}.metric.period .value{font-size:18px;line-height:30px;white-space:nowrap}
     .table-panel{overflow:visible}.toolbar{position:sticky;top:0;z-index:20;background:#fff;border-radius:10px 10px 0 0;padding:12px 14px;display:flex;gap:10px;align-items:end;flex-wrap:wrap;border-bottom:1px solid var(--line)}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;font-weight:700;color:#64748b}.field input,.field select{height:35px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;padding:0 10px;min-width:145px;color:#26354d}.field.search{flex:1;min-width:220px}.field.search input{width:100%}
-    .date-range{display:flex;align-items:center;gap:4px}.date-range input,.date-range select{height:35px;border:1px solid #cbd5e1;border-radius:6px;padding:0 7px;background:#fff;color:#1f2937;font-size:12.5px}#dateFrom,#dateTo{width:128px;min-width:0}.date-range span{color:#64748b}#datePreset{width:100px;min-width:0;color:#475569}#statusFilter{width:128px;min-width:0}.toolbar .field.search{min-width:170px}
+    .date-range{display:flex;align-items:center;gap:4px}.date-range input,.date-range select{height:35px;border:1px solid #cbd5e1;border-radius:6px;padding:0 7px;background:#fff;color:#1f2937;font-size:12.5px}#dateFrom,#dateTo{width:128px;min-width:0}.date-range span{color:#64748b}#datePreset{width:100px;min-width:0;color:#475569}#statusFilter{width:128px;min-width:0}.toolbar .field.search{min-width:130px}.toolbar .field.search input{min-width:0}.toolbar .result-count{min-width:0}
+    .del-toggle.on{background:#b42318;border-color:#b42318;color:#fff}.btn.danger{background:#b42318;border-color:#b42318;color:#fff}.btn.danger:disabled{opacity:.45;cursor:default}
+    .del-bar{position:sticky;top:var(--tb-h,60px);z-index:16;display:flex;align-items:center;gap:8px;padding:8px 14px;background:#fff0ee;border-bottom:1px solid #fecaca;color:#7f1d1d;font-size:12.5px}.del-bar[hidden]{display:none}.del-bar .spacer{flex:1}
+    .chk-col{width:38px;min-width:38px;max-width:38px;text-align:center!important;padding:0!important}.chk-col input{width:16px;height:16px;cursor:pointer;vertical-align:middle}tr.sel td{background:#fee2e2!important}
     .cat-btns{display:flex;gap:4px;height:35px}.cat-btn{height:35px;padding:0 11px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px;font-weight:700;white-space:nowrap}.cat-btn:hover{background:#f8fafc}.cat-btn small{font-weight:600;color:#94a3b8;margin-left:4px}.cat-btn.on{background:#2f6ac6;border-color:#2f6ac6;color:#fff}.cat-btn.on small{color:#dbeafe}
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
     .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px}.notice.show{display:block}
@@ -175,8 +178,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 개별번호 검색"></div>
         <label class="toggle"><input type="checkbox" id="missingOnly"> 자동 부여 행만</label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div>
-        <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small price-toggle" id="priceToggle" aria-pressed="false">공급가 보기</button>
+        <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제">🗑 삭제</button><button type="button" class="btn small price-toggle" id="priceToggle" aria-pressed="false">공급가 보기</button>
       </div>
+      <div class="del-bar" id="delBar" hidden><b id="delCount">0건 선택</b><button type="button" class="btn small" id="delAllVisible">보이는 행 모두 선택</button><button type="button" class="btn small" id="delNone">선택 해제</button><span class="spacer"></span><button type="button" class="btn small danger" id="delGo" disabled>선택 삭제</button><button type="button" class="btn small" id="delCancel">취소</button></div>
       <div class="head-wrap" id="headWrap"><table class="data-table head-clone" id="headClone"><thead><tr id="headCloneRow"></tr></thead></table></div>
       <div class="table-wrap" id="tableWrap">
         <table class="data-table" id="dataTable"><thead aria-hidden="true"><tr id="headerRow"></tr></thead><tbody id="tableBody"></tbody></table>
@@ -197,7 +201,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
      · 중복 제외·S번호 자동 부여는 서버가 잠금을 걸고 처리 → 여러 PC가 동시에 올려도 번호가 겹치지 않음
    - 비밀키는 공개 저장소에 넣지 않음 — 같은 브라우저의 매출분석·견적기 설정에서 찾거나 처음 한 번 입력
    ═══════════════════════════════════════════════════════════ */
-var SM_VER='v3';
+var SM_VER='v4';
 var AU_URL_DEFAULT='https://script.google.com/macros/s/AKfycbxSlND4ZKOpxISNQMRdV2d-LA5YxXS1BDe0k2TXKq6g7Tfm6PZ1Rse3mp0Nm4ndZXZdiQ/exec';
 var AU_KEY_DEFAULT='';
 var AU_ROLE={admin:'관리자',uploader:'업로더',user:'일반'};
@@ -359,10 +363,10 @@ const ALIASES={
   '출고일자':['출고일자','출하일자','일자'],'주문번호':['주문번호','수주번호'],'고객':['고객','거래처'],'품번':['품번','품목코드'],'품명':['품명'],'규격':['규격'],'비고(내역)':['비고(내역)','비고내역','내역'],'단위':['단위','단위(관리)'],'출고수량':['출고수량','수량'],'단가':['단가'],'공급가':['공급가'],'부가세':['부가세'],'합계액':['합계액'],'납품처':['납품처'],'NO.':['NO.','NO','순번'],'주문일자':['주문일자','수주일자']
 };
 
-function emptyDb(){return {ship:new Map(),order:new Map(),upload:new Map(),rev:0,counter:0}}
+function emptyDb(){return {ship:new Map(),order:new Map(),upload:new Map(),rev:0,counter:0,epoch:''}}
 const state={db:emptyDb(),rows:[],viewRows:[],rendered:0,sort:{key:'출고일자',dir:'asc'},showPrice:false,
   filters:{from:'',to:'',status:'',search:'',missingOnly:false,cat:''},selected:{ship:new Set(),order:new Set()},
-  cfg:{auto:true},sync:{busy:false,last:null,error:''},firstView:true};
+  cfg:{auto:true},delMode:false,sel:new Set(),sync:{busy:false,last:null,error:''},firstView:true};
 function isRemote(){return true}
 
 /* ───────── 공통 도구 ───────── */
@@ -485,16 +489,16 @@ function localPush(d,p){
 }
 
 /* ───────── 저장소: 매출분석 로그인 서버 (shipmatch.gs) ───────── */
-const SM_ACT={ping:'smPing',get:'smGet',push:'smPush'};
+const SM_ACT={ping:'smPing',get:'smGet',push:'smPush',del:'smDel',reset:'smReset'};
 async function backendCall(p){
   const q={...p,action:SM_ACT[p.action]||p.action};delete q.user;   // 등록자 이름은 서버가 로그인 계정으로 기록
   try{return await smCall(q,90000)}
   catch(e){if(e.auth&&await auExpired())return await smCall(q,90000);throw e}
 }
 function cacheKey(){return 'cache:sm:'+(AU.id||'')}
-async function loadCache(){try{const c=await idb.get(cacheKey());if(!c)return;const db=emptyDb();db.rev=c.rev||0;db.counter=c.counter||0;(c.ship||[]).forEach(x=>db.ship.set(x.k,x));(c.order||[]).forEach(x=>db.order.set(x.k,x));(c.upload||[]).forEach(x=>db.upload.set(x.id,x));state.db=db}catch(_){}}
+async function loadCache(){try{const c=await idb.get(cacheKey());if(!c)return;const db=emptyDb();db.rev=c.rev||0;db.counter=c.counter||0;db.epoch=c.epoch||'';(c.ship||[]).forEach(x=>db.ship.set(x.k,x));(c.order||[]).forEach(x=>db.order.set(x.k,x));(c.upload||[]).forEach(x=>db.upload.set(x.id,x));state.db=db}catch(_){}}
 let cacheTimer=null;
-function saveCache(){if(!isRemote())return;clearTimeout(cacheTimer);cacheTimer=setTimeout(()=>{const db=state.db;idb.set(cacheKey(),{rev:db.rev,counter:db.counter,ship:[...db.ship.values()],order:[...db.order.values()],upload:[...db.upload.values()]}).catch(()=>{})},400)}
+function saveCache(){if(!isRemote())return;clearTimeout(cacheTimer);cacheTimer=setTimeout(()=>{const db=state.db;idb.set(cacheKey(),{rev:db.rev,counter:db.counter,epoch:db.epoch||'',ship:[...db.ship.values()],order:[...db.order.values()],upload:[...db.upload.values()]}).catch(()=>{})},400)}
 // 서버에 보내지 못한 수정 (인터넷 끊김 등) — 다음 동기화 때 다시 보냄
 function pendingKey(){return 'shipMatch.pending:sm'}
 function loadPending(){try{return JSON.parse(localStorage.getItem(pendingKey())||'[]')}catch(_){return []}}
@@ -504,7 +508,7 @@ function addPending(u){const list=loadPending().filter(x=>x.k!==u.k);list.push(u
 /* ───────── 동기화 (한 번에 하나씩 순서대로) ───────── */
 let chain=Promise.resolve();
 function queue(fn){const p=chain.then(fn,fn);chain=p.catch(()=>{});return p}
-function mergeRes(res){let n=0;const db=state.db;(res.ship||[]).forEach(x=>{db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null)db.counter=Number(res.counter);return n}
+function mergeRes(res){let n=0;if(res.reset){state.db=emptyDb();savePending([]);editHistory.undo=[];editHistory.redo=[];state.sel.clear();n++}const db=state.db;if(res.epoch!=null)db.epoch=String(res.epoch);(res.ship||[]).forEach(x=>{if(x.del){if(db.ship.delete(x.k))n++;state.sel.delete(x.k);return}db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null)db.counter=Number(res.counter);return n}
 async function sendPush(payload){
   const res=await backendCall({action:'push',...payload});
   if(res.conflicts&&res.conflicts.length)alert(`이미 사용 중인 개별번호라서 저장하지 않았습니다: ${res.conflicts.map(c=>c.code).join(', ')}`);
@@ -517,8 +521,8 @@ function sync({payload=null,quiet=false}={}){
     try{
       await flushPending();
       if(payload)result=await sendPush(payload);
-      changed=mergeRes(await backendCall({action:'get',since:state.db.rev}))>0||changed;
-      for(let i=0;i<3;i++){const ups=rematchUpdates();if(!ups.length)break;await sendPush({updates:ups});mergeRes(await backendCall({action:'get',since:state.db.rev}));changed=true}
+      changed=mergeRes(await backendCall({action:'get',since:state.db.rev,epoch:state.db.epoch||''}))>0||changed;
+      for(let i=0;i<3;i++){const ups=rematchUpdates();if(!ups.length)break;await sendPush({updates:ups});mergeRes(await backendCall({action:'get',since:state.db.rev,epoch:state.db.epoch||''}));changed=true}
       saveCache();state.sync.last=new Date();state.sync.error='';
     }catch(e){state.sync.error=e.message||String(e);if(payload)throw e;else if(!quiet)showError('동기화 실패: '+state.sync.error)}
     finally{setBusy(false);if(changed)rebuildView(true);renderSyncBtn()}
@@ -602,7 +606,7 @@ function visibleRows(){
   });
   const {key,dir}=state.sort;rows=[...rows].sort((a,b)=>{let av=key==='출고일자'?a[key]:getDisplayValue(a,key),bv=key==='출고일자'?b[key]:getDisplayValue(b,key);const an=num(av),bn=num(bv);let c=(an!==null&&bn!==null)?an-bn:String(av).localeCompare(String(bv),'ko',{numeric:true,sensitivity:'base'});if(c===0)c=a.__index-b.__index;return dir==='asc'?c:-c});return rows;
 }
-function renderHeader(){const tr=document.getElementById('headerRow');tr.innerHTML='';tableHeaders().forEach(h=>{const th=document.createElement('th');const active=state.sort.key===h;th.setAttribute('aria-sort',active?(state.sort.dir==='asc'?'ascending':'descending'):'none');th.innerHTML=`<button type="button" data-key="${escapeHtml(h)}">${escapeHtml(h)}<span class="sort-icon">${active?(state.sort.dir==='asc'?'▲':'▼'):'↕'}</span></button>`;tr.appendChild(th)});const cloneRow=document.getElementById('headCloneRow');cloneRow.innerHTML=tr.innerHTML;tr.querySelectorAll('button').forEach(b=>b.tabIndex=-1);cloneRow.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.key;if(state.sort.key===key)state.sort.dir=state.sort.dir==='asc'?'desc':'asc';else state.sort={key,dir:'asc'};renderTable()}))}
+function renderHeader(){const tr=document.getElementById('headerRow');tr.innerHTML='';if(state.delMode){const th=document.createElement('th');th.className='chk-col';th.innerHTML='<input type="checkbox" class="chk-all" title="보이는 행 모두 선택·해제">';tr.appendChild(th)}tableHeaders().forEach(h=>{const th=document.createElement('th');const active=state.sort.key===h;th.setAttribute('aria-sort',active?(state.sort.dir==='asc'?'ascending':'descending'):'none');th.innerHTML=`<button type="button" data-key="${escapeHtml(h)}">${escapeHtml(h)}<span class="sort-icon">${active?(state.sort.dir==='asc'?'▲':'▼'):'↕'}</span></button>`;tr.appendChild(th)});const cloneRow=document.getElementById('headCloneRow');cloneRow.innerHTML=tr.innerHTML;tr.querySelectorAll('button').forEach(b=>b.tabIndex=-1);cloneRow.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.key;if(state.sort.key===key)state.sort.dir=state.sort.dir==='asc'?'desc':'asc';else state.sort={key,dir:'asc'};renderTable()}));const ca=cloneRow.querySelector('.chk-all');if(ca){ca.checked=allVisibleSelected();ca.onchange=()=>{selectVisible(ca.checked)}}}
 function remarkHtml(row){const s=clean(row.__remark);const code=row.__code;if(!code)return escapeHtml(s);const pos=s.lastIndexOf(code);if(pos<0)return escapeHtml(s);return `${escapeHtml(s.slice(0,pos))}<span class="code">${escapeHtml(code)}</span>${escapeHtml(s.slice(pos+code.length))}`}
 // 페이지 스크롤에서 검색줄·표 제목줄을 고정하고, 가로 스크롤을 화면 아래에 붙여 둠
 function syncHead(){
@@ -619,6 +623,7 @@ function syncHead(){
 }
 function buildRow(row){
   const tr=document.createElement('tr');tr.dataset.key=rowKey(row);if(row.__status==='auto')tr.className='missing';
+  if(state.delMode){const td=document.createElement('td');td.className='chk-col';const on=state.sel.has(rowKey(row));td.innerHTML=`<input type="checkbox" class="row-chk" data-key="${escapeHtml(rowKey(row))}"${on?' checked':''}>`;if(on)tr.classList.add('sel');tr.appendChild(td)}
   tableHeaders().forEach(h=>{const td=document.createElement('td');const v=getDisplayValue(row,h);td.title=clean(v);if(['출고수량','단가','공급가','부가세','합계액'].includes(h))td.className='num';if(['출고일자','단위','개별번호','매칭상태'].includes(h))td.classList.add('center');
     if(h==='비고(내역)'){td.classList.add('remark');td.innerHTML=remarkHtml(row)}
     else if(h==='개별번호'){td.classList.add('code-cell');td.innerHTML=((row.__status==='auto'||row.__status==='manual')&&row.__autoCode)?`<input class="code-input ${row.__status}" data-key="${escapeHtml(rowKey(row))}" value="${escapeHtml(row.__code||'')}" placeholder="입력" spellcheck="false" title="눌러서 개별번호 수정 · 비우거나 ${escapeHtml(row.__autoCode)}로 되돌리면 자동 부여로 표시 · Ctrl+Z 되돌리기">`:`<span class="code-text">${escapeHtml(row.__code||'—')}</span>`}
@@ -723,7 +728,41 @@ bindDrop(document.getElementById('shipDrop'),document.getElementById('shipInput'
 bindDrop(document.getElementById('orderDrop'),document.getElementById('orderInput'),async files=>{if(!files.length)return;try{await addFiles('order',files)}catch(e){showError(e.message)}});
 document.getElementById('deleteShipSelectedBtn').onclick=()=>hideUploads([...state.selected.ship]);document.getElementById('deleteOrderSelectedBtn').onclick=()=>hideUploads([...state.selected.order]);
 document.getElementById('clearShipBtn').onclick=()=>hideUploads(uploadsOf('ship').map(u=>u.id));document.getElementById('clearOrderBtn').onclick=()=>hideUploads(uploadsOf('order').map(u=>u.id));
-document.getElementById('resetBtn').onclick=()=>{state.filters={from:'',to:'',status:'',search:'',missingOnly:false,cat:''};state.sort={key:'출고일자',dir:'asc'};document.getElementById('searchInput').value='';document.getElementById('statusFilter').value='';document.getElementById('missingOnly').checked=false;document.getElementById('notice').classList.remove('show');showInfo('');renderAll()};
+function resetFilters(){state.filters={from:'',to:'',status:'',search:'',missingOnly:false,cat:''};state.sort={key:'출고일자',dir:'asc'};document.getElementById('searchInput').value='';document.getElementById('statusFilter').value='';document.getElementById('missingOnly').checked=false;document.getElementById('notice').classList.remove('show');showInfo('');renderAll()}
+/* 초기화 : 확인창 → 서버의 출고·주문·파일 기록을 모두 지움 (모든 PC 반영, 관리자만). S번호는 마지막 번호 다음부터 이어짐 */
+document.getElementById('resetBtn').onclick=async()=>{
+  const nS=state.db.ship.size,nO=state.db.order.size,last=maxSInDb();
+  if(!confirm(`저장된 자료를 모두 지울까요?\n\n· 출고 ${nS.toLocaleString()}행 · 주문 ${nO.toLocaleString()}행 · 올린 파일 목록\n· 모든 PC·모든 사람 화면에서 같이 지워짐\n· 지우기 전 구글 드라이브에 백업 시트를 하나 만들어 둠\n· S번호는 처음부터 다시 시작하지 않고 마지막 번호(S${String(last).padStart(5,'0')}) 다음부터 이어서 부여함\n\n필요하면 먼저 «엑셀 내보내기»로 받아 두세요.`)){return}
+  const btn=document.getElementById('resetBtn');btn.disabled=true;btn.textContent='지우는 중…';
+  try{const r=await queue(()=>backendCall({action:'reset'}));
+    state.db=emptyDb();state.sel.clear();state.delMode=false;savePending([]);editHistory.undo=[];editHistory.redo=[];renderDelBar();
+    saveCache();await sync();resetFilters();rebuildView();
+    showInfo(`초기화 완료 — 출고 ${(r.cleared&&r.cleared.ship||0).toLocaleString()}행 · 주문 ${(r.cleared&&r.cleared.order||0).toLocaleString()}행을 지웠습니다.`+(r.backup?'\n백업 시트: '+r.backup:''));
+  }catch(e){showError('초기화하지 못했습니다: '+(e.message||e))}
+  finally{btn.disabled=false;btn.textContent='초기화'}
+};
+/* 선택 삭제 : 🗑 삭제 → 체크박스 → 선택 삭제 */
+function allVisibleSelected(){return state.viewRows.length>0&&state.viewRows.every(r=>state.sel.has(rowKey(r)))}
+function selectVisible(on){state.viewRows.forEach(r=>{const k=rowKey(r);if(on)state.sel.add(k);else state.sel.delete(k)});document.querySelectorAll('#tableBody .row-chk').forEach(c=>{c.checked=on;c.closest('tr').classList.toggle('sel',on)});renderDelBar()}
+function renderDelBar(){const bar=document.getElementById('delBar'),t=document.getElementById('delToggle');bar.hidden=!state.delMode;t.classList.toggle('on',state.delMode);t.setAttribute('aria-pressed',String(state.delMode));t.textContent=state.delMode?'🗑 삭제 끝내기':'🗑 삭제';
+  const n=state.sel.size;document.getElementById('delCount').textContent=`${n.toLocaleString()}건 선택`;document.getElementById('delGo').disabled=!n;
+  const ca=document.querySelector('#headCloneRow .chk-all');if(ca)ca.checked=allVisibleSelected();requestAnimationFrame(syncHead)}
+function setDelMode(on){state.delMode=on;if(!on)state.sel.clear();renderDelBar();renderTable(true)}
+document.getElementById('delToggle').onclick=()=>setDelMode(!state.delMode);
+document.getElementById('delCancel').onclick=()=>setDelMode(false);
+document.getElementById('delAllVisible').onclick=()=>selectVisible(true);
+document.getElementById('delNone').onclick=()=>{state.sel.clear();selectVisible(false)};
+tableBodyEl.addEventListener('change',e=>{const c=e.target.closest('.row-chk');if(!c)return;if(c.checked)state.sel.add(c.dataset.key);else state.sel.delete(c.dataset.key);c.closest('tr').classList.toggle('sel',c.checked);renderDelBar()});
+document.getElementById('delGo').onclick=async()=>{
+  const keys=[...state.sel].filter(k=>state.db.ship.has(k));if(!keys.length)return;
+  const codes=keys.map(k=>state.db.ship.get(k).code).filter(Boolean);
+  if(!confirm(`선택한 출고 ${keys.length.toLocaleString()}행을 지울까요?\n\n· 모든 PC·모든 사람 화면에서 같이 지워짐\n· 지운 행에 붙었던 개별번호${codes.length?`(${codes.slice(0,5).join(', ')}${codes.length>5?' 외 '+(codes.length-5)+'개':''})`:''}는 다시 쓰지 않음\n· 같은 출고현황 파일을 다시 올리면 그 행은 새 번호로 다시 들어옴`))return;
+  const btn=document.getElementById('delGo');btn.disabled=true;btn.textContent='지우는 중…';
+  try{let n=0;for(let i=0;i<keys.length;i+=2000){const r=await queue(()=>backendCall({action:'del',keys:keys.slice(i,i+2000)}));n+=r.deleted||0}
+    keys.forEach(k=>state.db.ship.delete(k));state.sel.clear();saveCache();await sync();state.delMode=false;rebuildView(true);renderDelBar();showInfo(`출고 ${n.toLocaleString()}행을 지웠습니다.`)}
+  catch(e){showError('삭제하지 못했습니다: '+(e.message||e))}
+  finally{btn.textContent='선택 삭제';renderDelBar()}
+};
 document.getElementById('exportBtn').onclick=exportExcel;
 document.getElementById('syncBtn').onclick=()=>{if(auValid())sync();else auShowGate()};
 {const wrap=document.getElementById('tableWrap'),hs=document.getElementById('hScroll'),hw=document.getElementById('headWrap');wrap.addEventListener('scroll',()=>{hw.scrollLeft=wrap.scrollLeft;if(hs.scrollLeft!==wrap.scrollLeft)hs.scrollLeft=wrap.scrollLeft});hs.addEventListener('scroll',()=>{if(wrap.scrollLeft!==hs.scrollLeft)wrap.scrollLeft=hs.scrollLeft});hw.addEventListener('wheel',e=>{if(e.deltaX){wrap.scrollLeft+=e.deltaX}},{passive:true});window.addEventListener('resize',()=>requestAnimationFrame(syncHead));if(document.fonts)document.fonts.ready.then(syncHead)}
