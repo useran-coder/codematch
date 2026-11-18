@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v16">
+  <meta name="sm-ver" content="v17">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 개별번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -406,16 +406,42 @@ function scanMaxS(text){let max=0;String(text??'').replace(/(?:^|[^A-Z0-9])S(\d{
 /* ───────── 엑셀 읽기 ───────── */
 function findHeaderIndex(rows){let best=0,bestScore=-1;for(let r=0;r<Math.min(rows.length,20);r++){const vals=rows[r].map(clean);let score=0;for(const name of ['주문번호','수주번호','품번','품명','비고(내역)','출고일자'])if(vals.includes(name))score++;if(score>bestScore){bestScore=score;best=r}}return best}
 function canonicalHeader(h){const n=norm(h);for(const [key,list] of Object.entries(ALIASES))if(list.some(x=>norm(x)===n))return key;return clean(h)}
+/* 잘린 .xls 살리기 : ERP 내보내기·복사 중 끊겨 파일 끝(목차 부분)이 없으면 라이브러리가 «reading 'data'» 오류를 냄.
+   이 경우 본문(Workbook 흐름)은 512바이트 뒤에 그대로 이어져 있으므로 직접 레코드를 따라가 읽고,
+   마지막 행은 중간에 끊겼을 수 있어 버림. 원래 행 수(DIMENSIONS)와 읽은 행 수를 같이 돌려줌 */
+function salvageXls(buffer){
+  const u=new Uint8Array(buffer);if(u.length<1024)return null;
+  const sig=[0xD0,0xCF,0x11,0xE0,0xA1,0xB1,0x1A,0xE1];if(!sig.every((b,i)=>u[i]===b))return null;
+  const dv=new DataView(u.buffer,u.byteOffset,u.byteLength),S=512;
+  if(dv.getUint16(S,true)!==0x0809)return null;
+  const CELL=new Set([0x0006,0x00BD,0x00BE,0x00FD,0x0201,0x0203,0x0204,0x0205,0x027E,0x0208]);
+  let p=S,depth=0,lastRow=-1,lastRowStart=-1,dimRows=0,inSheet=false,ended=false;
+  while(p+4<=u.length){const t=dv.getUint16(p,true),l=dv.getUint16(p+2,true);
+    if(l>8224||p+4+l>u.length)break;
+    if(t===0x0809){depth++;if(depth===1&&p>S)inSheet=true}
+    else if(t===0x000A){depth=Math.max(0,depth-1);if(inSheet&&depth===0){ended=true}}
+    else if(t===0x0200&&inSheet&&l>=8)dimRows=dv.getUint32(p+8,true);
+    else if(inSheet&&CELL.has(t)&&l>=2){const r=dv.getUint16(p+4,true);if(t!==0x0208&&r!==lastRow){lastRow=r;lastRowStart=p}}
+    p+=4+l}
+  if(ended)return null; // 끝까지 멀쩡한데 못 읽은 것이면 다른 원인
+  let cut=p;if(lastRowStart>S){cut=lastRowStart;lastRow--} // 끊긴 마지막 행 버림
+  const raw=new Uint8Array(cut-S+4);raw.set(u.subarray(S,cut));raw.set([0x0A,0,0,0],cut-S); // 끝 표시(EOF) 붙임
+  const wb=XLSX.read(raw,{type:'array',cellDates:true});
+  return {wb,readRows:lastRow+1,totalRows:dimRows};
+}
 function workbookRows(buffer){
   /* 엑셀 읽기 : 일부 ERP 내보내기 .xls 는 서식(cellNF) 읽기에서 라이브러리 오류가 나서, 실패하면 옵션을 줄여 다시 읽음 */
   let wb=null,lastErr=null;
   for(const opt of [{type:'array',cellDates:true,cellNF:true},{type:'array',cellDates:true},{type:'array'},{type:'array',cellStyles:false,cellFormula:false,cellHTML:false,sheetStubs:false}]){
     try{wb=XLSX.read(buffer,opt);if(wb&&wb.SheetNames&&wb.SheetNames.length)break}catch(e){lastErr=e;wb=null}}
+  let cutInfo=null;
+  if(!wb){let sv=null;try{sv=salvageXls(buffer)}catch(e){sv=null}
+    if(sv&&sv.wb&&sv.wb.SheetNames.length){wb=sv.wb;cutInfo={readRows:sv.readRows,totalRows:sv.totalRows}}}
   if(!wb)throw new Error('엑셀 파일을 읽지 못했습니다: '+(lastErr&&lastErr.message||lastErr));const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'yyyy/mm/dd'});if(!rows.length)throw new Error('첫 번째 시트에 데이터가 없습니다.');
   const headerIndex=findHeaderIndex(rows),headers=rows[headerIndex].map(canonicalHeader);const out=[];let maxS=0;const sSet=new Set();
   // 파일 어디에든 적힌 S번호는 «이미 쓴 번호»로 기억 (자동 부여 때 피함)
   rows.forEach(arr=>arr.forEach(v=>{String(v??'').replace(/(?:^|[^A-Z0-9])(S\d{5})(?=$|[^A-Z0-9])/gi,(m,c)=>{c=c.toUpperCase();sSet.add(c);maxS=Math.max(maxS,sNum(c));return m})}));
-  for(let r=headerIndex+1;r<rows.length;r++){const arr=rows[r];if(!arr.some(v=>clean(v)!==''))continue;const obj={__row:r+1};headers.forEach((h,i)=>{if(h)obj[h]=arr[i]??''});out.push(obj)}return {headers,rows:out,maxS,sCodes:[...sSet].sort()};
+  for(let r=headerIndex+1;r<rows.length;r++){const arr=rows[r];if(!arr.some(v=>clean(v)!==''))continue;const obj={__row:r+1};headers.forEach((h,i)=>{if(h)obj[h]=arr[i]??''});out.push(obj)}return {headers,rows:out,maxS,sCodes:[...sSet].sort(),cutInfo};
 }
 function readFile(file){return new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=()=>reject(fr.error);fr.readAsArrayBuffer(file)})}
 
@@ -572,13 +598,19 @@ function gauge(kind){const el=document.getElementById(kind+'Gauge'),bar=el.query
     fail(t){clearInterval(timer);el.classList.add('err');txt.textContent=t||'실패'}}}
 const SHIP_CHUNK=3000;
 async function addFiles(kind,files){
-  const msgs=[];let latest='';const g=gauge(kind);g.start();const nf=files.length;let phase='시작';
+  const msgs=[];let latest='';const g=gauge(kind);g.start();const nf=files.length;let phase='시작',skipped=0;
   try{
   for(let fi=0;fi<nf;fi++){const file=files[fi];
     const base=fi/nf*100,span=100/nf,at=v=>base+span*v/100,lab=(nf>1?`(${fi+1}/${nf}) `:'');
     phase='파일 읽기';g.set(at(2),lab+'파일 읽는 중');
     const buf=await readFile(file);phase='엑셀 분석';g.set(at(10),lab+'내용 분석 중');await new Promise(r=>setTimeout(r,30));
-    const parsed=workbookRows(buf);phase='매칭 준비';g.set(at(20),lab+'서버에 저장 중');
+    const parsed=workbookRows(buf);
+    if(parsed.cutInfo){const ci0=parsed.cutInfo,tot=Math.max(0,(ci0.totalRows||0)-1),got=parsed.rows.length;
+      const q=`«${file.name}» 파일이 중간에 잘려 있습니다 (파일 끝부분이 없음).\n\n`+(tot?`원래 약 ${tot.toLocaleString()}줄 중 ${got.toLocaleString()}줄만 읽혔습니다.\n\n`:`${got.toLocaleString()}줄만 읽혔습니다.\n\n`)+
+        `[확인] 읽힌 ${got.toLocaleString()}줄만 저장 (나중에 온전한 파일을 올리면 나머지만 더 저장됨)\n[취소] 저장하지 않음 → ERP에서 다시 내보내거나 엑셀로 열어 «다른 이름으로 저장» 후 올려 주세요.`;
+      if(!confirm(q)){skipped++;msgs.push(`${file.name}: 파일이 잘려 있어 저장하지 않음`);continue}
+      msgs.push(`⚠ ${file.name}: 잘린 파일 — ${tot?tot.toLocaleString()+'줄 중 ':''}${got.toLocaleString()}줄만 읽음`)}
+    phase='매칭 준비';g.set(at(20),lab+'서버에 저장 중');
     const up={id:uid(),kind,name:file.name,maxS:parsed.maxS,sCodes:parsed.sCodes};
     if(kind==='ship'){
       if(!parsed.headers.includes('주문번호')||!parsed.headers.includes('품번'))throw new Error(`${file.name}: 출고현황 헤더에서 주문번호 또는 품번을 찾지 못했습니다.`);
@@ -607,7 +639,7 @@ async function addFiles(kind,files){
     }
     g.set(at(100));
   }
-  g.done((nf>1?`${nf}개 파일 · `:'')+fmtTime(new Date())+' 업로드');
+  if(skipped===nf)g.fail('취소 — 잘린 파일이라 저장하지 않음');else g.done((nf>1?`${nf}개 파일 · `:'')+fmtTime(new Date())+' 업로드'+(skipped?` (${skipped}개 취소)`:''));
   }catch(e){if(e&&!/^\[단계 /.test(e.message||'')){const at=(e.stack||'').split('\n').filter(l=>/:\d+:\d+/.test(l)).slice(0,2).map(l=>l.trim().replace(/^at\s+/,'').replace(/https?:\/\/[^\s)]*\//,'')).join(' ← ');e.message=`[단계 ${phase}${at&&e.name==='TypeError'?' · '+at:''}] `+(e.message||e)}if(/헤더|엑셀 파일을 읽지/.test(e.message||'')){g.fail('실패 — 파일 형식 확인');throw e}g.fail('실패 — 같은 파일을 다시 올리면 이어서 저장');e.message=(e.message||String(e))+'\n→ 같은 파일을 다시 올리면 이미 저장된 행은 빼고 나머지만 저장됩니다. 계속 실패하면 이 문구를 캡처해 알려 주세요.';throw e}
   if(latest){state.filters.from=latest;state.filters.to=latest;rebuildView()}
   showInfo(msgs.join('\n'));
