@@ -24,6 +24,11 @@
     .del-toggle.on{background:#b42318;border-color:#b42318;color:#fff}.btn.danger{background:#b42318;border-color:#b42318;color:#fff}.btn.danger:disabled{opacity:.45;cursor:default}
     .del-bar{position:sticky;top:var(--tb-h,60px);z-index:16;display:flex;align-items:center;gap:8px;padding:8px 14px;background:#fff0ee;border-bottom:1px solid #fecaca;color:#7f1d1d;font-size:12.5px}.del-bar[hidden]{display:none}.del-bar .spacer{flex:1}
     .chk-col{width:38px;min-width:38px;max-width:38px;text-align:center!important;padding:0!important}.chk-col input{width:16px;height:16px;cursor:pointer;vertical-align:middle}tr.sel td{background:#fee2e2!important}
+    .file-actions:has(.up-gauge:not([hidden])){flex-wrap:nowrap}.up-gauge{display:flex;flex-wrap:wrap;align-items:center;column-gap:5px;row-gap:1px;flex:1;min-width:90px;min-height:29px}.up-gauge[hidden]{display:none}
+    .ug-bar{flex:1;height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden;min-width:60px}.ug-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b82f6,#2f6ac6);border-radius:999px;transition:width .25s ease}
+    .up-gauge.done .ug-bar i{background:#087a55}.up-gauge.err .ug-bar i{background:#b42318}
+    .ug-pct{font-size:12px;color:#1d2b44;min-width:36px;text-align:right;font-variant-numeric:tabular-nums}.ug-txt{flex-basis:100%;font-size:10.5px;line-height:1.2;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .del-toggle{height:35px}#resetBtn:hover{background:#b42318;border-color:#b42318;color:#fff}
     .cat-btns{display:flex;gap:4px;height:35px}.cat-btn{height:35px;padding:0 11px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px;font-weight:700;white-space:nowrap}.cat-btn:hover{background:#f8fafc}.cat-btn small{font-weight:600;color:#94a3b8;margin-left:4px}.cat-btn.on{background:#2f6ac6;border-color:#2f6ac6;color:#fff}.cat-btn.on small{color:#dbeafe}
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
     .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px}.notice.show{display:block}
@@ -148,12 +153,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <section class="workspace">
       <div class="panel upload-card" id="shipDrop">
         <h2>출고현황</h2><p>올린 출고현황은 처음 올린 날부터 계속 저장되며, 이미 저장된 행은 자동으로 제외됩니다.</p>
-        <div class="file-actions"><button class="btn small" id="shipBtn">출고현황 추가</button><button class="btn small" id="deleteShipSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearShipBtn">목록 비우기</button></div><input type="file" id="shipInput" accept=".xls,.xlsx" multiple>
+        <div class="file-actions"><button class="btn small" id="shipBtn">출고현황 추가</button><button class="btn small" id="deleteShipSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearShipBtn">목록 비우기</button><div class="up-gauge" id="shipGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div><input type="file" id="shipInput" accept=".xls,.xlsx" multiple>
         <div class="file-list" id="shipList"><span class="file-empty">불러오는 중</span></div>
       </div>
       <div class="panel upload-card" id="orderDrop">
         <h2>주문현황 추가</h2><p>여러 일자의 주문현황을 계속 추가할 수 있습니다. 파일 목록을 지워도 저장된 자료는 그대로 남습니다.</p>
-        <div class="file-actions"><button class="btn small primary" id="orderBtn">주문현황 추가</button><button class="btn small" id="deleteOrderSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearOrderBtn">목록 비우기</button></div>
+        <div class="file-actions"><button class="btn small primary" id="orderBtn">주문현황 추가</button><button class="btn small" id="deleteOrderSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearOrderBtn">목록 비우기</button><div class="up-gauge" id="orderGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div>
         <input type="file" id="orderInput" accept=".xls,.xlsx" multiple>
         <div class="file-list" id="orderList"><span class="file-empty">불러오는 중</span></div>
       </div>
@@ -201,7 +206,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
      · 중복 제외·S번호 자동 부여는 서버가 잠금을 걸고 처리 → 여러 PC가 동시에 올려도 번호가 겹치지 않음
    - 비밀키는 공개 저장소에 넣지 않음 — 같은 브라우저의 매출분석·견적기 설정에서 찾거나 처음 한 번 입력
    ═══════════════════════════════════════════════════════════ */
-var SM_VER='v4';
+var SM_VER='v5';
 var AU_URL_DEFAULT='https://script.google.com/macros/s/AKfycbxSlND4ZKOpxISNQMRdV2d-LA5YxXS1BDe0k2TXKq6g7Tfm6PZ1Rse3mp0Nm4ndZXZdiQ/exec';
 var AU_KEY_DEFAULT='';
 var AU_ROLE={admin:'관리자',uploader:'업로더',user:'일반'};
@@ -538,10 +543,24 @@ function renderSyncBtn(){
 }
 
 /* ───────── 파일 올리기 ───────── */
+/* 업로드 진행 막대 : 파일 읽기 10% → 내용 분석 20% → 서버 저장 20~95%(묶음마다) → 완료 100%
+   서버 응답을 기다리는 동안에는 다음 단계 직전까지 천천히 차오름 */
+function gauge(kind){const el=document.getElementById(kind+'Gauge'),bar=el.querySelector('i'),pct=el.querySelector('.ug-pct'),txt=el.querySelector('.ug-txt');let cur=0,timer=null;
+  const paint=v=>{cur=Math.max(cur,Math.min(100,v));bar.style.width=cur.toFixed(1)+'%';pct.textContent=Math.floor(cur)+'%'};
+  return{start(){clearInterval(timer);cur=0;el.hidden=false;el.classList.remove('done','err');paint(0)},
+    set(v,t){clearInterval(timer);paint(v);if(t!=null)txt.textContent=t;txt.title=txt.textContent},
+    creep(to){clearInterval(timer);timer=setInterval(()=>{if(cur<to-0.3)paint(cur+(to-cur)*0.06)},200)},
+    done(t){clearInterval(timer);paint(100);el.classList.add('done');txt.textContent=t||'완료';setTimeout(()=>{if(el.classList.contains('done'))el.hidden=true},6000)},
+    fail(t){clearInterval(timer);el.classList.add('err');txt.textContent=t||'실패'}}}
+const SHIP_CHUNK=3000;
 async function addFiles(kind,files){
-  const msgs=[];let latest='';
-  for(const file of files){
-    const parsed=workbookRows(await readFile(file));
+  const msgs=[];let latest='';const g=gauge(kind);g.start();const nf=files.length;
+  try{
+  for(let fi=0;fi<nf;fi++){const file=files[fi];
+    const base=fi/nf*100,span=100/nf,at=v=>base+span*v/100,lab=(nf>1?`(${fi+1}/${nf}) `:'');
+    g.set(at(2),lab+'파일 읽는 중');
+    const buf=await readFile(file);g.set(at(10),lab+'내용 분석 중');await new Promise(r=>setTimeout(r,30));
+    const parsed=workbookRows(buf);g.set(at(20),lab+'서버에 저장 중');
     const up={id:uid(),kind,name:file.name,maxS:parsed.maxS,sCodes:parsed.sCodes};
     if(kind==='ship'){
       if(!parsed.headers.includes('주문번호')||!parsed.headers.includes('품번'))throw new Error(`${file.name}: 출고현황 헤더에서 주문번호 또는 품번을 찾지 못했습니다.`);
@@ -549,18 +568,25 @@ async function addFiles(kind,files){
       const fresh=recs.filter(s=>!state.db.ship.has(s.k)),ctx=matchContext();
       fresh.forEach(s=>{const m=matchRec(s,ctx);s.st=m.st;s.code=m.code||'';s.rs=m.rs||'';if(m.mk)s.mk=m.mk});
       up.rows=recs.length;
-      const res=await sync({payload:{ship:fresh,upload:up,seedMax:Math.max(parsed.maxS,maxSInDb())}});
-      const added=res?res.added.ship:0;msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(recs.length-added?` · 이미 저장된 ${(recs.length-added).toLocaleString()}건 제외`:''));
+      // 행이 많으면 묶음으로 나눠 저장 (서버 한 번 처리 시간 제한 대비) — 파일 기록은 마지막 묶음에 같이 보냄
+      let added=0;const nc=Math.max(1,Math.ceil(fresh.length/SHIP_CHUNK));
+      for(let ci=0;ci<nc;ci++){const part=fresh.slice(ci*SHIP_CHUNK,(ci+1)*SHIP_CHUNK),last=ci===nc-1;
+        if(last)up.added=added+part.length;
+        g.set(at(20+75*ci/nc),lab+(nc>1?`서버에 저장 중 (${ci+1}/${nc})`:'서버에 저장 중'));g.creep(at(20+75*(ci+1)/nc-1));
+        const res=await sync({payload:{ship:part,upload:last?up:null,seedMax:Math.max(parsed.maxS,maxSInDb())}});added+=res?res.added.ship:0}msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(recs.length-added?` · 이미 저장된 ${(recs.length-added).toLocaleString()}건 제외`:''));
       recs.forEach(s=>{if(s.d>latest)latest=s.d});
     }else{
       if(!parsed.headers.includes('주문번호'))throw new Error(`${file.name}: 주문번호 헤더를 찾지 못했습니다.`);
       const recs=parsed.rows.filter(r=>clean(r['주문번호'])).map(orderRecFromRow);withOccurrence(recs,orderBaseKey);
       // 이미 저장된 주문 행인데 비고가 바뀐 경우(나중에 개별번호를 적어 넣은 경우 등)는 내용을 갱신
       const fresh=recs.filter(o=>{const e=state.db.order.get(o.k);if(!e)return true;if(clean(e.r)!==clean(o.r)){o.upd=1;return true}return false});up.rows=recs.length;
-      const res=await sync({payload:{order:fresh,upload:up,seedMax:Math.max(parsed.maxS,maxSInDb())}});
+      g.creep(at(94));const res=await sync({payload:{order:fresh,upload:up,seedMax:Math.max(parsed.maxS,maxSInDb())}});
       const added=res?res.added.order:0,changed=res?(res.orderUpdated||0):0;msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(changed?` · 비고 변경 ${changed.toLocaleString()}건 갱신`:'')+(recs.length-added-changed?` · 이미 저장된 ${(recs.length-added-changed).toLocaleString()}건 제외`:''));
     }
+    g.set(at(100));
   }
+  g.done(nf>1?`${nf}개 파일 완료`:'완료');
+  }catch(e){g.fail('실패');throw e}
   if(latest){state.filters.from=latest;state.filters.to=latest;rebuildView()}
   showInfo(msgs.join('\n'));
 }
