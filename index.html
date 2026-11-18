@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v11">
+  <meta name="sm-ver" content="v12">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 개별번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -503,7 +503,7 @@ const SM_ACT={ping:'smPing',get:'smGet',push:'smPush',del:'smDel',reset:'smReset
 async function backendCall(p){
   const q={...p,action:SM_ACT[p.action]||p.action};delete q.user;   // 등록자 이름은 서버가 로그인 계정으로 기록
   try{return await smCall(q,90000)}
-  catch(e){if(e.auth&&await auExpired())return await smCall(q,90000);throw e}
+  catch(e){if(e.auth&&await auExpired())return await smCall(q,90000);if(!/^\[출고매칭 서버/.test(e.message||'')){const n=(q.ship||[]).length,u=(q.updates||[]).length,o=(q.order||[]).length;e.message=`[요청 ${q.action}${n?' 출고'+n:''}${o?' 주문'+o:''}${u?' 수정'+u:''} · 서버 ${state.srvVer||'확인 전'}] `+(e.message||e)}throw e}
 }
 function cacheKey(){return 'cache:sm:'+(AU.id||'')}
 async function loadCache(){try{const c=await idb.get(cacheKey());if(!c)return;const db=emptyDb();db.rev=c.rev||0;db.counter=c.counter||0;db.manual=!!c.manual;db.epoch=c.epoch||'';(c.ship||[]).forEach(x=>db.ship.set(x.k,x));(c.order||[]).forEach(x=>db.order.set(x.k,x));(c.upload||[]).forEach(x=>db.upload.set(x.id,x));state.db=db}catch(_){}}
@@ -518,7 +518,7 @@ function addPending(u){const list=loadPending().filter(x=>x.k!==u.k);list.push(u
 /* ───────── 동기화 (한 번에 하나씩 순서대로) ───────── */
 let chain=Promise.resolve();
 function queue(fn){const p=chain.then(fn,fn);chain=p.catch(()=>{});return p}
-function mergeRes(res){let n=0;if(res.reset){state.db=emptyDb();savePending([]);editHistory.undo=[];editHistory.redo=[];state.sel.clear();n++}const db=state.db;if(res.epoch!=null)db.epoch=String(res.epoch);(res.ship||[]).forEach(x=>{if(x.del){if(db.ship.delete(x.k))n++;state.sel.delete(x.k);return}db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null){if(db.counter!==Number(res.counter))n++;db.counter=Number(res.counter)}if(res.manual!=null)db.manual=!!res.manual;return n}
+function mergeRes(res){let n=0;if(res&&res.sm)state.srvVer=res.sm;if(res.reset){state.db=emptyDb();savePending([]);editHistory.undo=[];editHistory.redo=[];state.sel.clear();n++}const db=state.db;if(res.epoch!=null)db.epoch=String(res.epoch);(res.ship||[]).forEach(x=>{if(x.del){if(db.ship.delete(x.k))n++;state.sel.delete(x.k);return}db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null){if(db.counter!==Number(res.counter))n++;db.counter=Number(res.counter)}if(res.manual!=null)db.manual=!!res.manual;return n}
 async function sendPush(payload){
   const res=await backendCall({action:'push',...payload});
   if(res.conflicts&&res.conflicts.length)alert(`이미 사용 중인 개별번호라서 저장하지 않았습니다: ${res.conflicts.map(c=>c.code).join(', ')}`);
