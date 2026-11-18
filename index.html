@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v15">
+  <meta name="sm-ver" content="v16">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 개별번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -407,7 +407,11 @@ function scanMaxS(text){let max=0;String(text??'').replace(/(?:^|[^A-Z0-9])S(\d{
 function findHeaderIndex(rows){let best=0,bestScore=-1;for(let r=0;r<Math.min(rows.length,20);r++){const vals=rows[r].map(clean);let score=0;for(const name of ['주문번호','수주번호','품번','품명','비고(내역)','출고일자'])if(vals.includes(name))score++;if(score>bestScore){bestScore=score;best=r}}return best}
 function canonicalHeader(h){const n=norm(h);for(const [key,list] of Object.entries(ALIASES))if(list.some(x=>norm(x)===n))return key;return clean(h)}
 function workbookRows(buffer){
-  const wb=XLSX.read(buffer,{type:'array',cellDates:true,cellNF:true});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'yyyy/mm/dd'});if(!rows.length)throw new Error('첫 번째 시트에 데이터가 없습니다.');
+  /* 엑셀 읽기 : 일부 ERP 내보내기 .xls 는 서식(cellNF) 읽기에서 라이브러리 오류가 나서, 실패하면 옵션을 줄여 다시 읽음 */
+  let wb=null,lastErr=null;
+  for(const opt of [{type:'array',cellDates:true,cellNF:true},{type:'array',cellDates:true},{type:'array'},{type:'array',cellStyles:false,cellFormula:false,cellHTML:false,sheetStubs:false}]){
+    try{wb=XLSX.read(buffer,opt);if(wb&&wb.SheetNames&&wb.SheetNames.length)break}catch(e){lastErr=e;wb=null}}
+  if(!wb)throw new Error('엑셀 파일을 읽지 못했습니다: '+(lastErr&&lastErr.message||lastErr));const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'yyyy/mm/dd'});if(!rows.length)throw new Error('첫 번째 시트에 데이터가 없습니다.');
   const headerIndex=findHeaderIndex(rows),headers=rows[headerIndex].map(canonicalHeader);const out=[];let maxS=0;const sSet=new Set();
   // 파일 어디에든 적힌 S번호는 «이미 쓴 번호»로 기억 (자동 부여 때 피함)
   rows.forEach(arr=>arr.forEach(v=>{String(v??'').replace(/(?:^|[^A-Z0-9])(S\d{5})(?=$|[^A-Z0-9])/gi,(m,c)=>{c=c.toUpperCase();sSet.add(c);maxS=Math.max(maxS,sNum(c));return m})}));
@@ -568,13 +572,13 @@ function gauge(kind){const el=document.getElementById(kind+'Gauge'),bar=el.query
     fail(t){clearInterval(timer);el.classList.add('err');txt.textContent=t||'실패'}}}
 const SHIP_CHUNK=3000;
 async function addFiles(kind,files){
-  const msgs=[];let latest='';const g=gauge(kind);g.start();const nf=files.length;
+  const msgs=[];let latest='';const g=gauge(kind);g.start();const nf=files.length;let phase='시작';
   try{
   for(let fi=0;fi<nf;fi++){const file=files[fi];
     const base=fi/nf*100,span=100/nf,at=v=>base+span*v/100,lab=(nf>1?`(${fi+1}/${nf}) `:'');
-    g.set(at(2),lab+'파일 읽는 중');
-    const buf=await readFile(file);g.set(at(10),lab+'내용 분석 중');await new Promise(r=>setTimeout(r,30));
-    const parsed=workbookRows(buf);g.set(at(20),lab+'서버에 저장 중');
+    phase='파일 읽기';g.set(at(2),lab+'파일 읽는 중');
+    const buf=await readFile(file);phase='엑셀 분석';g.set(at(10),lab+'내용 분석 중');await new Promise(r=>setTimeout(r,30));
+    const parsed=workbookRows(buf);phase='매칭 준비';g.set(at(20),lab+'서버에 저장 중');
     const up={id:uid(),kind,name:file.name,maxS:parsed.maxS,sCodes:parsed.sCodes};
     if(kind==='ship'){
       if(!parsed.headers.includes('주문번호')||!parsed.headers.includes('품번'))throw new Error(`${file.name}: 출고현황 헤더에서 주문번호 또는 품번을 찾지 못했습니다.`);
@@ -589,7 +593,7 @@ async function addFiles(kind,files){
         g.set(at(20+75*ci/nc),lab+(nc>1?`서버에 저장 중 (${ci+1}/${nc})`:'서버에 저장 중'));g.creep(at(20+75*(ci+1)/nc-1));
         let res=null,tries=0;
         // 실패하면 3초 뒤 두 번까지 다시 시도 (이미 저장된 행은 서버가 중복으로 빼므로 다시 보내도 안전)
-        while(true){try{res=await sync({payload:{ship:part,upload:last?up:null,seedMax:Math.max(parsed.maxS,maxSInDb())}});break}
+        phase='서버 저장';while(true){try{res=await sync({payload:{ship:part,upload:last?up:null,seedMax:Math.max(parsed.maxS,maxSInDb())}});break}
           catch(e){if(++tries>2)throw e;g.set(at(20+75*ci/nc),lab+`다시 시도 ${tries}/2 …`);await new Promise(r=>setTimeout(r,3000))}}
         added+=res?res.added.ship:0}msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(recs.length-added?` · 이미 저장된 ${(recs.length-added).toLocaleString()}건 제외`:''));
       recs.forEach(s=>{if(s.d>latest)latest=s.d});
@@ -604,7 +608,7 @@ async function addFiles(kind,files){
     g.set(at(100));
   }
   g.done((nf>1?`${nf}개 파일 · `:'')+fmtTime(new Date())+' 업로드');
-  }catch(e){if(/헤더/.test(e.message||'')){g.fail('실패 — 파일 형식 확인');throw e}g.fail('실패 — 같은 파일을 다시 올리면 이어서 저장');e.message=(e.message||String(e))+'\n→ 같은 파일을 다시 올리면 이미 저장된 행은 빼고 나머지만 저장됩니다. 계속 실패하면 이 문구를 캡처해 알려 주세요.';throw e}
+  }catch(e){if(e&&!/^\[단계 /.test(e.message||'')){const at=(e.stack||'').split('\n').filter(l=>/:\d+:\d+/.test(l)).slice(0,2).map(l=>l.trim().replace(/^at\s+/,'').replace(/https?:\/\/[^\s)]*\//,'')).join(' ← ');e.message=`[단계 ${phase}${at&&e.name==='TypeError'?' · '+at:''}] `+(e.message||e)}if(/헤더|엑셀 파일을 읽지/.test(e.message||'')){g.fail('실패 — 파일 형식 확인');throw e}g.fail('실패 — 같은 파일을 다시 올리면 이어서 저장');e.message=(e.message||String(e))+'\n→ 같은 파일을 다시 올리면 이미 저장된 행은 빼고 나머지만 저장됩니다. 계속 실패하면 이 문구를 캡처해 알려 주세요.';throw e}
   if(latest){state.filters.from=latest;state.filters.to=latest;rebuildView()}
   showInfo(msgs.join('\n'));
 }
