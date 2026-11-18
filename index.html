@@ -20,6 +20,7 @@
     .rule-card h2{font-size:14px;margin:0 0 8px;color:#254a80}.rule-list{margin:0;padding-left:18px;color:#4b5d75;font-size:12px;line-height:1.7}
     .summary{display:grid;grid-template-columns:repeat(2,minmax(200px,1.4fr)) repeat(4,minmax(120px,1fr));gap:10px;margin-bottom:14px}.metric{padding:14px 16px}.metric .label{font-size:12px;color:var(--muted);margin-bottom:4px}.metric .value{font-size:25px;font-weight:800;color:#1d2b44}.metric.ok .value{color:var(--ok)}.metric.bad .value{color:var(--bad)}.metric .sub{font-size:11px;color:#94a3b8;margin-top:3px}.metric.period .value{font-size:18px;line-height:30px;white-space:nowrap}
     .table-panel{overflow:visible}.toolbar{position:sticky;top:0;z-index:20;background:#fff;border-radius:10px 10px 0 0;padding:12px 14px;display:flex;gap:10px;align-items:end;flex-wrap:wrap;border-bottom:1px solid var(--line)}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;font-weight:700;color:#64748b}.field input,.field select{height:35px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;padding:0 10px;min-width:145px;color:#26354d}.field.search{flex:1;min-width:220px}.field.search input{width:100%}
+    .date-range{display:flex;align-items:center;gap:4px}.date-range input,.date-range select{height:35px;border:1px solid #cbd5e1;border-radius:6px;padding:0 7px;background:#fff;color:#1f2937;font-size:12.5px}#dateFrom,#dateTo{width:128px;min-width:0}.date-range span{color:#64748b}#datePreset{width:100px;min-width:0;color:#475569}#statusFilter{width:128px;min-width:0}.toolbar .field.search{min-width:170px}
     .cat-btns{display:flex;gap:4px;height:35px}.cat-btn{height:35px;padding:0 11px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px;font-weight:700;white-space:nowrap}.cat-btn:hover{background:#f8fafc}.cat-btn small{font-weight:600;color:#94a3b8;margin-left:4px}.cat-btn.on{background:#2f6ac6;border-color:#2f6ac6;color:#fff}.cat-btn.on small{color:#dbeafe}
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
     .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px}.notice.show{display:block}
@@ -170,7 +171,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     </section>
     <section class="panel table-panel">
       <div class="toolbar">
-        <div class="field"><label for="dateFilter">출고일자</label><select id="dateFilter"><option value="">전체 일자</option></select></div>
+        <div class="field"><label for="dateFrom">출고일자 기간</label><div class="date-range"><input type="date" id="dateFrom" title="시작일"><span>~</span><input type="date" id="dateTo" title="종료일"><select id="datePreset" title="빠른 선택"><option value="">빠른 선택</option><option value="last">마지막 출고일</option><option value="today">오늘</option><option value="7">최근 7일</option><option value="month">이번 달</option><option value="prev">지난 달</option><option value="all">전체 기간</option></select></div></div>
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 개별번호 검색"></div>
         <label class="toggle"><input type="checkbox" id="missingOnly"> 자동 부여 행만</label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div>
@@ -196,7 +197,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
      · 중복 제외·S번호 자동 부여는 서버가 잠금을 걸고 처리 → 여러 PC가 동시에 올려도 번호가 겹치지 않음
    - 비밀키는 공개 저장소에 넣지 않음 — 같은 브라우저의 매출분석·견적기 설정에서 찾거나 처음 한 번 입력
    ═══════════════════════════════════════════════════════════ */
-var SM_VER='v2';
+var SM_VER='v3';
 var AU_URL_DEFAULT='https://script.google.com/macros/s/AKfycbxSlND4ZKOpxISNQMRdV2d-LA5YxXS1BDe0k2TXKq6g7Tfm6PZ1Rse3mp0Nm4ndZXZdiQ/exec';
 var AU_KEY_DEFAULT='';
 var AU_ROLE={admin:'관리자',uploader:'업로더',user:'일반'};
@@ -360,7 +361,7 @@ const ALIASES={
 
 function emptyDb(){return {ship:new Map(),order:new Map(),upload:new Map(),rev:0,counter:0}}
 const state={db:emptyDb(),rows:[],viewRows:[],rendered:0,sort:{key:'출고일자',dir:'asc'},showPrice:false,
-  filters:{date:'',status:'',search:'',missingOnly:false,cat:''},selected:{ship:new Set(),order:new Set()},
+  filters:{from:'',to:'',status:'',search:'',missingOnly:false,cat:''},selected:{ship:new Set(),order:new Set()},
   cfg:{auto:true},sync:{busy:false,last:null,error:''},firstView:true};
 function isRemote(){return true}
 
@@ -556,7 +557,7 @@ async function addFiles(kind,files){
       const added=res?res.added.order:0,changed=res?(res.orderUpdated||0):0;msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(changed?` · 비고 변경 ${changed.toLocaleString()}건 갱신`:'')+(recs.length-added-changed?` · 이미 저장된 ${(recs.length-added-changed).toLocaleString()}건 제외`:''));
     }
   }
-  if(latest){state.filters.date=latest;rebuildView()}
+  if(latest){state.filters.from=latest;state.filters.to=latest;rebuildView()}
   showInfo(msgs.join('\n'));
 }
 
@@ -580,20 +581,20 @@ function catOfShip(s){const n=String(s.n||''),p=String(s.p||'');
   return '부자재'}
 /* 버튼 숫자 = 지금 일자·상태·검색 조건에서 구분별 행 수 */
 function renderCatBtns(){const f=state.filters,cnt={};const q=norm(f.search);
-  state.rows.forEach(r=>{if(f.date&&r['출고일자']!==f.date)return;if(f.status&&r.__status!==f.status)return;if(f.missingOnly&&r.__status!=='auto')return;
+  state.rows.forEach(r=>{if(!inDateRange(r['출고일자']))return;if(f.status&&r.__status!==f.status)return;if(f.missingOnly&&r.__status!=='auto')return;
     if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','개별번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return;cnt[r.__cat]=(cnt[r.__cat]||0)+1});
   document.querySelectorAll('#catBtns .cat-btn').forEach(b=>{const c=b.dataset.cat,on=f.cat===c;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));b.innerHTML=`${c}<small>${(cnt[c]||0).toLocaleString()}</small>`;b.title=on?'다시 누르면 전체 구분 표시':`${c}만 표시`})}
 document.getElementById('catBtns').addEventListener('click',e=>{const b=e.target.closest('.cat-btn');if(!b)return;state.filters.cat=state.filters.cat===b.dataset.cat?'':b.dataset.cat;renderTable()});
 function rowKey(r){return r.__k}
 function rebuildView(keep=false){
   const rows=[];let i=0;state.db.ship.forEach(s=>rows.push(viewRow(s,i++)));state.rows=rows;
-  if(state.firstView&&rows.length){state.firstView=false;if(rows.length>1500&&!state.filters.date){state.filters.date=rows.reduce((m,r)=>r['출고일자']>m?r['출고일자']:m,'')}}
+  if(state.firstView&&rows.length){state.firstView=false;if(rows.length>1500&&!state.filters.from&&!state.filters.to){const l=rows.reduce((m,r)=>r['출고일자']>m?r['출고일자']:m,'');state.filters.from=l;state.filters.to=l}}
   renderAll(keep);
 }
 function getDisplayValue(row,key){if(key==='개별번호')return row.__code||'';if(key==='매칭상태')return row.__statusText||'';if(key==='비고(내역)')return row.__remark??row[key]??'';if(key==='출고일자')return dateDisplay(row[key]);return row[key]??''}
 function visibleRows(){
   const q=norm(state.filters.search);let rows=state.rows.filter(r=>{
-    if(state.filters.date&&r['출고일자']!==state.filters.date)return false;
+    if(!inDateRange(r['출고일자']))return false;
     if(state.filters.status&&r.__status!==state.filters.status)return false;
     if(state.filters.missingOnly&&r.__status!=='auto')return false;
     if(state.filters.cat&&r.__cat!==state.filters.cat)return false;
@@ -664,8 +665,16 @@ function renderSummary(){
   renderPeriod('ship',[...state.db.ship.values()].map(s=>s.d));renderPeriod('order',[...state.db.order.values()].map(o=>o.od));renderFileLists();
 }
 function renderPeriod(kind,list){const dates=[...new Set(list.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||'')))].sort();const v=document.getElementById(kind+'Period'),s=document.getElementById(kind+'PeriodDays');if(!dates.length){v.textContent='—';s.textContent=kind==='ship'?'출고일자 기준':'주문일자 기준';return}const a=dates[0],b=dates[dates.length-1];v.textContent=a===b?dateDisplay(a):`${dateDisplay(a)} ~ ${dateDisplay(b)}`;const days=Math.round((new Date(b)-new Date(a))/86400000)+1;s.textContent=`${days}일 · ${dates.length}개 일자`}
-function renderDates(){const sel=document.getElementById('dateFilter'),current=state.filters.date;const dates=[...new Set(state.rows.map(r=>r['출고일자']).filter(Boolean))].sort().reverse();sel.innerHTML='<option value="">전체 일자</option>'+dates.map(d=>`<option value="${escapeHtml(d)}">${escapeHtml(dateDisplay(d))}</option>`).join('');sel.value=dates.includes(current)?current:'';state.filters.date=sel.value}
-function renderNotice(){const n=document.getElementById('notice');const rows=state.rows.filter(r=>!state.filters.date||r['출고일자']===state.filters.date);const check=rows.filter(r=>r.__status==='auto'&&r.__reason==='내용 확인 필요').length,noCode=rows.filter(r=>r.__status==='auto'&&r.__reason==='주문 개별번호 없음').length,autoN=rows.filter(r=>r.__status==='auto').length;const parts=[];if(check)parts.push(`동일 수주번호에서 내용 일치 여부를 확인할 행 ${check}건`);if(noCode)parts.push(`주문현황 비고에 개별번호가 없는 행 ${noCode}건`);if(autoN)parts.push(`개별번호를 자동 부여한 행 ${autoN}건 (개별번호 칸을 눌러 수정)`);const re=rows.filter(r=>r.__status==='auto'&&/다시 부여/.test(r.__reason)).length;if(re)parts.push(`주문현황 번호와 겹쳐 자동 번호를 새로 바꾼 행 ${re}건 (매칭상태에 마우스를 올리면 이전 번호 표시)`);n.textContent=parts.join(' · ');n.classList.toggle('show',parts.length>0)}
+/* 출고일자 기간 (시작일~종료일, 한쪽만 넣어도 됨). 날짜는 YYYY-MM-DD 글자라 크기 비교로 충분 */
+function inDateRange(d){const f=state.filters;if(!f.from&&!f.to)return true;d=String(d||'');if(!d)return false;if(f.from&&d<f.from)return false;if(f.to&&d>f.to)return false;return true}
+function ymd(x){return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
+function renderDates(){const fr=document.getElementById('dateFrom'),to=document.getElementById('dateTo');const ds=state.rows.map(r=>r['출고일자']).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+  const lo=ds[0]||'',hi=ds[ds.length-1]||'';[fr,to].forEach(i=>{i.min=lo;i.max=hi});
+  if(state.filters.from&&state.filters.to&&state.filters.from>state.filters.to){const t=state.filters.from;state.filters.from=state.filters.to;state.filters.to=t}
+  fr.value=state.filters.from||'';to.value=state.filters.to||'';document.getElementById('datePreset').value=''}
+function setDateRange(from,to){state.filters.from=from||'';state.filters.to=to||'';renderDates();renderNotice();renderTable()}
+
+function renderNotice(){const n=document.getElementById('notice');const rows=state.rows.filter(r=>inDateRange(r['출고일자']));const check=rows.filter(r=>r.__status==='auto'&&r.__reason==='내용 확인 필요').length,noCode=rows.filter(r=>r.__status==='auto'&&r.__reason==='주문 개별번호 없음').length,autoN=rows.filter(r=>r.__status==='auto').length;const parts=[];if(check)parts.push(`동일 수주번호에서 내용 일치 여부를 확인할 행 ${check}건`);if(noCode)parts.push(`주문현황 비고에 개별번호가 없는 행 ${noCode}건`);if(autoN)parts.push(`개별번호를 자동 부여한 행 ${autoN}건 (개별번호 칸을 눌러 수정)`);const re=rows.filter(r=>r.__status==='auto'&&/다시 부여/.test(r.__reason)).length;if(re)parts.push(`주문현황 번호와 겹쳐 자동 번호를 새로 바꾼 행 ${re}건 (매칭상태에 마우스를 올리면 이전 번호 표시)`);n.textContent=parts.join(' · ');n.classList.toggle('show',parts.length>0)}
 function renderAll(keep=false){renderSummary();renderDates();renderNotice();renderTable(keep)}
 function showError(msg){const n=document.getElementById('notice');n.textContent=msg;n.classList.add('show');console.error(msg)}
 let infoTimer=null;
@@ -714,13 +723,20 @@ bindDrop(document.getElementById('shipDrop'),document.getElementById('shipInput'
 bindDrop(document.getElementById('orderDrop'),document.getElementById('orderInput'),async files=>{if(!files.length)return;try{await addFiles('order',files)}catch(e){showError(e.message)}});
 document.getElementById('deleteShipSelectedBtn').onclick=()=>hideUploads([...state.selected.ship]);document.getElementById('deleteOrderSelectedBtn').onclick=()=>hideUploads([...state.selected.order]);
 document.getElementById('clearShipBtn').onclick=()=>hideUploads(uploadsOf('ship').map(u=>u.id));document.getElementById('clearOrderBtn').onclick=()=>hideUploads(uploadsOf('order').map(u=>u.id));
-document.getElementById('resetBtn').onclick=()=>{state.filters={date:'',status:'',search:'',missingOnly:false,cat:''};state.sort={key:'출고일자',dir:'asc'};document.getElementById('searchInput').value='';document.getElementById('statusFilter').value='';document.getElementById('missingOnly').checked=false;document.getElementById('notice').classList.remove('show');showInfo('');renderAll()};
+document.getElementById('resetBtn').onclick=()=>{state.filters={from:'',to:'',status:'',search:'',missingOnly:false,cat:''};state.sort={key:'출고일자',dir:'asc'};document.getElementById('searchInput').value='';document.getElementById('statusFilter').value='';document.getElementById('missingOnly').checked=false;document.getElementById('notice').classList.remove('show');showInfo('');renderAll()};
 document.getElementById('exportBtn').onclick=exportExcel;
 document.getElementById('syncBtn').onclick=()=>{if(auValid())sync();else auShowGate()};
 {const wrap=document.getElementById('tableWrap'),hs=document.getElementById('hScroll'),hw=document.getElementById('headWrap');wrap.addEventListener('scroll',()=>{hw.scrollLeft=wrap.scrollLeft;if(hs.scrollLeft!==wrap.scrollLeft)hs.scrollLeft=wrap.scrollLeft});hs.addEventListener('scroll',()=>{if(wrap.scrollLeft!==hs.scrollLeft)wrap.scrollLeft=hs.scrollLeft});hw.addEventListener('wheel',e=>{if(e.deltaX){wrap.scrollLeft+=e.deltaX}},{passive:true});window.addEventListener('resize',()=>requestAnimationFrame(syncHead));if(document.fonts)document.fonts.ready.then(syncHead)}
 new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)&&state.rendered<state.viewRows.length)renderMore()},{rootMargin:'800px 0px'}).observe(document.getElementById('moreRows'));
 document.getElementById('priceToggle').onclick=e=>{state.showPrice=!state.showPrice;if(!state.showPrice&&PRICE_HEADERS.includes(state.sort.key))state.sort={key:'출고일자',dir:'asc'};e.currentTarget.setAttribute('aria-pressed',String(state.showPrice));e.currentTarget.textContent=state.showPrice?'공급가 숨기기':'공급가 보기';renderTable(true)};
-document.getElementById('dateFilter').onchange=e=>{state.filters.date=e.target.value;renderNotice();renderTable()};document.getElementById('statusFilter').onchange=e=>{state.filters.status=e.target.value;renderTable()};document.getElementById('missingOnly').onchange=e=>{state.filters.missingOnly=e.target.checked;renderTable()};let searchTimer;document.getElementById('searchInput').oninput=e=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{state.filters.search=e.target.value;renderTable()},150)};
+document.getElementById('dateFrom').onchange=e=>setDateRange(e.target.value,state.filters.to);document.getElementById('dateTo').onchange=e=>setDateRange(state.filters.from,e.target.value);
+document.getElementById('datePreset').onchange=e=>{const v=e.target.value,n=new Date();if(!v)return;
+  if(v==='all')return setDateRange('','');
+  if(v==='last'){const l=state.rows.reduce((m,r)=>r['출고일자']>m?r['출고일자']:m,'');return setDateRange(l,l)}
+  if(v==='today'){const t=ymd(n);return setDateRange(t,t)}
+  if(v==='7'){const a=new Date(n);a.setDate(a.getDate()-6);return setDateRange(ymd(a),ymd(n))}
+  if(v==='month')return setDateRange(ymd(new Date(n.getFullYear(),n.getMonth(),1)),ymd(new Date(n.getFullYear(),n.getMonth()+1,0)));
+  if(v==='prev')return setDateRange(ymd(new Date(n.getFullYear(),n.getMonth()-1,1)),ymd(new Date(n.getFullYear(),n.getMonth(),0)));};document.getElementById('statusFilter').onchange=e=>{state.filters.status=e.target.value;renderTable()};document.getElementById('missingOnly').onchange=e=>{state.filters.missingOnly=e.target.checked;renderTable()};let searchTimer;document.getElementById('searchInput').oninput=e=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{state.filters.search=e.target.value;renderTable()},150)};
 
 /* ───────── 시작 · 자동 동기화 ───────── */
 let pollTimer=null;
