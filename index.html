@@ -20,6 +20,7 @@
     .rule-card h2{font-size:14px;margin:0 0 8px;color:#254a80}.rule-list{margin:0;padding-left:18px;color:#4b5d75;font-size:12px;line-height:1.7}
     .summary{display:grid;grid-template-columns:repeat(2,minmax(200px,1.4fr)) repeat(4,minmax(120px,1fr));gap:10px;margin-bottom:14px}.metric{padding:14px 16px}.metric .label{font-size:12px;color:var(--muted);margin-bottom:4px}.metric .value{font-size:25px;font-weight:800;color:#1d2b44}.metric.ok .value{color:var(--ok)}.metric.bad .value{color:var(--bad)}.metric .sub{font-size:11px;color:#94a3b8;margin-top:3px}.metric.period .value{font-size:18px;line-height:30px;white-space:nowrap}
     .table-panel{overflow:visible}.toolbar{position:sticky;top:0;z-index:20;background:#fff;border-radius:10px 10px 0 0;padding:12px 14px;display:flex;gap:10px;align-items:end;flex-wrap:wrap;border-bottom:1px solid var(--line)}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;font-weight:700;color:#64748b}.field input,.field select{height:35px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;padding:0 10px;min-width:145px;color:#26354d}.field.search{flex:1;min-width:220px}.field.search input{width:100%}
+    .cat-btns{display:flex;gap:4px;height:35px}.cat-btn{height:35px;padding:0 11px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px;font-weight:700;white-space:nowrap}.cat-btn:hover{background:#f8fafc}.cat-btn small{font-weight:600;color:#94a3b8;margin-left:4px}.cat-btn.on{background:#2f6ac6;border-color:#2f6ac6;color:#fff}.cat-btn.on small{color:#dbeafe}
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
     .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px}.notice.show{display:block}
     .table-wrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;position:relative}.table-wrap::-webkit-scrollbar{display:none}#dataTable thead{visibility:hidden}.head-wrap{position:sticky;top:var(--tb-h,60px);z-index:15;overflow:hidden;background:#59636f}.head-clone{table-layout:fixed;width:auto}.data-table.head-clone th{position:static}.hscroll{position:sticky;bottom:0;z-index:15;overflow-x:auto;overflow-y:hidden;background:#f1f5f9;border-top:1px solid var(--line)}.hscroll>div{height:1px}.data-table{width:100%;border-collapse:separate;border-spacing:0;white-space:nowrap;font-size:12px}.data-table th{position:sticky;top:0;z-index:3;background:#59636f;color:#fff;border-right:1px solid #7a838d;border-bottom:1px solid #414a54;padding:0;text-align:center;height:38px}.data-table th button{width:100%;height:100%;border:0;background:transparent;color:inherit;font-weight:700;padding:0 22px 0 9px;position:relative;white-space:nowrap}.data-table th button:hover{background:#49535f}.sort-icon{position:absolute;right:7px;color:#dbe1e7}.data-table td{height:31px;padding:5px 8px;border-right:1px solid #e1e5ea;border-bottom:1px solid #e3e7eb;background:#fff;max-width:330px;overflow:hidden;text-overflow:ellipsis}.data-table tr:nth-child(even) td{background:#fafbfc}.data-table tr:hover td{background:#eef5ff}.data-table tr.missing td{background:#fff8f7}.data-table tr.missing:hover td{background:#ffefed}.data-table td.remark{max-width:none;overflow:visible}.data-table td.code-cell{padding:3px 5px}.code-input{width:84px;height:24px;border:1px solid transparent;border-radius:4px;background:transparent;color:#1f2937;font-weight:700;font-size:12px;text-align:center;padding:0 4px;cursor:text}.code-input:hover{border-color:#cbd5e1}.code-input:focus{outline:none;border-color:#2f6ac6;background:#fff;color:#1f2937;box-shadow:0 0 0 2px #2f6ac633}.code-input.auto{background:#ffe7c2;color:#ad5a00;font-weight:800}.code-text{font-weight:700;color:#1f2937}tr.flash td{animation:flash 1.2s ease-out}@keyframes flash{from{background:#bfdbfe}}.badge.manual{color:#1d4ed8;background:#dbeafe}.num{text-align:right;font-variant-numeric:tabular-nums}.center{text-align:center}.code{color:#b42318;font-weight:800;background:#fff1a8;padding:1px 3px;border-radius:2px}.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700}.badge.ok{color:var(--ok);background:var(--okbg)}.badge.warn{color:var(--warn);background:var(--warnbg)}.badge.bad{color:var(--bad);background:var(--badbg)}
@@ -172,7 +173,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field"><label for="dateFilter">출고일자</label><select id="dateFilter"><option value="">전체 일자</option></select></div>
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 개별번호 검색"></div>
-        <label class="toggle"><input type="checkbox" id="missingOnly"> 자동 부여 행만</label>
+        <label class="toggle"><input type="checkbox" id="missingOnly"> 자동 부여 행만</label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div>
         <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small price-toggle" id="priceToggle" aria-pressed="false">공급가 보기</button>
       </div>
       <div class="head-wrap" id="headWrap"><table class="data-table head-clone" id="headClone"><thead><tr id="headCloneRow"></tr></thead></table></div>
@@ -195,7 +196,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
      · 중복 제외·S번호 자동 부여는 서버가 잠금을 걸고 처리 → 여러 PC가 동시에 올려도 번호가 겹치지 않음
    - 비밀키는 공개 저장소에 넣지 않음 — 같은 브라우저의 매출분석·견적기 설정에서 찾거나 처음 한 번 입력
    ═══════════════════════════════════════════════════════════ */
-var SM_VER='v1';
+var SM_VER='v2';
 var AU_URL_DEFAULT='https://script.google.com/macros/s/AKfycbxSlND4ZKOpxISNQMRdV2d-LA5YxXS1BDe0k2TXKq6g7Tfm6PZ1Rse3mp0Nm4ndZXZdiQ/exec';
 var AU_KEY_DEFAULT='';
 var AU_ROLE={admin:'관리자',uploader:'업로더',user:'일반'};
@@ -359,7 +360,7 @@ const ALIASES={
 
 function emptyDb(){return {ship:new Map(),order:new Map(),upload:new Map(),rev:0,counter:0}}
 const state={db:emptyDb(),rows:[],viewRows:[],rendered:0,sort:{key:'출고일자',dir:'asc'},showPrice:false,
-  filters:{date:'',status:'',search:'',missingOnly:false},selected:{ship:new Set(),order:new Set()},
+  filters:{date:'',status:'',search:'',missingOnly:false,cat:''},selected:{ship:new Set(),order:new Set()},
   cfg:{auto:true},sync:{busy:false,last:null,error:''},firstView:true};
 function isRemote(){return true}
 
@@ -564,8 +565,25 @@ function viewRow(s,i){
   const st=s.st||'auto',status=(st==='existing'||st==='matched')?'matched':st;let remark=s.r;
   if(st==='matched')remark=appendCode(s.r,s.code);else if(st==='auto')remark=s.code?setRemarkCode(s.r,'',s.code):s.r;else if(st==='manual')remark=setRemarkCode(s.r,extractCode(s.r),s.code);
   return {'출고일자':s.d,'주문번호':s.o,'고객':s.c,'품번':s.p,'품명':s.n,'규격':s.s,'비고(내역)':s.r,'단위':s.u,'출고수량':s.q,'단가':s.up,'공급가':s.a,'부가세':s.v,'합계액':s.t,'납품처':s.dl,
-    __k:s.k,__index:i,__code:s.code||'',__status:status,__statusText:STATUS_TEXT[st]||'자동 부여',__reason:s.rs||'',__remark:remark,__autoCode:s.ac||'',__who:[s.by&&`등록 ${s.by} ${fmtDateTime(s.at)}`,s.mby&&`수정 ${s.mby} ${fmtDateTime(s.mat)}`].filter(Boolean).join(' · ')};
+    __k:s.k,__index:i,__cat:catOfShip(s),__code:s.code||'',__status:status,__statusText:STATUS_TEXT[st]||'자동 부여',__reason:s.rs||'',__remark:remark,__autoCode:s.ac||'',__who:[s.by&&`등록 ${s.by} ${fmtDateTime(s.at)}`,s.mby&&`수정 ${s.mby} ${fmtDateTime(s.mat)}`].filter(Boolean).join(' · ')};
 }
+
+/* ───────── 품목 구분 (매출분석도구와 같은 기준) ─────────
+   레이저 : 품명에 (L)·[L]·LASER·레이저·임가공  → 가장 먼저 판정
+   유통/OEM : 품번이 _G 로 끝남
+   내부보강 : 품명에 상하보강·이너프레임·INNER FRAME
+   부자재 : 나머지 전부 */
+function catOfShip(s){const n=String(s.n||''),p=String(s.p||'');
+  if(/[(（\[]\s*L\s*[)）\]]/i.test(n)||/LASER/i.test(n)||n.includes('레이저')||n.includes('임가공'))return '레이저';
+  if(/_G$/i.test(p.trim()))return '유통/OEM';
+  if(/상하\s*보강|이너\s*프레임|INNER\s*FRAME/i.test(n))return '내부보강';
+  return '부자재'}
+/* 버튼 숫자 = 지금 일자·상태·검색 조건에서 구분별 행 수 */
+function renderCatBtns(){const f=state.filters,cnt={};const q=norm(f.search);
+  state.rows.forEach(r=>{if(f.date&&r['출고일자']!==f.date)return;if(f.status&&r.__status!==f.status)return;if(f.missingOnly&&r.__status!=='auto')return;
+    if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','개별번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return;cnt[r.__cat]=(cnt[r.__cat]||0)+1});
+  document.querySelectorAll('#catBtns .cat-btn').forEach(b=>{const c=b.dataset.cat,on=f.cat===c;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));b.innerHTML=`${c}<small>${(cnt[c]||0).toLocaleString()}</small>`;b.title=on?'다시 누르면 전체 구분 표시':`${c}만 표시`})}
+document.getElementById('catBtns').addEventListener('click',e=>{const b=e.target.closest('.cat-btn');if(!b)return;state.filters.cat=state.filters.cat===b.dataset.cat?'':b.dataset.cat;renderTable()});
 function rowKey(r){return r.__k}
 function rebuildView(keep=false){
   const rows=[];let i=0;state.db.ship.forEach(s=>rows.push(viewRow(s,i++)));state.rows=rows;
@@ -578,6 +596,7 @@ function visibleRows(){
     if(state.filters.date&&r['출고일자']!==state.filters.date)return false;
     if(state.filters.status&&r.__status!==state.filters.status)return false;
     if(state.filters.missingOnly&&r.__status!=='auto')return false;
+    if(state.filters.cat&&r.__cat!==state.filters.cat)return false;
     if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','개별번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return false;return true;
   });
   const {key,dir}=state.sort;rows=[...rows].sort((a,b)=>{let av=key==='출고일자'?a[key]:getDisplayValue(a,key),bv=key==='출고일자'?b[key]:getDisplayValue(b,key);const an=num(av),bn=num(bv);let c=(an!==null&&bn!==null)?an-bn:String(av).localeCompare(String(bv),'ko',{numeric:true,sensitivity:'base'});if(c===0)c=a.__index-b.__index;return dir==='asc'?c:-c});return rows;
@@ -609,7 +628,7 @@ function buildRow(row){
 }
 function renderTable(keep=false){
   requestAnimationFrame(syncHead);renderHeader();const prev=state.rendered;state.viewRows=visibleRows();state.rendered=0;
-  const body=document.getElementById('tableBody'),empty=document.getElementById('emptyState');body.innerHTML='';document.getElementById('resultCount').textContent=`${state.viewRows.length.toLocaleString()}건 표시`;
+  const body=document.getElementById('tableBody'),empty=document.getElementById('emptyState');body.innerHTML='';document.getElementById('resultCount').textContent=`${state.viewRows.length.toLocaleString()}건 표시`;renderCatBtns();
   if(!state.viewRows.length){document.getElementById('dataTable').style.display='none';document.getElementById('moreRows').style.display='none';empty.style.display='block';empty.innerHTML=`<strong>${state.rows.length?'조건에 맞는 행이 없습니다.':'저장된 출고현황이 없습니다.'}</strong>${state.rows.length?'필터나 검색어를 변경해 주세요.':'출고현황 XLS 또는 XLSX 파일을 올리면 계속 누적 저장됩니다.'}`;return}
   document.getElementById('dataTable').style.display='table';empty.style.display='none';renderMore(keep?Math.max(prev,CHUNK):CHUNK);
 }
@@ -695,7 +714,7 @@ bindDrop(document.getElementById('shipDrop'),document.getElementById('shipInput'
 bindDrop(document.getElementById('orderDrop'),document.getElementById('orderInput'),async files=>{if(!files.length)return;try{await addFiles('order',files)}catch(e){showError(e.message)}});
 document.getElementById('deleteShipSelectedBtn').onclick=()=>hideUploads([...state.selected.ship]);document.getElementById('deleteOrderSelectedBtn').onclick=()=>hideUploads([...state.selected.order]);
 document.getElementById('clearShipBtn').onclick=()=>hideUploads(uploadsOf('ship').map(u=>u.id));document.getElementById('clearOrderBtn').onclick=()=>hideUploads(uploadsOf('order').map(u=>u.id));
-document.getElementById('resetBtn').onclick=()=>{state.filters={date:'',status:'',search:'',missingOnly:false};state.sort={key:'출고일자',dir:'asc'};document.getElementById('searchInput').value='';document.getElementById('statusFilter').value='';document.getElementById('missingOnly').checked=false;document.getElementById('notice').classList.remove('show');showInfo('');renderAll()};
+document.getElementById('resetBtn').onclick=()=>{state.filters={date:'',status:'',search:'',missingOnly:false,cat:''};state.sort={key:'출고일자',dir:'asc'};document.getElementById('searchInput').value='';document.getElementById('statusFilter').value='';document.getElementById('missingOnly').checked=false;document.getElementById('notice').classList.remove('show');showInfo('');renderAll()};
 document.getElementById('exportBtn').onclick=exportExcel;
 document.getElementById('syncBtn').onclick=()=>{if(auValid())sync();else auShowGate()};
 {const wrap=document.getElementById('tableWrap'),hs=document.getElementById('hScroll'),hw=document.getElementById('headWrap');wrap.addEventListener('scroll',()=>{hw.scrollLeft=wrap.scrollLeft;if(hs.scrollLeft!==wrap.scrollLeft)hs.scrollLeft=wrap.scrollLeft});hs.addEventListener('scroll',()=>{if(wrap.scrollLeft!==hs.scrollLeft)wrap.scrollLeft=hs.scrollLeft});hw.addEventListener('wheel',e=>{if(e.deltaX){wrap.scrollLeft+=e.deltaX}},{passive:true});window.addEventListener('resize',()=>requestAnimationFrame(syncHead));if(document.fonts)document.fonts.ready.then(syncHead)}
