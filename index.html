@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v10">
+  <meta name="sm-ver" content="v11">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 개별번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -36,7 +36,7 @@
     .last-s{height:35px;display:flex;align-items:center;gap:5px;padding:0 8px;border:1px dashed #94a3b8;border-radius:6px;background:#f8fafc;color:#475569;font-size:12px;white-space:nowrap}.last-s b{color:#ad5a00;font-size:13px;font-variant-numeric:tabular-nums}.last-s{cursor:pointer;font:inherit;font-size:12px}.last-s:hover{border-color:#2f6ac6;background:#eef4ff}.last-s .ls-edit{color:#94a3b8;font-size:11px}.last-s.manual{border-style:solid;border-color:#f59e0b;background:#fffbeb}
     .cat-btns{display:flex;gap:4px;height:35px}.cat-btn{height:35px;padding:0 9px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px;font-weight:700;white-space:nowrap}.cat-btn:hover{background:#f8fafc}.cat-btn small{font-weight:600;color:#94a3b8;margin-left:4px}.cat-btn.on{background:#2f6ac6;border-color:#2f6ac6;color:#fff}.cat-btn.on small{color:#dbeafe}
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
-    .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px}.notice.show{display:block}
+    .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px;white-space:pre-line}.notice.show{display:block}
     .table-wrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;position:relative}.table-wrap::-webkit-scrollbar{display:none}#dataTable thead{visibility:hidden}.head-wrap{position:sticky;top:var(--tb-h,60px);z-index:15;overflow:hidden;background:#59636f}.head-clone{table-layout:fixed;width:auto}.data-table.head-clone th{position:static}.hscroll{position:sticky;bottom:0;z-index:15;overflow-x:auto;overflow-y:hidden;background:#f1f5f9;border-top:1px solid var(--line)}.hscroll>div{height:1px}.data-table{width:100%;border-collapse:separate;border-spacing:0;white-space:nowrap;font-size:12px}.data-table th{position:sticky;top:0;z-index:3;background:#59636f;color:#fff;border-right:1px solid #7a838d;border-bottom:1px solid #414a54;padding:0;text-align:center;height:38px}.data-table th button{width:100%;height:100%;border:0;background:transparent;color:inherit;font-weight:700;padding:0 22px 0 9px;position:relative;white-space:nowrap}.data-table th button:hover{background:#49535f}.sort-icon{position:absolute;right:7px;color:#dbe1e7}.data-table td{height:31px;padding:5px 8px;border-right:1px solid #e1e5ea;border-bottom:1px solid #e3e7eb;background:#fff;max-width:330px;overflow:hidden;text-overflow:ellipsis}.data-table tr:nth-child(even) td{background:#fafbfc}.data-table tr:hover td{background:#eef5ff}.data-table tr.missing td{background:#fff8f7}.data-table tr.missing:hover td{background:#ffefed}.data-table td.remark{max-width:none;overflow:visible}.data-table td.code-cell{padding:3px 5px}.code-input{width:84px;height:24px;border:1px solid transparent;border-radius:4px;background:transparent;color:#1f2937;font-weight:700;font-size:12px;text-align:center;padding:0 4px;cursor:text}.code-input:hover{border-color:#cbd5e1}.code-input:focus{outline:none;border-color:#2f6ac6;background:#fff;color:#1f2937;box-shadow:0 0 0 2px #2f6ac633}.code-input.auto{background:#ffe7c2;color:#ad5a00;font-weight:800}.code-text{font-weight:700;color:#1f2937}tr.flash td{animation:flash 1.2s ease-out}@keyframes flash{from{background:#bfdbfe}}.badge.manual{color:#1d4ed8;background:#dbeafe}.num{text-align:right;font-variant-numeric:tabular-nums}.center{text-align:center}.code{color:#b42318;font-weight:800;background:#fff1a8;padding:1px 3px;border-radius:2px}.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700}.badge.ok{color:var(--ok);background:var(--okbg)}.badge.warn{color:var(--warn);background:var(--warnbg)}.badge.bad{color:var(--bad);background:var(--badbg)}
     .empty{padding:65px 20px;text-align:center;color:#64748b}.empty strong{display:block;color:#334155;margin-bottom:8px}.footer-note{padding:10px 14px;border-top:1px solid var(--line);font-size:11px;color:#7b8798;background:#fafbfc}
     input[type=file]{display:none}
@@ -578,7 +578,11 @@ async function addFiles(kind,files){
       for(let ci=0;ci<nc;ci++){const part=fresh.slice(ci*SHIP_CHUNK,(ci+1)*SHIP_CHUNK),last=ci===nc-1;
         if(last)up.added=added+part.length;
         g.set(at(20+75*ci/nc),lab+(nc>1?`서버에 저장 중 (${ci+1}/${nc})`:'서버에 저장 중'));g.creep(at(20+75*(ci+1)/nc-1));
-        const res=await sync({payload:{ship:part,upload:last?up:null,seedMax:Math.max(parsed.maxS,maxSInDb())}});added+=res?res.added.ship:0}msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(recs.length-added?` · 이미 저장된 ${(recs.length-added).toLocaleString()}건 제외`:''));
+        let res=null,tries=0;
+        // 실패하면 3초 뒤 두 번까지 다시 시도 (이미 저장된 행은 서버가 중복으로 빼므로 다시 보내도 안전)
+        while(true){try{res=await sync({payload:{ship:part,upload:last?up:null,seedMax:Math.max(parsed.maxS,maxSInDb())}});break}
+          catch(e){if(++tries>2)throw e;g.set(at(20+75*ci/nc),lab+`다시 시도 ${tries}/2 …`);await new Promise(r=>setTimeout(r,3000))}}
+        added+=res?res.added.ship:0}msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(recs.length-added?` · 이미 저장된 ${(recs.length-added).toLocaleString()}건 제외`:''));
       recs.forEach(s=>{if(s.d>latest)latest=s.d});
     }else{
       if(!parsed.headers.includes('주문번호'))throw new Error(`${file.name}: 주문번호 헤더를 찾지 못했습니다.`);
@@ -591,7 +595,7 @@ async function addFiles(kind,files){
     g.set(at(100));
   }
   g.done((nf>1?`${nf}개 파일 · `:'')+fmtTime(new Date())+' 업로드');
-  }catch(e){g.fail('실패');throw e}
+  }catch(e){g.fail('실패 — 같은 파일을 다시 올리면 이어서 저장');e.message=(e.message||String(e))+'\n→ 같은 파일을 다시 올리면 이미 저장된 행은 빼고 나머지만 저장됩니다. 계속 실패하면 이 문구를 캡처해 알려 주세요.';throw e}
   if(latest){state.filters.from=latest;state.filters.to=latest;rebuildView()}
   showInfo(msgs.join('\n'));
 }
