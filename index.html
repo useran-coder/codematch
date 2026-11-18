@@ -27,7 +27,7 @@
     .file-actions:has(.up-gauge:not([hidden])){flex-wrap:nowrap}.up-gauge{display:flex;flex-wrap:wrap;align-items:center;column-gap:5px;row-gap:1px;flex:1;min-width:90px;min-height:29px}.up-gauge[hidden]{display:none}
     .ug-bar{flex:1;height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden;min-width:60px}.ug-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3b82f6,#2f6ac6);border-radius:999px;transition:width .25s ease}
     .up-gauge.done .ug-bar i{background:#087a55}.up-gauge.err .ug-bar i{background:#b42318}
-    .ug-pct{font-size:12px;color:#1d2b44;min-width:36px;text-align:right;font-variant-numeric:tabular-nums}.ug-txt{flex-basis:100%;font-size:10.5px;line-height:1.2;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .up-gauge.done .ug-pct{color:#087a55}.up-gauge.err .ug-pct{color:#b42318}.ug-pct{font-size:12px;color:#1d2b44;min-width:36px;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}.ug-txt{flex-basis:100%;font-size:10.5px;line-height:1.2;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .del-toggle{height:35px}#resetBtn:hover{background:#b42318;border-color:#b42318;color:#fff}
     .cat-btns{display:flex;gap:4px;height:35px}.cat-btn{height:35px;padding:0 11px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px;font-weight:700;white-space:nowrap}.cat-btn:hover{background:#f8fafc}.cat-btn small{font-weight:600;color:#94a3b8;margin-left:4px}.cat-btn.on{background:#2f6ac6;border-color:#2f6ac6;color:#fff}.cat-btn.on small{color:#dbeafe}
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
@@ -206,7 +206,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
      · 중복 제외·S번호 자동 부여는 서버가 잠금을 걸고 처리 → 여러 PC가 동시에 올려도 번호가 겹치지 않음
    - 비밀키는 공개 저장소에 넣지 않음 — 같은 브라우저의 매출분석·견적기 설정에서 찾거나 처음 한 번 입력
    ═══════════════════════════════════════════════════════════ */
-var SM_VER='v5';
+var SM_VER='v6';
 var AU_URL_DEFAULT='https://script.google.com/macros/s/AKfycbxSlND4ZKOpxISNQMRdV2d-LA5YxXS1BDe0k2TXKq6g7Tfm6PZ1Rse3mp0Nm4ndZXZdiQ/exec';
 var AU_KEY_DEFAULT='';
 var AU_ROLE={admin:'관리자',uploader:'업로더',user:'일반'};
@@ -550,7 +550,7 @@ function gauge(kind){const el=document.getElementById(kind+'Gauge'),bar=el.query
   return{start(){clearInterval(timer);cur=0;el.hidden=false;el.classList.remove('done','err');paint(0)},
     set(v,t){clearInterval(timer);paint(v);if(t!=null)txt.textContent=t;txt.title=txt.textContent},
     creep(to){clearInterval(timer);timer=setInterval(()=>{if(cur<to-0.3)paint(cur+(to-cur)*0.06)},200)},
-    done(t){clearInterval(timer);paint(100);el.classList.add('done');txt.textContent=t||'완료';setTimeout(()=>{if(el.classList.contains('done'))el.hidden=true},6000)},
+    done(t){clearInterval(timer);paint(100);el.classList.add('done');pct.textContent='100% 완료';txt.textContent=t||'';txt.title=txt.textContent},
     fail(t){clearInterval(timer);el.classList.add('err');txt.textContent=t||'실패'}}}
 const SHIP_CHUNK=3000;
 async function addFiles(kind,files){
@@ -585,7 +585,7 @@ async function addFiles(kind,files){
     }
     g.set(at(100));
   }
-  g.done(nf>1?`${nf}개 파일 완료`:'완료');
+  g.done((nf>1?`${nf}개 파일 · `:'')+fmtTime(new Date())+' 업로드');
   }catch(e){g.fail('실패');throw e}
   if(latest){state.filters.from=latest;state.filters.to=latest;rebuildView()}
   showInfo(msgs.join('\n'));
