@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v22">
+  <meta name="sm-ver" content="v23">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 개별번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -178,16 +178,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   </header>
   <main>
     <section class="workspace">
+      <div class="panel upload-card" id="orderDrop">
+        <h2>주문현황</h2><p>여러 일자 계속 추가 가능 · 파일 목록을 지워도 자료는 남음</p><div class="up-range" id="orderRange"></div>
+        <div class="file-actions"><button class="btn small primary" id="orderBtn">주문현황 추가</button><button class="btn small" id="deleteOrderSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearOrderBtn">목록 비우기</button><div class="up-gauge" id="orderGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div>
+        <input type="file" id="orderInput" accept=".xls,.xlsx" multiple>
+        <div class="file-list" id="orderList"><span class="file-empty">불러오는 중</span></div>
+      </div>
       <div class="panel upload-card" id="shipDrop">
         <h2>출고현황</h2><p>올린 날부터 계속 누적 저장 · 이미 저장된 행은 자동 제외</p><div class="up-range" id="shipRange"></div>
         <div class="file-actions"><button class="btn small" id="shipBtn">출고현황 추가</button><button class="btn small" id="deleteShipSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearShipBtn">목록 비우기</button><div class="up-gauge" id="shipGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div><input type="file" id="shipInput" accept=".xls,.xlsx" multiple>
         <div class="file-list" id="shipList"><span class="file-empty">불러오는 중</span></div>
-      </div>
-      <div class="panel upload-card" id="orderDrop">
-        <h2>주문현황 추가</h2><p>여러 일자 계속 추가 가능 · 파일 목록을 지워도 자료는 남음</p><div class="up-range" id="orderRange"></div>
-        <div class="file-actions"><button class="btn small primary" id="orderBtn">주문현황 추가</button><button class="btn small" id="deleteOrderSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearOrderBtn">목록 비우기</button><div class="up-gauge" id="orderGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div>
-        <input type="file" id="orderInput" accept=".xls,.xlsx" multiple>
-        <div class="file-list" id="orderList"><span class="file-empty">불러오는 중</span></div>
       </div>
       <div class="panel rule-card">
         <h2>매칭 기준</h2>
@@ -784,7 +784,7 @@ function renderSummary(){
 }
 /* v20 : 올리기 카드에 저장된 기간·일수·행 수·빠진 평일 표시 */
 function renderUpRange(kind,list){const el=document.getElementById(kind+'Range');if(!el)return;const all=list.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||''));const dates=[...new Set(all)].sort();
-  if(!dates.length){el.className='up-range nodata';el.innerHTML='저장된 기간 <b>없음</b>';el.title='';return}
+  if(!dates.length){el.className='up-range nodata';el.innerHTML='저장된 기간 <b>없음</b>';el.title='';const gg=document.getElementById(kind+'Gauge');if(gg&&(gg.classList.contains('done')||gg.classList.contains('err')))gg.hidden=true;return}   /* 자료가 없으면 지난 업로드 막대 숨김 (올리는 중에는 그대로) */
   const a=dates[0],b=dates[dates.length-1],have=new Set(dates),miss=[];let x=new Date(a+'T00:00:00');const end=new Date(b+'T00:00:00');
   while(x<=end){const w=x.getDay(),k=ymd(x);if(w&&w!==6&&!have.has(k))miss.push(k);x.setDate(x.getDate()+1)}
   el.className='up-range'+(miss.length?' warn':'');
