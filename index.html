@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v21">
+  <meta name="sm-ver" content="v22">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 개별번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -21,7 +21,7 @@
     main{padding:20px 28px 36px;max-width:1900px;margin:auto}.panel{background:#fff;border:1px solid #e0e5ed;border-radius:10px;box-shadow:0 2px 8px #0f172a0c}
     .workspace{display:grid;grid-template-columns:minmax(300px,1fr) minmax(300px,1fr) 1.35fr;gap:12px;margin-bottom:14px}.upload-card{padding:15px 16px;min-height:154px;position:relative;overflow:hidden}
     .upload-card h2{font-size:14px;margin:0 0 7px;color:#26354d}.upload-card p{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5}.upload-card.drag{outline:3px solid #86b7ff;background:#f3f8ff}.file-actions{display:flex;gap:6px;flex-wrap:wrap}.file-actions .btn:disabled{opacity:.45;cursor:not-allowed}
-    .up-range{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:12.5px;color:#334155;background:#f1f6ff;border:1px solid #cfe0fb;border-radius:8px;padding:6px 10px;margin:0 0 10px}.up-range b{color:#1d4ed8}.up-range span{color:#64748b}.up-range .miss{color:#ad5a00;font-weight:700}.up-range.warn{background:#fffaf0;border-color:#f6d28b}.up-range.empty{background:#f8fafc;border-color:#e2e8f0}.up-range.empty b{color:#94a3b8}
+    .up-range{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:12.5px;color:#334155;background:#f1f6ff;border:1px solid #cfe0fb;border-radius:8px;padding:6px 10px;margin:0 0 10px}.up-range b{color:#1d4ed8}.up-range span{color:#64748b}.up-range .miss{color:#ad5a00;font-weight:700}.up-range.warn{background:#fffaf0;border-color:#f6d28b}.up-range.nodata{background:#f8fafc;border-color:#e2e8f0}.up-range.nodata b{color:#94a3b8}
     .file-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;min-height:28px;max-height:82px;overflow:auto}.file-empty{font-size:12px;color:#94a3b8;padding:6px 0}.file-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-height:29px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;color:#334155;padding:4px 5px 4px 8px;font-size:11px;cursor:pointer;user-select:none}.file-chip:hover{border-color:#8aa9d2;background:#f1f6fd}.file-chip.selected{border-color:#2f6ac6;background:#eaf2ff;box-shadow:inset 0 0 0 1px #2f6ac6}.file-icon{width:13px;height:16px;border:1.5px solid #5277a8;border-radius:2px;position:relative;flex:0 0 auto;background:#fff}.file-icon:after{content:"";position:absolute;right:-1.5px;top:-1.5px;width:5px;height:5px;background:#dbeafe;border-left:1.5px solid #5277a8;border-bottom:1.5px solid #5277a8}.file-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}.file-count{color:#7b8798;white-space:nowrap}.file-delete{width:20px;height:20px;border:0;border-radius:4px;background:transparent;color:#7b8798;line-height:18px;padding:0;font-size:15px;font-weight:700}.file-delete:hover{background:#fee2e2;color:#b42318}.rule-card{padding:15px 18px;background:#f8fbff;border-color:#cfdcf0}
     .rule-card h2{font-size:14px;margin:0 0 8px;color:#254a80}.rule-list{margin:0;padding-left:18px;color:#4b5d75;font-size:12px;line-height:1.7}
     .summary{display:grid;grid-template-columns:repeat(2,minmax(200px,1.4fr)) repeat(4,minmax(120px,1fr));gap:10px;margin-bottom:14px}.metric{padding:14px 16px}.metric .label{font-size:12px;color:var(--muted);margin-bottom:4px}.metric .value{font-size:25px;font-weight:800;color:#1d2b44}.metric.ok .value{color:var(--ok)}.metric.bad .value{color:var(--bad)}.metric .sub{font-size:11px;color:#94a3b8;margin-top:3px}.metric.period .value{font-size:18px;line-height:30px;white-space:nowrap}
@@ -179,19 +179,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   <main>
     <section class="workspace">
       <div class="panel upload-card" id="shipDrop">
-        <h2>출고현황</h2><p>올린 출고현황은 처음 올린 날부터 계속 저장되며, 이미 저장된 행은 자동으로 제외됩니다.</p><div class="up-range" id="shipRange"></div>
+        <h2>출고현황</h2><p>올린 날부터 계속 누적 저장 · 이미 저장된 행은 자동 제외</p><div class="up-range" id="shipRange"></div>
         <div class="file-actions"><button class="btn small" id="shipBtn">출고현황 추가</button><button class="btn small" id="deleteShipSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearShipBtn">목록 비우기</button><div class="up-gauge" id="shipGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div><input type="file" id="shipInput" accept=".xls,.xlsx" multiple>
         <div class="file-list" id="shipList"><span class="file-empty">불러오는 중</span></div>
       </div>
       <div class="panel upload-card" id="orderDrop">
-        <h2>주문현황 추가</h2><p>여러 일자의 주문현황을 계속 추가할 수 있습니다. 파일 목록을 지워도 저장된 자료는 그대로 남습니다.</p><div class="up-range" id="orderRange"></div>
+        <h2>주문현황 추가</h2><p>여러 일자 계속 추가 가능 · 파일 목록을 지워도 자료는 남음</p><div class="up-range" id="orderRange"></div>
         <div class="file-actions"><button class="btn small primary" id="orderBtn">주문현황 추가</button><button class="btn small" id="deleteOrderSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearOrderBtn">목록 비우기</button><div class="up-gauge" id="orderGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div>
         <input type="file" id="orderInput" accept=".xls,.xlsx" multiple>
         <div class="file-list" id="orderList"><span class="file-empty">불러오는 중</span></div>
       </div>
       <div class="panel rule-card">
         <h2>매칭 기준</h2>
-        <ol class="rule-list"><li>수주번호(주문번호)를 먼저 일치시킵니다.</li><li>같은 번호가 여러 행이면 품번, 품명, 규격, 고객, 수량 순으로 같은 내용을 찾습니다.</li><li>비고 어느 위치에 있든 D0000, B0000, B00000, S00000 또는 숫자 6자리 형식을 개별번호로 사용합니다.</li><li>찾지 못한 행은 지금까지 쓴 S번호 다음 번호로 자동 부여하며(번호는 겹치지 않음), 표에서 직접 수정할 수 있습니다.</li></ol>
+        <ol class="rule-list"><li>수주번호(주문번호) 먼저 일치</li><li>같은 번호가 여러 행이면 품번 → 품명 → 규격 → 고객 → 수량 순으로 비교</li><li>비고 안의 D0000·B0000·B00000·S00000·숫자 6자리 = 개별번호</li><li>못 찾은 행은 마지막 S번호 다음 번호로 자동 부여(겹치지 않음) · 표에서 직접 수정 가능</li></ol>
         <div class="notice info" id="infoNotice"></div>
         <div class="notice" id="notice"></div>
       </div>
@@ -216,11 +216,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <div class="head-wrap" id="headWrap"><table class="data-table head-clone" id="headClone"><thead><tr id="headCloneRow"></tr></thead></table></div>
       <div class="table-wrap" id="tableWrap">
         <table class="data-table" id="dataTable"><thead aria-hidden="true"><tr id="headerRow"></tr></thead><tbody id="tableBody"></tbody></table>
-        <div class="empty" id="emptyState"><strong>저장된 자료를 불러오는 중입니다.</strong>잠시만 기다려 주세요.</div>
+        <div class="empty" id="emptyState"><strong>저장된 자료 불러오는 중</strong>잠시만 기다림</div>
       </div>
       <div class="more-rows" id="moreRows"></div>
       <div class="hscroll" id="hScroll"><div id="hScrollInner"></div></div>
-      <div class="footer-note">표 헤더를 누르면 오름차순·내림차순으로 정렬됩니다. 자동 부여된 개별번호는 칸을 눌러 수정할 수 있으며, 비우거나 원래 번호로 되돌리면 다시 자동 부여로 표시됩니다. Ctrl+Z로 되돌리기, Ctrl+Y로 다시 실행할 수 있습니다. 엑셀 내보내기는 지금 화면의 조건(일자·상태·검색)에 맞는 행을 모두 내보냅니다.</div>
+      <div class="footer-note">표 머리글 클릭 = 오름차순·내림차순 정렬 · 자동 부여 번호는 칸을 눌러 수정(비우거나 원래 번호로 되돌리면 다시 자동 부여) · Ctrl+Z 되돌리기 · Ctrl+Y 다시 실행 · 엑셀 내보내기는 지금 화면의 조건(일자·상태·검색)에 맞는 행 모두 내보냄</div>
     </section>
   </main>
 </div>
@@ -295,7 +295,7 @@ async function smCall(payload,timeoutMs){
       catch(e2){ if(!SM_UNSUP.test(e2.message||''))throw e2; tried.push(cands[i]); }
     }
     try{localStorage.removeItem('sm_url');}catch(_r){}
-    throw new Error('서버에 출고현황 매칭 기능(shipmatch.gs)이 아직 설치되지 않음 — 관리자에게 서버 설치·새 버전 배포를 요청하세요.');
+    throw new Error('서버에 출고현황 매칭 기능(shipmatch.gs)이 아직 설치되지 않음 — 관리자에게 서버 설치·새 버전 배포 요청');
   }
 }
 async function auTryAuto(){
@@ -319,7 +319,7 @@ function auShowGate(){
    +'<label class="au-l">웹앱 주소 (…/exec)</label><input id="auSrvUrl" class="au-i" spellcheck="false">'
    +'<label class="au-l">비밀키</label><input id="auSrvKey" class="au-i" spellcheck="false">'
    +'<div style="display:flex;gap:6px;margin-top:8px"><button type="button" class="au-b2" id="auSrvSave">저장</button></div></div></div>'
-   +'<div class="au-f">계정은 <b>매출분석도구</b>와 같음. 계정 신청·승인은 관리자에게 요청하세요.<br>공용 PC에서는 자동 로그인을 켜지 마세요.</div>'
+   +'<div class="au-f">계정은 <b>매출분석도구</b>와 같음 계정 신청·승인은 관리자에게 요청<br>공용 PC는 자동 로그인 끄기</div>'
    +'</form></div>';
   document.body.appendChild(d.firstElementChild);
   var msg=au$('auMsg'), a=auLsGet('dpt_auth_auto_v1');
@@ -328,8 +328,8 @@ function auShowGate(){
   var keyHelp='같은 PC·같은 브라우저에서 <b>매출분석도구</b>나 <b>가공비 견적기</b>를 한 번 열면 비밀키가 자동 설정됨 (열고 이 화면으로 돌아오면 자동 확인).'
     +'<div class="au-kl"><a href="https://useran-coder.github.io/sales/" target="_blank" rel="noopener">매출분석도구 열기</a><a href="https://useran-coder.github.io/cost/" target="_blank" rel="noopener">가공비 견적기 열기</a></div>';
   auDiscoverKey().then(function(ok){ if(!ok&&au$('auSrvBox')){ au$('auSrvBox').style.display=''; au$('auSrvUrl').value=auUrl(); au$('auSrvKey').value='';
-    msg.style.color='var(--warn)'; msg.innerHTML='이 PC에서 처음 사용함. '+keyHelp; } });
-  function keyFound(){ if(!au$('auSrvBox'))return; au$('auSrvBox').style.display='none'; msg.style.color='var(--ok)'; msg.textContent='비밀키를 찾음. 로그인해 주세요.'; }
+    msg.style.color='var(--warn)'; msg.innerHTML='이 PC에서 처음 사용함 '+keyHelp; } });
+  function keyFound(){ if(!au$('auSrvBox'))return; au$('auSrvBox').style.display='none'; msg.style.color='var(--ok)'; msg.textContent='비밀키 찾음 · 로그인 필요'; }
   addEventListener('storage',function(e){ if((e.key==='dpt_auth_key'||e.key==='dpt_sync_key')&&auKey())keyFound(); });
   var re=function(){ if(document.visibilityState==='visible'&&au$('auGate')&&!auKey())auDiscoverKey().then(function(ok){ if(ok||auKey())keyFound(); }); };
   document.addEventListener('visibilitychange',re); addEventListener('focus',re);
@@ -337,16 +337,16 @@ function auShowGate(){
   au$('auSrvSave').onclick=function(){ var u=au$('auSrvUrl').value.trim(),k=au$('auSrvKey').value.trim();
     if(u&&!/\/exec\s*$/.test(u)){msg.style.color='var(--bad)';msg.textContent='주소는 …/exec 로 끝나야 함';return;}
     try{if(u)localStorage.setItem('dpt_auth_url',u);else localStorage.removeItem('dpt_auth_url');if(k)localStorage.setItem('dpt_auth_key',k);localStorage.removeItem('sm_url');}catch(e){}
-    msg.style.color='var(--ok)';msg.textContent='저장함. 로그인해 주세요.'; };
+    msg.style.color='var(--ok)';msg.textContent='저장함 · 로그인 필요'; };
   au$('auForm').addEventListener('submit',async function(ev){
     ev.preventDefault();
     var id=au$('auId').value.trim(),pw=au$('auPw').value;
-    if(!id||!pw){msg.style.color='var(--bad)';msg.textContent='아이디와 비밀번호를 입력하세요.';return;}
-    if(!auKey()){var k=au$('auSrvKey')&&au$('auSrvKey').value.trim(); if(k){try{localStorage.setItem('dpt_auth_key',k);}catch(e){}} else {msg.style.color='var(--bad)';msg.innerHTML='서버 비밀키가 없음. '+keyHelp;return;}}
+    if(!id||!pw){msg.style.color='var(--bad)';msg.textContent='아이디·비밀번호 입력 필요';return;}
+    if(!auKey()){var k=au$('auSrvKey')&&au$('auSrvKey').value.trim(); if(k){try{localStorage.setItem('dpt_auth_key',k);}catch(e){}} else {msg.style.color='var(--bad)';msg.innerHTML='서버 비밀키가 없음 '+keyHelp;return;}}
     var btn=au$('auBtn'); btn.disabled=true; btn.textContent='확인 중…'; msg.textContent='';
     try{
       var d=await auCall({action:'auLogin',id:id,pw:pw});
-      if(!d||!d.token||!d.user)throw new Error('서버가 로그인 요청을 처리하지 못함.');
+      if(!d||!d.token||!d.user)throw new Error('서버가 로그인 요청을 처리하지 못함');
       var sameUser=!AU.id||AU.id===d.user.id;
       AU.token=d.token;AU.id=d.user.id;AU.name=d.user.name;AU.role=d.user.role;AU.exp=d.exp;
       auPersist(au$('auKeep').checked);
@@ -429,7 +429,7 @@ function findHeaderIndex(rows){let best=0,bestScore=-1;for(let r=0;r<Math.min(ro
 function canonicalHeader(h){const n=norm(h);for(const [key,list] of Object.entries(ALIASES))if(list.some(x=>norm(x)===n))return key;return clean(h)}
 /* 잘린 .xls 살리기 : ERP 내보내기·복사 중 끊겨 파일 끝(목차 부분)이 없으면 라이브러리가 «reading 'data'» 오류를 냄.
    이 경우 본문(Workbook 흐름)은 512바이트 뒤에 그대로 이어져 있으므로 직접 레코드를 따라가 읽고,
-   마지막 행은 중간에 끊겼을 수 있어 버림. 원래 행 수(DIMENSIONS)와 읽은 행 수를 같이 돌려줌 */
+   마지막 행은 중간에 끊겼을 수 있어 버림 원래 행 수(DIMENSIONS)와 읽은 행 수를 같이 돌려줌 */
 function salvageXls(buffer){
   const u=new Uint8Array(buffer);if(u.length<1024)return null;
   const sig=[0xD0,0xCF,0x11,0xE0,0xA1,0xB1,0x1A,0xE1];if(!sig.every((b,i)=>u[i]===b))return null;
@@ -458,7 +458,7 @@ function workbookRows(buffer){
   let cutInfo=null;
   if(!wb){let sv=null;try{sv=salvageXls(buffer)}catch(e){sv=null}
     if(sv&&sv.wb&&sv.wb.SheetNames.length){wb=sv.wb;cutInfo={readRows:sv.readRows,totalRows:sv.totalRows}}}
-  if(!wb)throw new Error('엑셀 파일을 읽지 못했습니다: '+(lastErr&&lastErr.message||lastErr));const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'yyyy/mm/dd'});if(!rows.length)throw new Error('첫 번째 시트에 데이터가 없습니다.');
+  if(!wb)throw new Error('엑셀 파일을 읽지 못함: '+(lastErr&&lastErr.message||lastErr));const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'yyyy/mm/dd'});if(!rows.length)throw new Error('첫 번째 시트에 데이터가 없음');
   const headerIndex=findHeaderIndex(rows),headers=rows[headerIndex].map(canonicalHeader);const out=[];let maxS=0;const sSet=new Set();
   // 파일 어디에든 적힌 S번호는 «이미 쓴 번호»로 기억 (자동 부여 때 피함)
   rows.forEach(arr=>arr.forEach(v=>{String(v??'').replace(/(?:^|[^A-Z0-9])(S\d{5})(?=$|[^A-Z0-9])/gi,(m,c)=>{c=c.toUpperCase();sSet.add(c);maxS=Math.max(maxS,sNum(c));return m})}));
@@ -500,7 +500,7 @@ function matchRec(s,ctx){
   if(!best.o.code)return {st:'auto',rs:'주문 개별번호 없음',mk:best.o.k};
   return {st:'matched',code:best.o.code,rs:'',mk:best.o.k};
 }
-// 자동 부여된 행 중에서, 나중에 올라온 주문현황으로 개별번호를 찾게 된 행 → 매칭 완료로 바꿉니다 (S번호는 다시 쓰지 않음)
+// 자동 부여된 행 중에서, 나중에 올라온 주문현황으로 개별번호를 찾게 된 행 → 매칭 완료로 바꿈 (S번호는 다시 쓰지 않음)
 function rematchUpdates(){
   const ctx=matchContext(),ups=[],orderCodes=new Map();
   state.db.upload.forEach(u=>{if(u.kind==='order')(u.sCodes||[]).forEach(c=>orderCodes.set(c,'(파일)'))});
@@ -520,7 +520,7 @@ const idb={_db:null,
   async set(k,v){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
 const localServer={data:null,
   async load(){if(!this.data){let d=null;try{d=await idb.get('localServer')}catch(_){}this.data=d||{rev:0,counter:0,ship:{},order:{},upload:{}}}return this.data},
-  async save(){try{await idb.set('localServer',this.data)}catch(e){showError('이 PC 저장소에 저장하지 못했습니다: '+(e.message||e))}},
+  async save(){try{await idb.set('localServer',this.data)}catch(e){showError('이 PC 저장소에 저장하지 못함: '+(e.message||e))}},
   async call(p){
     const d=await this.load();
     if(p.action==='ping')return {ok:true,ver:'local',rev:d.rev};
@@ -573,7 +573,7 @@ function queue(fn){const p=chain.then(fn,fn);chain=p.catch(()=>{});return p}
 function mergeRes(res){let n=0;if(res&&res.sm)state.srvVer=res.sm;if(res.reset){state.db=emptyDb();savePending([]);editHistory.undo=[];editHistory.redo=[];state.sel.clear();n++}const db=state.db;if(res.epoch!=null)db.epoch=String(res.epoch);(res.ship||[]).forEach(x=>{if(x.del){if(db.ship.delete(x.k))n++;state.sel.delete(x.k);return}db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null){if(db.counter!==Number(res.counter))n++;db.counter=Number(res.counter)}if(res.manual!=null)db.manual=!!res.manual;return n}
 async function sendPush(payload){
   const res=await backendCall({action:'push',...payload});
-  if(res.conflicts&&res.conflicts.length)alert(`이미 사용 중인 개별번호라서 저장하지 않았습니다: ${res.conflicts.map(c=>c.code).join(', ')}`);
+  if(res.conflicts&&res.conflicts.length)alert(`이미 사용 중인 개별번호라서 저장하지 않음: ${res.conflicts.map(c=>c.code).join(', ')}`);
   return res;
 }
 async function flushPending(){const list=loadPending();if(!list.length||!isRemote())return;await sendPush({updates:list});savePending([])}
@@ -627,14 +627,14 @@ async function addFiles(kind,files){
     const buf=await readFile(file);phase='엑셀 분석';g.set(at(10),lab+'내용 분석 중');await new Promise(r=>setTimeout(r,30));
     const parsed=workbookRows(buf);
     if(parsed.cutInfo){const ci0=parsed.cutInfo,tot=Math.max(0,(ci0.totalRows||0)-1),got=parsed.rows.length;
-      const q=`«${file.name}» 파일이 중간에 잘려 있습니다 (파일 끝부분이 없음).\n\n`+(tot?`원래 약 ${tot.toLocaleString()}줄 중 ${got.toLocaleString()}줄만 읽혔습니다.\n\n`:`${got.toLocaleString()}줄만 읽혔습니다.\n\n`)+
-        `[확인] 읽힌 ${got.toLocaleString()}줄만 저장 (나중에 온전한 파일을 올리면 나머지만 더 저장됨)\n[취소] 저장하지 않음 → ERP에서 다시 내보내거나 엑셀로 열어 «다른 이름으로 저장» 후 올려 주세요.`;
+      const q=`«${file.name}» 파일이 중간에 잘려 있음 (파일 끝부분이 없음).\n\n`+(tot?`원래 약 ${tot.toLocaleString()}줄 중 ${got.toLocaleString()}줄만 읽힘\n\n`:`${got.toLocaleString()}줄만 읽힘\n\n`)+
+        `[확인] 읽힌 ${got.toLocaleString()}줄만 저장 (나중에 온전한 파일을 올리면 나머지만 더 저장됨)\n[취소] 저장하지 않음 → ERP에서 다시 내보내거나 엑셀로 열어 «다른 이름으로 저장» 후 다시 올리기`;
       if(!confirm(q)){skipped++;msgs.push(`${file.name}: 파일이 잘려 있어 저장하지 않음`);continue}
       msgs.push(`⚠ ${file.name}: 잘린 파일 — ${tot?tot.toLocaleString()+'줄 중 ':''}${got.toLocaleString()}줄만 읽음`)}
     phase='매칭 준비';g.set(at(20),lab+'서버에 저장 중');
     const up={id:uid(),kind,name:file.name,maxS:parsed.maxS,sCodes:parsed.sCodes};
     if(kind==='ship'){
-      if(!parsed.headers.includes('주문번호')||!parsed.headers.includes('품번'))throw new Error(`${file.name}: 출고현황 헤더에서 주문번호 또는 품번을 찾지 못했습니다.`);
+      if(!parsed.headers.includes('주문번호')||!parsed.headers.includes('품번'))throw new Error(`${file.name}: 출고현황 헤더에서 주문번호 또는 품번을 찾지 못함`);
       const recs=parsed.rows.filter(r=>clean(r['주문번호'])).map(shipRecFromRow);withOccurrence(recs,shipBaseKey);
       const fresh=recs.filter(s=>!state.db.ship.has(s.k)),ctx=matchContext();
       fresh.forEach(s=>{const m=matchRec(s,ctx);s.st=m.st;s.code=m.code||'';s.rs=m.rs||'';if(m.mk)s.mk=m.mk});
@@ -651,7 +651,7 @@ async function addFiles(kind,files){
         added+=res?res.added.ship:0}msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(recs.length-added?` · 이미 저장된 ${(recs.length-added).toLocaleString()}건 제외`:''));
       recs.forEach(s=>{if(s.d>latest)latest=s.d});
     }else{
-      if(!parsed.headers.includes('주문번호'))throw new Error(`${file.name}: 주문번호 헤더를 찾지 못했습니다.`);
+      if(!parsed.headers.includes('주문번호'))throw new Error(`${file.name}: 주문번호 헤더를 찾지 못함`);
       const recs=parsed.rows.filter(r=>clean(r['주문번호'])).map(orderRecFromRow);withOccurrence(recs,orderBaseKey);
       // 이미 저장된 주문 행인데 비고가 바뀐 경우(나중에 개별번호를 적어 넣은 경우 등)는 내용을 갱신
       const fresh=recs.filter(o=>{const e=state.db.order.get(o.k);if(!e)return true;if(clean(e.r)!==clean(o.r)){o.upd=1;return true}return false});up.rows=recs.length;
@@ -661,7 +661,7 @@ async function addFiles(kind,files){
     g.set(at(100));
   }
   if(skipped===nf)g.fail('취소 — 잘린 파일이라 저장하지 않음');else g.done((nf>1?`${nf}개 파일 · `:'')+fmtTime(new Date())+' 업로드'+(skipped?` (${skipped}개 취소)`:''));
-  }catch(e){if(e&&!/^\[단계 /.test(e.message||'')){const at=(e.stack||'').split('\n').filter(l=>/:\d+:\d+/.test(l)).slice(0,2).map(l=>l.trim().replace(/^at\s+/,'').replace(/https?:\/\/[^\s)]*\//,'')).join(' ← ');e.message=`[단계 ${phase}${at&&e.name==='TypeError'?' · '+at:''}] `+(e.message||e)}if(/헤더|엑셀 파일을 읽지/.test(e.message||'')){g.fail('실패 — 파일 형식 확인');throw e}g.fail('실패 — 같은 파일을 다시 올리면 이어서 저장');e.message=(e.message||String(e))+'\n→ 같은 파일을 다시 올리면 이미 저장된 행은 빼고 나머지만 저장됩니다. 계속 실패하면 이 문구를 캡처해 알려 주세요.';throw e}
+  }catch(e){if(e&&!/^\[단계 /.test(e.message||'')){const at=(e.stack||'').split('\n').filter(l=>/:\d+:\d+/.test(l)).slice(0,2).map(l=>l.trim().replace(/^at\s+/,'').replace(/https?:\/\/[^\s)]*\//,'')).join(' ← ');e.message=`[단계 ${phase}${at&&e.name==='TypeError'?' · '+at:''}] `+(e.message||e)}if(/헤더|엑셀 파일을 읽지/.test(e.message||'')){g.fail('실패 — 파일 형식 확인');throw e}g.fail('실패 — 같은 파일을 다시 올리면 이어서 저장');e.message=(e.message||String(e))+'\n→ 같은 파일을 다시 올리면 이미 저장된 행은 빼고 나머지만 저장됨 · 계속 실패하면 이 문구 캡처해 알리기';throw e}
   if(latest){state.filters.from=latest;state.filters.to=latest;rebuildView()}
   showInfo(msgs.join('\n'));
 }
@@ -690,12 +690,12 @@ function renderLastS(){const el=document.getElementById('lastS');if(!el)return;c
   el.title=(state.db.manual?'직접 지정한 마지막 번호':'지금까지 나간 S번호 중 가장 큰 번호 (지운 행·초기화 전 번호 포함)')+`\n다음 자동 부여: S${String(n+1).padStart(5,'0')}부터 (이미 쓴 번호는 건너뜀)\n눌러서 마지막 번호 바꾸기 (관리자)`}
 document.getElementById('lastS').onclick=async()=>{
   const c=Number(state.db.counter||0),cur=state.db.manual?c:Math.max(c,maxSInDb());
-  const v=prompt(`마지막 자동번호를 입력하세요 (예: S00120 또는 120)\n\n· 다음 자동 부여는 입력한 번호 다음부터 나옴\n· 이미 쓴 번호를 만나면 자동으로 건너뜀 (번호가 겹치지 않음)\n· 모든 PC에 같이 적용됨\n· 비우고 확인하면 «가장 큰 번호 다음부터»(기본 방식)로 되돌림\n\n지금: S${String(cur).padStart(5,'0')}${state.db.manual?' (직접 지정)':''}`,'S'+String(cur).padStart(5,'0'));
+  const v=prompt(`마지막 자동번호 입력 (예: S00120 또는 120)\n\n· 다음 자동 부여는 입력한 번호 다음부터 나옴\n· 이미 쓴 번호를 만나면 자동으로 건너뜀 (번호가 겹치지 않음)\n· 모든 PC에 같이 적용됨\n· 비우고 확인하면 «가장 큰 번호 다음부터»(기본 방식)로 되돌림\n\n지금: S${String(cur).padStart(5,'0')}${state.db.manual?' (직접 지정)':''}`,'S'+String(cur).padStart(5,'0'));
   if(v===null)return;
-  if(v.trim()&&!/^\s*S?\s*\d{1,5}\s*$/i.test(v)){alert('번호 형식이 맞지 않습니다 (예: S00120 또는 120).');return}
+  if(v.trim()&&!/^\s*S?\s*\d{1,5}\s*$/i.test(v)){alert('번호 형식이 맞지 않음 (예: S00120 또는 120).');return}
   try{const r=await queue(()=>backendCall({action:'setCounter',n:v.trim()}));state.db.counter=Number(r.counter);state.db.manual=!!r.manual;saveCache();renderLastS();
-    showInfo(r.manual?`마지막 자동번호를 S${String(r.counter).padStart(5,'0')}로 바꿨습니다. 다음 자동 부여는 S${String(r.counter+1).padStart(5,'0')}부터입니다.`:`기본 방식으로 되돌렸습니다. 다음 자동 부여는 가장 큰 번호 S${String(r.counter).padStart(5,'0')} 다음부터입니다.`)}
-  catch(e){showError('마지막 자동번호를 바꾸지 못했습니다: '+(e.message||e))}
+    showInfo(r.manual?`마지막 자동번호를 S${String(r.counter).padStart(5,'0')}로 바꿈 · 다음 자동 부여 S${String(r.counter+1).padStart(5,'0')}부터`:`기본 방식으로 되돌림 · 다음 자동 부여는 가장 큰 번호 S${String(r.counter).padStart(5,'0')} 다음부터`)}
+  catch(e){showError('마지막 자동번호를 바꾸지 못함: '+(e.message||e))}
 };
 function renderCatBtns(){renderLastS();const f=state.filters,cnt={};const q=norm(f.search);
   state.rows.forEach(r=>{if(!inDateRange(r['출고일자']))return;if(f.status&&r.__status!==f.status)return;if(f.missingOnly&&r.__status!=='auto')return;
@@ -748,30 +748,30 @@ function buildRow(row){
 function renderTable(keep=false){
   requestAnimationFrame(syncHead);renderHeader();const prev=state.rendered;state.viewRows=visibleRows();state.rendered=0;
   const body=document.getElementById('tableBody'),empty=document.getElementById('emptyState');body.innerHTML='';document.getElementById('resultCount').textContent=`${state.viewRows.length.toLocaleString()}건 표시`;renderCatBtns();
-  if(!state.viewRows.length){document.getElementById('dataTable').style.display='none';document.getElementById('moreRows').style.display='none';empty.style.display='block';empty.innerHTML=`<strong>${state.rows.length?'조건에 맞는 행이 없습니다.':'저장된 출고현황이 없습니다.'}</strong>${state.rows.length?'필터나 검색어를 변경해 주세요.':'출고현황 XLS 또는 XLSX 파일을 올리면 계속 누적 저장됩니다.'}`;return}
+  if(!state.viewRows.length){document.getElementById('dataTable').style.display='none';document.getElementById('moreRows').style.display='none';empty.style.display='block';empty.innerHTML=`<strong>${state.rows.length?'조건에 맞는 행이 없음':'저장된 출고현황이 없음'}</strong>${state.rows.length?'필터·검색어 바꾸기':'출고현황 XLS 또는 XLSX 파일을 올리면 계속 누적 저장'}`;return}
   document.getElementById('dataTable').style.display='table';empty.style.display='none';renderMore(keep?Math.max(prev,CHUNK):CHUNK);
 }
 function renderMore(count=CHUNK){
   const rows=state.viewRows,end=Math.min(rows.length,state.rendered+count),frag=document.createDocumentFragment();
   for(let i=state.rendered;i<end;i++)frag.appendChild(buildRow(rows[i]));
   document.getElementById('tableBody').appendChild(frag);state.rendered=end;
-  const more=document.getElementById('moreRows');more.style.display=end<rows.length?'':'none';more.textContent=`${end.toLocaleString()} / ${rows.length.toLocaleString()}행 표시 중 — 아래로 스크롤하면 계속 불러옵니다`;
+  const more=document.getElementById('moreRows');more.style.display=end<rows.length?'':'none';more.textContent=`${end.toLocaleString()} / ${rows.length.toLocaleString()}행 표시 중 — 아래로 스크롤하면 계속 불러옴`;
   requestAnimationFrame(syncHead);
 }
 function uploadsOf(kind){return [...state.db.upload.values()].filter(u=>u.kind===kind&&!u.hidden).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')))}
 function renderFileList(kind){
   const list=document.getElementById(kind==='ship'?'shipList':'orderList'),sel=state.selected[kind],ups=uploadsOf(kind);list.innerHTML='';
   [...sel].forEach(id=>{if(!ups.some(u=>u.id===id))sel.delete(id)});
-  if(!ups.length){list.innerHTML=`<span class="file-empty">${kind==='ship'?'올린 출고현황 기록이 없습니다.':'올린 주문현황 기록이 없습니다.'}</span>`}
+  if(!ups.length){list.innerHTML=`<span class="file-empty">${kind==='ship'?'올린 출고현황 기록이 없음':'올린 주문현황 기록이 없음'}</span>`}
   ups.forEach(u=>{const chip=document.createElement('div');const on=sel.has(u.id);chip.className=`file-chip${on?' selected':''}`;chip.tabIndex=0;chip.setAttribute('role','button');chip.setAttribute('aria-pressed',String(on));
-    chip.title=`${u.name}\n${u.by||''} · ${fmtDateTime(u.at)}\n전체 ${Number(u.rows||0).toLocaleString()}행 중 신규 ${Number(u.added||0).toLocaleString()}행 저장\n목록에서 지워도 저장된 자료는 남습니다.`;
+    chip.title=`${u.name}\n${u.by||''} · ${fmtDateTime(u.at)}\n전체 ${Number(u.rows||0).toLocaleString()}행 중 신규 ${Number(u.added||0).toLocaleString()}행 저장\n목록에서 지워도 자료는 남음`;
     chip.innerHTML=`<span class="file-icon" aria-hidden="true"></span><span class="file-label">${escapeHtml(u.name)}</span><span class="file-count">신규 ${Number(u.added||0).toLocaleString()}건</span><button type="button" class="file-delete" aria-label="${escapeHtml(u.name)} 목록에서 지우기" title="목록에서 지우기 (자료는 남음)">×</button>`;
     const toggle=()=>{if(sel.has(u.id))sel.delete(u.id);else sel.add(u.id);renderFileList(kind)};
     chip.addEventListener('click',e=>{if(e.target.closest('.file-delete')){hideUploads([u.id]);return}toggle()});
     chip.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}});list.appendChild(chip)});
   document.getElementById(kind==='ship'?'deleteShipSelectedBtn':'deleteOrderSelectedBtn').disabled=sel.size===0;
 }
-function hideUploads(ids){if(!ids.length)return;ids.forEach(id=>{const u=state.db.upload.get(id);if(u)u.hidden=true;state.selected.ship.delete(id);state.selected.order.delete(id)});renderFileLists();renderSummary();sync({payload:{hideUploads:ids}}).catch(e=>showError('목록 지우기를 저장하지 못했습니다: '+e.message))}
+function hideUploads(ids){if(!ids.length)return;ids.forEach(id=>{const u=state.db.upload.get(id);if(u)u.hidden=true;state.selected.ship.delete(id);state.selected.order.delete(id)});renderFileLists();renderSummary();sync({payload:{hideUploads:ids}}).catch(e=>showError('목록 지우기를 저장하지 못함: '+e.message))}
 function renderFileLists(){renderFileList('ship');renderFileList('order')}
 function renderSummary(){
   const rows=state.rows,total=rows.length,matched=rows.filter(r=>r.__status==='matched').length,autoN=rows.filter(r=>r.__status==='auto').length,manualN=rows.filter(r=>r.__status==='manual').length;
@@ -784,7 +784,7 @@ function renderSummary(){
 }
 /* v20 : 올리기 카드에 저장된 기간·일수·행 수·빠진 평일 표시 */
 function renderUpRange(kind,list){const el=document.getElementById(kind+'Range');if(!el)return;const all=list.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||''));const dates=[...new Set(all)].sort();
-  if(!dates.length){el.className='up-range empty';el.innerHTML='저장된 기간 <b>없음</b>';el.title='';return}
+  if(!dates.length){el.className='up-range nodata';el.innerHTML='저장된 기간 <b>없음</b>';el.title='';return}
   const a=dates[0],b=dates[dates.length-1],have=new Set(dates),miss=[];let x=new Date(a+'T00:00:00');const end=new Date(b+'T00:00:00');
   while(x<=end){const w=x.getDay(),k=ymd(x);if(w&&w!==6&&!have.has(k))miss.push(k);x.setDate(x.getDate()+1)}
   el.className='up-range'+(miss.length?' warn':'');
@@ -825,7 +825,7 @@ function showInfo(msg){const n=document.getElementById('infoNotice');n.textConte
 /* ───────── 엑셀 내보내기 (지금 화면 조건의 모든 행) ───────── */
 async function exportExcel(){
   const list=visibleRows();
-  if(!list.length){alert('내보낼 출고현황이 없습니다.');return}const btn=document.getElementById('exportBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='파일 만드는 중';
+  if(!list.length){alert('내보낼 출고현황이 없음');return}const btn=document.getElementById('exportBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='파일 만드는 중';
   try{
     const wb=new ExcelJS.Workbook();wb.creator='출고현황 개별번호 매칭';wb.created=new Date();const ws=wb.addWorksheet('출고현황',{views:[{state:'frozen',ySplit:1}]});
     ws.addRow(DISPLAY_HEADERS);const header=ws.getRow(1);header.height=26;header.eachCell(c=>{c.font={name:'맑은 고딕',size:10,bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF59636F'}};c.alignment={vertical:'middle',horizontal:'center'};c.border={right:{style:'thin',color:{argb:'FF7A838D'}},bottom:{style:'thin',color:{argb:'FF414A54'}}}});
@@ -843,11 +843,11 @@ async function exportExcel(){
 const editHistory={undo:[],redo:[]};
 const tableBodyEl=document.getElementById('tableBody');
 function findCodeUse(code,exceptKey){for(const s of state.db.ship.values()){if(s.k===exceptKey)continue;if(s.code===code||s.ac===code)return `출고 ${dateDisplay(s.d)} · ${s.o} · ${s.p}`}for(const o of state.db.order.values()){if(o.code===code)return `주문현황 ${o.o}`}return ''}
-function applyCode(key,code,st){const s=state.db.ship.get(key);if(!s)return;s.code=code;s.st=st;rebuildView(true);const u={k:key,code,st};sync({payload:{updates:[u]}}).catch(e=>{addPending(u);showError('서버에 저장하지 못했습니다. 다음 동기화 때 다시 보냅니다: '+e.message)})}
+function applyCode(key,code,st){const s=state.db.ship.get(key);if(!s)return;s.code=code;s.st=st;rebuildView(true);const u={k:key,code,st};sync({payload:{updates:[u]}}).catch(e=>{addPending(u);showError('서버에 저장하지 못함 다음 동기화 때 다시 보냄: '+e.message)})}
 function setCode(key,val){
   const s=state.db.ship.get(key);if(!s||!s.ac)return;const v=clean(val).toUpperCase();const next=(!v||v===s.ac)?{code:s.ac,st:'auto'}:{code:v,st:'manual'};
   if(next.code===s.code&&next.st===s.st){rebuildView(true);return}
-  if(next.st==='manual'){const where=findCodeUse(v,key);if(where){alert(`${v}는 이미 사용 중인 개별번호입니다.\n(${where})\n다른 번호를 입력해 주세요.`);rebuildView(true);return}}
+  if(next.st==='manual'){const where=findCodeUse(v,key);if(where){alert(`${v}는 이미 사용 중인 개별번호\n(${where})\n다른 번호 입력`);rebuildView(true);return}}
   editHistory.undo.push({key,code:s.code,st:s.st});editHistory.redo=[];applyCode(key,next.code,next.st);
 }
 function flashRow(key){const idx=state.viewRows.findIndex(r=>r.__k===key);if(idx<0)return;if(idx>=state.rendered)renderMore(idx-state.rendered+1);const tr=[...tableBodyEl.rows].find(r=>r.dataset.key===key);if(tr){tr.scrollIntoView({block:'center'});tr.classList.add('flash');setTimeout(()=>tr.classList.remove('flash'),1300)}}
@@ -869,13 +869,13 @@ function resetFilters(){state.filters={from:'',to:'',status:'',search:'',missing
 /* 초기화 : 확인창 → 서버의 출고·주문·파일 기록을 모두 지움 (모든 PC 반영, 관리자만). S번호는 마지막 번호 다음부터 이어짐 */
 document.getElementById('resetBtn').onclick=async()=>{
   const nS=state.db.ship.size,nO=state.db.order.size,last=maxSInDb();
-  if(!confirm(`저장된 자료를 모두 지울까요?\n\n· 출고 ${nS.toLocaleString()}행 · 주문 ${nO.toLocaleString()}행 · 올린 파일 목록\n· 모든 PC·모든 사람 화면에서 같이 지워짐\n· 지우기 전 구글 드라이브에 백업 시트를 하나 만들어 둠\n· S번호는 처음부터 다시 시작하지 않고 마지막 번호(S${String(last).padStart(5,'0')}) 다음부터 이어서 부여함\n\n필요하면 먼저 «엑셀 내보내기»로 받아 두세요.`)){return}
+  if(!confirm(`저장된 자료를 모두 지울까요?\n\n· 출고 ${nS.toLocaleString()}행 · 주문 ${nO.toLocaleString()}행 · 올린 파일 목록\n· 모든 PC·모든 사람 화면에서 같이 지워짐\n· 지우기 전 구글 드라이브에 백업 시트를 하나 만들어 둠\n· S번호는 처음부터 다시 시작하지 않고 마지막 번호(S${String(last).padStart(5,'0')}) 다음부터 이어서 부여함\n\n필요하면 먼저 «엑셀 내보내기»로 받아 두기`)){return}
   const btn=document.getElementById('resetBtn');btn.disabled=true;btn.textContent='지우는 중…';
   try{const r=await queue(()=>backendCall({action:'reset'}));
     state.db=emptyDb();state.sel.clear();state.delMode=false;savePending([]);editHistory.undo=[];editHistory.redo=[];renderDelBar();
     saveCache();await sync();resetFilters();rebuildView();
-    showInfo(`초기화 완료 — 출고 ${(r.cleared&&r.cleared.ship||0).toLocaleString()}행 · 주문 ${(r.cleared&&r.cleared.order||0).toLocaleString()}행을 지웠습니다.`+(r.backup?'\n백업 시트: '+r.backup:''));
-  }catch(e){showError('초기화하지 못했습니다: '+(e.message||e))}
+    showInfo(`초기화 완료 — 출고 ${(r.cleared&&r.cleared.ship||0).toLocaleString()}행 · 주문 ${(r.cleared&&r.cleared.order||0).toLocaleString()}행을 지움`+(r.backup?'\n백업 시트: '+r.backup:''));
+  }catch(e){showError('초기화하지 못함: '+(e.message||e))}
   finally{btn.disabled=false;btn.textContent='초기화'}
 };
 /* 선택 삭제 : 🗑 삭제 → 체크박스 → 선택 삭제 */
@@ -896,8 +896,8 @@ document.getElementById('delGo').onclick=async()=>{
   if(!confirm(`선택한 출고 ${keys.length.toLocaleString()}행을 지울까요?\n\n· 모든 PC·모든 사람 화면에서 같이 지워짐\n· 지운 행에 붙었던 개별번호${codes.length?`(${codes.slice(0,5).join(', ')}${codes.length>5?' 외 '+(codes.length-5)+'개':''})`:''}는 다시 쓰지 않음\n· 같은 출고현황 파일을 다시 올리면 그 행은 새 번호로 다시 들어옴`))return;
   const btn=document.getElementById('delGo');btn.disabled=true;btn.textContent='지우는 중…';
   try{let n=0;for(let i=0;i<keys.length;i+=2000){const r=await queue(()=>backendCall({action:'del',keys:keys.slice(i,i+2000)}));n+=r.deleted||0}
-    keys.forEach(k=>state.db.ship.delete(k));state.sel.clear();saveCache();await sync();state.delMode=false;rebuildView(true);renderDelBar();showInfo(`출고 ${n.toLocaleString()}행을 지웠습니다.`)}
-  catch(e){showError('삭제하지 못했습니다: '+(e.message||e))}
+    keys.forEach(k=>state.db.ship.delete(k));state.sel.clear();saveCache();await sync();state.delMode=false;rebuildView(true);renderDelBar();showInfo(`출고 ${n.toLocaleString()}행을 지움`)}
+  catch(e){showError('삭제하지 못함: '+(e.message||e))}
   finally{btn.textContent='선택 삭제';renderDelBar()}
 };
 document.getElementById('exportBtn').onclick=exportExcel;
@@ -945,7 +945,7 @@ function pop(ver){
     +'<div style="font-size:30px;line-height:1">🔄</div>'
     +'<div style="margin-top:12px;font-size:17px;font-weight:800;color:#0f172a">새 버전 있음</div>'
     +'<div style="margin-top:6px;font-size:13px;color:#64748b"><b style="color:#1d4ed8">'+ver+'</b> · 지금 화면 '+HERE+'</div>'
-    +'<div style="margin-top:4px;font-size:12px;color:#94a3b8">새로고침하면 새 버전으로 열립니다</div>'
+    +'<div style="margin-top:4px;font-size:12px;color:#94a3b8">새로고침하면 새 버전으로 열림</div>'
     +'<div style="display:flex;gap:8px;margin-top:18px">'
     +'<button type="button" data-k="later" style="flex:1;font:inherit;font-size:13px;font-weight:700;border:1px solid #cbd5e1;border-radius:9px;padding:9px 0;background:#fff;color:#475569;cursor:pointer">나중에</button>'
     +'<button type="button" data-k="go" style="flex:1;font:inherit;font-size:13px;font-weight:800;border:0;border-radius:9px;padding:9px 0;background:#17243b;color:#fff;cursor:pointer">새로고침</button>'
