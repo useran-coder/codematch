@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v36">
+  <meta name="sm-ver" content="v37">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -694,8 +694,8 @@ function viewRow(s,i){
 function catOfShip(s){const n=String(s.n||''),p=String(s.p||'');
   if(/[(（\[]\s*L\s*[)）\]]/i.test(n)||/LASER/i.test(n)||n.includes('레이저')||n.includes('임가공'))return '레이저';
   if(/_G$/i.test(p.trim()))return '유통/OEM';
-  if(/십자\s*앙카|스트라이크\s*보강|실\s*커버/.test(n))return '문틀';   /* 매출분석 도어/문틀 기본 품명(십자앙카·스트라이크보강·실커버 빗각) */
   if(/상하\s*보강|이너\s*프레임|INNER\s*FRAME/i.test(n))return '내부보강';
+  if(/후레임바|스텐실|하바/.test(n.normalize('NFKC').replace(/\s+/g,'')))return '문틀';   /* 수불관리와 같은 기준 : 품명에 후레임바·스텐실·하바 */
   return '부자재'}
 /* 버튼 숫자 = 지금 일자·상태·검색 조건에서 구분별 행 수 */
 function renderLastS(){const el=document.getElementById('lastS');if(!el)return;const c=Number(state.db.counter||0),n=state.db.manual?c:Math.max(c,maxSInDb());
