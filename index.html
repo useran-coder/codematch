@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v31">
+  <meta name="sm-ver" content="v32">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -171,6 +171,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <button class="tb sync-btn" id="syncBtn" type="button">동기화</button>
       <button class="tb danger" id="resetBtn" type="button">초기화</button>
       <button class="tb pri" id="exportBtn" type="button">엑셀 내보내기</button>
+      <button class="tb" id="rawExportBtn" type="button" title="ERP 주문현황 원시파일을 고르면 같은 양식 그대로, 비고(내역)에만 제품번호를 넣어 저장 (다른 프로그램 연동용)">원시파일 내보내기</button><input type="file" id="rawInput" accept=".xls,.xlsx" multiple hidden>
       <span class="tb-sep"></span>
       <span id="auChip"></span>
     </div>
@@ -906,6 +907,38 @@ document.getElementById('delGo').onclick=async()=>{
   finally{btn.textContent='선택 삭제';renderDelBar()}
 };
 document.getElementById('exportBtn').onclick=exportExcel;
+/* 원시파일 내보내기 : ERP 주문현황 원시파일(열·순서 그대로)에 비고(내역)만 제품번호를 넣어 .xls 로 저장
+   제품번호 = 주문 비고에 이미 있는 번호 → 없으면 이 주문 줄과 매칭된 출고 줄의 제품번호(자동 S번호·직접 입력 포함) */
+document.getElementById('rawExportBtn').onclick=()=>{if(!state.db.order.size&&!confirm('저장된 주문현황 없음 · 원래 비고에 있는 번호만 남음\n그래도 원시파일을 고를까요?'))return;document.getElementById('rawInput').click()};
+document.getElementById('rawInput').onchange=async e=>{const files=[...e.target.files];e.target.value='';if(!files.length)return;
+  const shipByMk=new Map();state.db.ship.forEach(s=>{if(s.mk&&s.code&&!shipByMk.has(s.mk))shipByMk.set(s.mk,s.code)});
+  const msgs=[];
+  for(const file of files){
+    try{
+      const buf=await readFile(file);let wb=null;
+      for(const opt of [{type:'array'},{type:'array',cellStyles:false,cellFormula:false,cellHTML:false}]){try{wb=XLSX.read(buf,opt);if(wb&&wb.SheetNames.length)break}catch(err){wb=null}}
+      if(!wb){const sv=salvageXls(buf);if(sv)wb=sv.wb}
+      if(!wb)throw new Error('엑셀 파일을 읽지 못함');
+      const ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
+      const hi=findHeaderIndex(rows),hs=rows[hi].map(canonicalHeader),ci=n=>hs.indexOf(n);
+      const cO=ci('주문번호'),cN=ci('NO.'),cR=ci('비고(내역)'),cP=ci('품번'),cS=ci('규격'),cD=ci('주문일자'),cQ=ci('수량')>=0?ci('수량'):ci('출고수량');
+      if(cO<0||cR<0)throw new Error('주문번호 또는 비고(내역) 열을 찾지 못함 (주문현황 원시파일인지 확인)');
+      const occ=new Map();let tot=0,had=0,put=0,none=0,notSaved=0;
+      for(let r=hi+1;r<rows.length;r++){const a=rows[r];if(!a.some(v=>clean(v)!==''))continue;tot++;
+        const rem=clean(a[cR]);if(extractCode(rem)){had++;continue}
+        const o={o:clean(a[cO]),no:cN>=0?clean(a[cN]):'',od:cD>=0?normalizeDate(a[cD]):'',p:cP>=0?clean(a[cP]):'',s:cS>=0?clean(a[cS]):'',r:rem,q:cQ>=0?clean(a[cQ]):''};
+        const b=orderBaseKey(o),n=(occ.get(b)||0)+1;occ.set(b,n);const k=(n===1&&o.no)?b:`${b}#${n}`;
+        const so=state.db.order.get(k);if(!so)notSaved++;
+        const code=(so&&so.code)||shipByMk.get(k)||'';
+        if(!code){none++;continue}
+        const addr=XLSX.utils.encode_cell({r,c:cR});ws[addr]={t:'s',v:appendCode(rem,code)};put++}
+      const out=XLSX.write(wb,{bookType:'xls',type:'array'});
+      const blob=new Blob([out],{type:'application/vnd.ms-excel'}),aEl=document.createElement('a');
+      aEl.href=URL.createObjectURL(blob);aEl.download=file.name.replace(/\.(xlsx?|xls)$/i,'')+'_제품번호.xls';document.body.appendChild(aEl);aEl.click();aEl.remove();setTimeout(()=>URL.revokeObjectURL(aEl.href),3000);
+      msgs.push(`${file.name}: ${tot.toLocaleString()}행 · 원래 번호 있음 ${had.toLocaleString()} · 제품번호 넣음 ${put.toLocaleString()} · 번호 없음 ${none.toLocaleString()}`+(notSaved?` (주문현황에 안 올린 행 ${notSaved.toLocaleString()})`:''));
+    }catch(err){msgs.push(`${file.name}: ${err.message||err}`)}
+  }
+  showInfo('원시파일 내보내기 — '+msgs.join(' / '))};
 document.getElementById('syncBtn').onclick=()=>{if(auValid())sync();else auShowGate()};
 {const wrap=document.getElementById('tableWrap'),hs=document.getElementById('hScroll'),hw=document.getElementById('headWrap');wrap.addEventListener('scroll',()=>{hw.scrollLeft=wrap.scrollLeft;if(hs.scrollLeft!==wrap.scrollLeft)hs.scrollLeft=wrap.scrollLeft});hs.addEventListener('scroll',()=>{if(wrap.scrollLeft!==hs.scrollLeft)wrap.scrollLeft=hs.scrollLeft});hw.addEventListener('wheel',e=>{if(e.deltaX){wrap.scrollLeft+=e.deltaX}},{passive:true});window.addEventListener('resize',()=>requestAnimationFrame(syncHead));if(document.fonts)document.fonts.ready.then(syncHead)}
 new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)&&state.rendered<state.viewRows.length)renderMore()},{rootMargin:'800px 0px'}).observe(document.getElementById('moreRows'));
