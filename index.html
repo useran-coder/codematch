@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v34">
+  <meta name="sm-ver" content="v35">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -509,7 +509,7 @@ function rematchUpdates(){
   state.db.ship.forEach(s=>{if(s.st!=='auto')return;
     // 자동 부여 번호가 나중에 올라온 주문현황(ERP)의 번호와 겹치면 새 번호로 다시 부여
     if(s.code&&orderCodes.has(s.code)&&orderCodes.get(s.code)!==s.mk){ups.push({k:s.k,code:'',st:'auto',reassign:1});return}
-    if(s.mk){const o=state.db.order.get(s.mk);if(o&&o.code)ups.push({k:s.k,code:o.code,st:'matched',rs:'',mk:s.mk});return}
+    if(s.mk){const o=state.db.order.get(s.mk);if(o&&o.code&&o.cs!=='ship')ups.push({k:s.k,code:o.code,st:'matched',rs:'',mk:s.mk});return}
     const m=matchRec(s,ctx);if(m.st==='matched')ups.push({k:s.k,code:m.code,st:'matched',rs:'',mk:m.mk})});
   return ups;
 }
@@ -656,8 +656,16 @@ async function addFiles(kind,files){
       const recs=parsed.rows.filter(r=>clean(r['주문번호'])).map(orderRecFromRow);withOccurrence(recs,orderBaseKey);
       // 이미 저장된 주문 행인데 비고가 바뀐 경우(나중에 제품번호를 적어 넣은 경우 등)는 내용을 갱신
       const fresh=recs.filter(o=>{const e=state.db.order.get(o.k);if(!e)return true;if(clean(e.r)!==clean(o.r)){o.upd=1;return true}return false});up.rows=recs.length;
-      g.creep(at(74));const res=await sync({payload:{order:fresh,upload:up,seedMax:Math.max(parsed.maxS,maxSInDb())}});
+      g.creep(at(70));const res=await sync({payload:{order:fresh,upload:up,seedMax:Math.max(parsed.maxS,maxSInDb())}});
       const added=res?res.added.order:0,changed=res?(res.orderUpdated||0):0;msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(changed?` · 비고 변경 ${changed.toLocaleString()}건 갱신`:'')+(recs.length-added-changed?` · 이미 저장된 ${(recs.length-added-changed).toLocaleString()}건 제외`:''));
+      /* 비고에 번호 없는 주문 줄 → 제품번호 채우기 (매칭된 출고 줄 번호, 없으면 서버가 새 S번호) — 서버 sm-v5 부터 */
+      {const smap=new Map();state.db.ship.forEach(x=>{if(x.mk&&x.code&&!smap.has(x.mk))smap.set(x.mk,x.code)});
+       const need=recs.filter(o=>{const e=state.db.order.get(o.k);return e&&!e.code}).map(o=>({k:o.k,code:smap.get(o.k)||''}));
+       if(need.length){const sv=Number((/sm-v(\d+)/.exec(state.srvVer||'')||[])[1]||0);
+         if(sv>=5){phase='제품번호 채우기';g.set(at(76),lab+`제품번호 채우는 중 (${need.length.toLocaleString()}줄)`);
+           const r2=await sync({payload:{orderCodes:need}}),asg=(r2&&r2.orderAssigned)||{};const fromShip=need.filter(x=>x.code&&asg[x.k]===x.code).length,nw=Object.keys(asg).length-fromShip;
+           msgs.push(`제품번호 채움 ${Object.keys(asg).length.toLocaleString()}줄 (출고 번호 ${fromShip.toLocaleString()} · 새 S번호 ${Math.max(0,nw).toLocaleString()})`)}
+         else msgs.push(`⚠ 번호 없는 주문 ${need.length.toLocaleString()}줄 못 채움 — 서버(shipmatch.gs) 새 버전(sm-v5) 배포 필요`)}}
       phase='원시파일 변환';g.set(at(80),lab+'원시파일 변환 중 (비고에 제품번호)');await new Promise(r=>setTimeout(r,60));
       try{const rc=rawConvert(buf,file.name);g.set(at(96),lab+'다운로드 중');dls.push(rc);msgs.push(`${rc.name}: 다운로드 (제품번호 넣음 ${rc.put.toLocaleString()}행)`)}catch(e){dls.push({file:file.name,err:e.message||String(e)});msgs.push(`${file.name}: 원시파일 변환 실패 — ${e.message||e}`)}
     }
