@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v37">
+  <meta name="sm-ver" content="v38">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -299,11 +299,12 @@ async function smCall(payload,timeoutMs){
     throw new Error('서버에 출고현황 매칭 기능(shipmatch.gs)이 아직 설치되지 않음 — 관리자에게 서버 설치·새 버전 배포 요청');
   }
 }
+function auSaveSkey(d){if(d&&d.skey){try{localStorage.setItem('dpt_auth_key',String(d.skey).trim());}catch(e){}}}
 async function auTryAuto(){
   var a=auLsGet('dpt_auth_auto_v1'); if(!a||!a.id)return false;
   var pw=auUnmask(a.p); if(!pw)return false;
   try{var d=await auCall({action:'auLogin',id:a.id,pw:pw});if(!d||!d.token||!d.user)return false;
-    AU.token=d.token;AU.id=d.user.id;AU.name=d.user.name;AU.role=d.user.role;AU.exp=d.exp;auPersist();return true;}catch(e){return false;}
+    auSaveSkey(d);AU.token=d.token;AU.id=d.user.id;AU.name=d.user.name;AU.role=d.user.role;AU.exp=d.exp;auPersist();return true;}catch(e){return false;}
 }
 function auShowGate(){
   if(au$('auGate'))return;
@@ -326,10 +327,10 @@ function auShowGate(){
   var msg=au$('auMsg'), a=auLsGet('dpt_auth_auto_v1');
   if(a&&a.id){au$('auId').value=a.id;au$('auAuto').checked=true;} else if(AU.id)au$('auId').value=AU.id;
   setTimeout(function(){(au$('auId').value?au$('auPw'):au$('auId')).focus();},60);
-  var keyHelp='같은 PC·같은 브라우저에서 <b>매출분석도구</b>나 <b>가공비 견적기</b>를 한 번 열면 비밀키가 자동 설정됨 (열고 이 화면으로 돌아오면 자동 확인).'
-    +'<div class="au-kl"><a href="https://useran-coder.github.io/sales/" target="_blank" rel="noopener">매출분석도구 열기</a><a href="https://useran-coder.github.io/cost/" target="_blank" rel="noopener">가공비 견적기 열기</a></div>';
-  auDiscoverKey().then(function(ok){ if(!ok&&au$('auSrvBox')){ au$('auSrvBox').style.display=''; au$('auSrvUrl').value=auUrl(); au$('auSrvKey').value='';
-    msg.style.color='var(--warn)'; msg.innerHTML='이 PC에서 처음 사용함 '+keyHelp; } });
+  var keyHelp='같은 PC·같은 브라우저에서 <b>가공비 견적기</b>를 한 번 열면 비밀키가 자동 설정됨 (열고 이 화면으로 돌아오면 자동 확인).'
+    +'<div class="au-kl"><a href="https://useran-coder.github.io/cost/" target="_blank" rel="noopener">가공비 견적기 열기</a></div>';
+  auDiscoverKey().then(function(ok){ if(!ok&&au$('auSrvBox')){ au$('auSrvUrl').value=auUrl(); au$('auSrvKey').value='';
+    msg.style.color='var(--muted)'; msg.innerHTML='이 PC에서 처음 사용함 · 아이디·비밀번호로 로그인하면 서버 연결이 자동 설정됨'; } });
   function keyFound(){ if(!au$('auSrvBox'))return; au$('auSrvBox').style.display='none'; msg.style.color='var(--ok)'; msg.textContent='비밀키 찾음 · 로그인 필요'; }
   addEventListener('storage',function(e){ if((e.key==='dpt_auth_key'||e.key==='dpt_sync_key')&&auKey())keyFound(); });
   var re=function(){ if(document.visibilityState==='visible'&&au$('auGate')&&!auKey())auDiscoverKey().then(function(ok){ if(ok||auKey())keyFound(); }); };
@@ -343,11 +344,12 @@ function auShowGate(){
     ev.preventDefault();
     var id=au$('auId').value.trim(),pw=au$('auPw').value;
     if(!id||!pw){msg.style.color='var(--bad)';msg.textContent='아이디·비밀번호 입력 필요';return;}
-    if(!auKey()){var k=au$('auSrvKey')&&au$('auSrvKey').value.trim(); if(k){try{localStorage.setItem('dpt_auth_key',k);}catch(e){}} else {msg.style.color='var(--bad)';msg.innerHTML='서버 비밀키가 없음 '+keyHelp;return;}}
+    if(!auKey()){var k=au$('auSrvKey')&&au$('auSrvKey').value.trim(); if(k){try{localStorage.setItem('dpt_auth_key',k);}catch(e){}}}   /* v38 : 비밀키 없어도 로그인 시도 — 서버(Code v27)가 아이디·비밀번호 확인 후 비밀키를 돌려줌 */
     var btn=au$('auBtn'); btn.disabled=true; btn.textContent='확인 중…'; msg.textContent='';
     try{
       var d=await auCall({action:'auLogin',id:id,pw:pw});
       if(!d||!d.token||!d.user)throw new Error('서버가 로그인 요청을 처리하지 못함');
+      auSaveSkey(d);
       var sameUser=!AU.id||AU.id===d.user.id;
       AU.token=d.token;AU.id=d.user.id;AU.name=d.user.name;AU.role=d.user.role;AU.exp=d.exp;
       auPersist(au$('auKeep').checked);
@@ -355,7 +357,7 @@ function auShowGate(){
       au$('auGate').remove(); auApply();
       if(!sameUser&&dataStarted){location.reload();return;}
       appStart();
-    }catch(e){msg.style.color='var(--bad)';msg.textContent=(e.message||e);}
+    }catch(e){msg.style.color='var(--bad)';if(!auKey()&&/비밀키/.test(e.message||'')){msg.innerHTML='서버 비밀키가 없음 · 서버(Code.gs) v27 배포 전에는 '+keyHelp;if(au$('auSrvBox'))au$('auSrvBox').style.display='';}else msg.textContent=(e.message||e);}
     finally{btn.disabled=false;btn.textContent='로그인';}
   });
 }
