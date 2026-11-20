@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v45">
+  <meta name="sm-ver" content="v46">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -48,7 +48,7 @@
     @media(max-width:640px){main{padding:12px}.topbar{padding:16px}.workspace,.summary{grid-template-columns:1fr}.rule-card{grid-column:auto}.toolbar{align-items:stretch}.field,.field input,.field select{width:100%}.result-count{text-align:left}.top-actions{width:100%}.top-actions .btn{flex:1}}
     .sync-btn.busy{opacity:.75}.sync-btn.err{border-color:#f87171;color:#fecaca}
     .view-tabs{display:flex;height:35px;border:1px solid #cbd5e1;border-radius:6px;overflow:hidden}.view-tabs .vt{border:0;background:#fff;color:#475569;padding:0 12px;font-size:12.5px;font-weight:700;cursor:pointer}.view-tabs .vt+.vt{border-left:1px solid #cbd5e1}.view-tabs .vt.on{background:#2f6ac6;color:#fff}.view-field{min-width:0!important}.view-field .view-tabs{width:auto}
-    .order-view .field:has(#statusFilter),.order-view #missingLbl,.order-view #delToggle{display:none!important}
+    .order-view .field:has(#statusFilter),.order-view #missingLbl{display:none!important}
     .up-msg{margin-top:10px;padding:9px 12px;border:1px solid #a7f3d0;border-radius:8px;background:#ecfdf5;color:#065f46;font-size:12.5px;line-height:1.55;white-space:pre-line;word-break:break-all}.up-msg.warn{border-color:#fcd34d;background:#fffbeb;color:#92400e}
     .notice.info{background:#ecfdf5;color:#065f46;border-color:#a7f3d0;white-space:pre-line}
     .more-rows{padding:12px 14px;text-align:center;font-size:12px;color:#64748b;background:#f8fafc;border-top:1px solid var(--line)}
@@ -175,7 +175,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <span class="tb-sep"></span>
       <button class="tb sync-btn" id="syncBtn" type="button">동기화</button>
       <button class="tb danger" id="resetBtn" type="button">초기화</button>
-      <button class="tb pri" id="exportBtn" type="button">엑셀 내보내기</button>
+      <button class="tb pri" id="exportBtn" type="button" title="주문현황 원시파일을 골라 비고에 제품번호 넣고, 지금 표에 보이는 줄만 저장">엑셀 내보내기</button><input type="file" id="exportInput" accept=".xls,.xlsx" hidden>
       <span class="tb-sep"></span>
       <span id="auChip"></span>
     </div>
@@ -216,7 +216,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 제품번호 검색"></div>
         <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button></div><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
-        <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제">🗑 삭제</button><button type="button" class="btn small price-toggle" id="priceToggle" aria-pressed="false">공급가 보기</button>
+        <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제 (개별 선택 · 머리글 체크 = 전체 선택)">삭제</button>
       </div>
       <div class="del-bar" id="delBar" hidden><b id="delCount">0건 선택</b><button type="button" class="btn small" id="delAllVisible">보이는 행 모두 선택</button><button type="button" class="btn small" id="delNone">선택 해제</button><span class="spacer"></span><button type="button" class="btn small danger" id="delGo" disabled>선택 삭제</button><button type="button" class="btn small" id="delCancel">취소</button></div>
       <div class="head-wrap" id="headWrap"><table class="data-table head-clone" id="headClone"><thead><tr id="headCloneRow"></tr></thead></table></div>
@@ -226,7 +226,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       </div>
       <div class="more-rows" id="moreRows"></div>
       <div class="hscroll" id="hScroll"><div id="hScrollInner"></div></div>
-      <div class="footer-note">표 머리글 클릭 = 오름차순·내림차순 정렬 · 자동 부여 번호는 칸을 눌러 수정(비우거나 원래 번호로 되돌리면 다시 자동 부여) · Ctrl+Z 되돌리기 · Ctrl+Y 다시 실행 · 엑셀 내보내기는 지금 화면의 조건(일자·상태·검색)에 맞는 행 모두 내보냄</div>
+      <div class="footer-note">표 머리글 클릭 = 오름차순·내림차순 정렬 · 자동 부여 번호는 칸을 눌러 수정(비우거나 원래 번호로 되돌리면 다시 자동 부여) · Ctrl+Z 되돌리기 · Ctrl+Y 다시 실행 · 엑셀 내보내기 = 주문현황 원시파일을 골라 비고에 제품번호 넣고, 표에 보이는 줄(일자·구분·카드·검색 조건)만 원시파일 양식으로 저장</div>
     </section>
   </main>
 </div>
@@ -593,7 +593,7 @@ function addPending(u){const list=loadPending().filter(x=>x.k!==u.k);list.push(u
 /* ───────── 동기화 (한 번에 하나씩 순서대로) ───────── */
 let chain=Promise.resolve();
 function queue(fn){const p=chain.then(fn,fn);chain=p.catch(()=>{});return p}
-function mergeRes(res){let n=0;if(res&&res.sm)state.srvVer=res.sm;if(res&&!res.reset){if(res.counters)state.db.counters=Object.assign({},state.db.counters,res.counters);if(res.manualP)state.db.manualP=res.manualP;if(res.auto){if(JSON.stringify(res.auto)!==JSON.stringify(state.db.auto))n++;state.db.auto=res.auto}}if(res.reset){state.db=emptyDb();savePending([]);editHistory.undo=[];editHistory.redo=[];state.sel.clear();n++}const db=state.db;if(res.epoch!=null)db.epoch=String(res.epoch);(res.ship||[]).forEach(x=>{if(x.del){if(db.ship.delete(x.k))n++;state.sel.delete(x.k);return}db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null){if(db.counter!==Number(res.counter))n++;db.counter=Number(res.counter)}if(res.manual!=null)db.manual=!!res.manual;return n}
+function mergeRes(res){let n=0;if(res&&res.sm)state.srvVer=res.sm;if(res&&!res.reset){if(res.counters)state.db.counters=Object.assign({},state.db.counters,res.counters);if(res.manualP)state.db.manualP=res.manualP;if(res.auto){if(JSON.stringify(res.auto)!==JSON.stringify(state.db.auto))n++;state.db.auto=res.auto}}if(res.reset){state.db=emptyDb();savePending([]);editHistory.undo=[];editHistory.redo=[];state.sel.clear();n++}const db=state.db;if(res.epoch!=null)db.epoch=String(res.epoch);(res.ship||[]).forEach(x=>{if(x.del){if(db.ship.delete(x.k))n++;state.sel.delete(x.k);return}db.ship.set(x.k,x);n++});(res.order||[]).forEach(x=>{if(x.del){if(db.order.delete(x.k))n++;state.sel.delete(x.k);return}db.order.set(x.k,x);n++});(res.upload||[]).forEach(x=>{db.upload.set(x.id,x);n++});if(res.rev!=null)db.rev=Math.max(db.rev,Number(res.rev));if(res.counter!=null){if(db.counter!==Number(res.counter))n++;db.counter=Number(res.counter)}if(res.manual!=null)db.manual=!!res.manual;return n}
 async function sendPush(payload){
   const res=await backendCall({action:'push',...payload});
   if(res.conflicts&&res.conflicts.length)alert(`이미 사용 중인 제품번호라서 저장하지 않음: ${res.conflicts.map(c=>c.code).join(', ')}`);
@@ -986,7 +986,7 @@ document.getElementById('resetBtn').onclick=async()=>{if(AU.role!=='admin'){aler
 /* 선택 삭제 : 🗑 삭제 → 체크박스 → 선택 삭제 */
 function allVisibleSelected(){return state.viewRows.length>0&&state.viewRows.every(r=>state.sel.has(rowKey(r)))}
 function selectVisible(on){state.viewRows.forEach(r=>{const k=rowKey(r);if(on)state.sel.add(k);else state.sel.delete(k)});document.querySelectorAll('#tableBody .row-chk').forEach(c=>{c.checked=on;c.closest('tr').classList.toggle('sel',on)});renderDelBar()}
-function renderDelBar(){const bar=document.getElementById('delBar'),t=document.getElementById('delToggle');bar.hidden=!state.delMode;t.classList.toggle('on',state.delMode);t.setAttribute('aria-pressed',String(state.delMode));t.textContent=state.delMode?'🗑 삭제 끝내기':'🗑 삭제';
+function renderDelBar(){const bar=document.getElementById('delBar'),t=document.getElementById('delToggle');bar.hidden=!state.delMode;t.classList.toggle('on',state.delMode);t.setAttribute('aria-pressed',String(state.delMode));t.textContent=state.delMode?'삭제 끝내기':'삭제';
   const n=state.sel.size;document.getElementById('delCount').textContent=`${n.toLocaleString()}건 선택`;document.getElementById('delGo').disabled=!n;
   const ca=document.querySelector('#headCloneRow .chk-all');if(ca)ca.checked=allVisibleSelected();requestAnimationFrame(syncHead)}
 function setDelMode(on){state.delMode=on;if(!on)state.sel.clear();renderDelBar();renderTable(true)}
@@ -996,6 +996,7 @@ document.getElementById('delAllVisible').onclick=()=>selectVisible(true);
 document.getElementById('delNone').onclick=()=>{state.sel.clear();selectVisible(false)};
 tableBodyEl.addEventListener('change',e=>{const c=e.target.closest('.row-chk');if(!c)return;if(c.checked)state.sel.add(c.dataset.key);else state.sel.delete(c.dataset.key);c.closest('tr').classList.toggle('sel',c.checked);renderDelBar()});
 document.getElementById('delGo').onclick=async()=>{
+  if(state.view==='order')return delOrders();
   const keys=[...state.sel].filter(k=>state.db.ship.has(k));if(!keys.length)return;
   const codes=keys.map(k=>state.db.ship.get(k).code).filter(Boolean);
   if(!confirm(`선택한 출고 ${keys.length.toLocaleString()}행을 지울까요?\n\n· 모든 PC·모든 사람 화면에서 같이 지워짐\n· 지운 행에 붙었던 제품번호${codes.length?`(${codes.slice(0,5).join(', ')}${codes.length>5?' 외 '+(codes.length-5)+'개':''})`:''}는 다시 쓰지 않음\n· 같은 출고현황 파일을 다시 올리면 그 행은 새 번호로 다시 들어옴`))return;
@@ -1005,10 +1006,32 @@ document.getElementById('delGo').onclick=async()=>{
   catch(e){showError('삭제하지 못함: '+(e.message||e))}
   finally{btn.textContent='선택 삭제';renderDelBar()}
 };
-document.getElementById('exportBtn').onclick=exportExcel;
+/* v46 : 주문현황 보기에서 주문 줄 선택 삭제 (서버 sm-v7) · 같은 주문현황 파일을 다시 올리면 지우기 전 번호로 되살아남 */
+async function delOrders(){
+  const keys=[...state.sel].filter(k=>state.db.order.has(k));if(!keys.length)return;
+  if(srvV()<7){alert('주문 줄 삭제는 서버(shipmatch.gs) sm-v7 배포 후 사용 가능\n지금 서버: '+(state.srvVer||'확인 전'));return}
+  if(!confirm(`선택한 주문 ${keys.length.toLocaleString()}줄을 지울까요?\n\n· 모든 PC·모든 사람 화면에서 같이 지워짐\n· 붙어 있던 제품번호는 다른 줄에 다시 쓰지 않음\n· 같은 주문현황 파일을 다시 올리면 그 줄은 지우기 전 번호로 다시 들어옴`))return;
+  const btn=document.getElementById('delGo');btn.disabled=true;btn.textContent='지우는 중…';
+  try{let n=0;for(let i=0;i<keys.length;i+=2000){const r=await queue(()=>backendCall({action:'del',kind:'order',keys:keys.slice(i,i+2000)}));n+=r.deleted||0}
+    keys.forEach(k=>state.db.order.delete(k));state.sel.clear();saveCache();await sync();state.delMode=false;rebuildView(true);renderDelBar();showInfo(`주문 ${n.toLocaleString()}줄을 지움`)}
+  catch(e){showError('삭제하지 못함: '+(e.message||e))}
+  finally{btn.textContent='선택 삭제';renderDelBar()}}
+/* v46 : 엑셀 내보내기 = 주문현황 원시파일을 불러와 «원시파일 변환»과 같은 양식으로, 지금 표에 보이는 줄만 저장 */
+function exportKeys(){const keep=new Set();let noLink=0;
+  state.viewRows.forEach(r=>{if(state.view==='order'){keep.add(r.__k);return}const s=state.db.ship.get(r.__k);if(s&&s.mk)keep.add(s.mk);else noLink++});
+  return {keep,noLink}}
+document.getElementById('exportBtn').onclick=()=>{
+  if(!state.viewRows.length){alert('표에 보이는 행이 없음');return}
+  const {keep,noLink}=exportKeys();if(!keep.size){alert('표에 보이는 출고 행에 연결된 주문 줄이 없음\n(주문현황 보기에서 내보내거나 주문현황을 먼저 올리기)');return}
+  const inp=document.getElementById('exportInput');inp.onchange=async()=>{const f=inp.files[0];inp.value='';if(!f)return;
+    const btn=document.getElementById('exportBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='변환 중';
+    try{const buf=await readFile(f);const rc=rawConvert(buf,f.name,keep);rc.noLink=noLink;showDlToast([rc]);
+      showInfo(`${rc.name}: 표에 보이는 ${rc.tot.toLocaleString()}줄 저장 (원시파일 ${rc.src.toLocaleString()}줄 중)`+(rc.miss?` · 이 파일에 없는 줄 ${rc.miss.toLocaleString()}`:'')+(noLink?` · 주문 연결 없는 출고 ${noLink.toLocaleString()}행 제외`:''))}
+    catch(e){showError('엑셀 내보내기 오류: '+(e.message||e))}finally{btn.disabled=false;btn.textContent=old}};
+  inp.click()};
 /* 원시파일 변환 : 주문현황을 올리면 같은 원시파일(열·순서 그대로)의 비고(내역)에만 제품번호를 넣어 «이름_제품번호.xls» 로 바로 다운로드 (다른 프로그램 연동용)
    제품번호 = 비고에 이미 있는 번호는 그대로 → 없으면 저장된 주문 줄 번호 → 이 주문 줄과 매칭된 출고 줄의 제품번호(자동 S번호·직접 입력) */
-function rawConvert(buf,fileName){
+function rawConvert(buf,fileName,keep){
   const shipByMk=new Map();state.db.ship.forEach(s=>{if(s.mk&&s.code&&!shipByMk.has(s.mk))shipByMk.set(s.mk,s.code)});
   let wb=null;for(const opt of [{type:'array'},{type:'array',cellStyles:false,cellFormula:false,cellHTML:false}]){try{wb=XLSX.read(buf,opt);if(wb&&wb.SheetNames.length)break}catch(err){wb=null}}
   if(!wb){const sv=salvageXls(buf);if(sv)wb=sv.wb}
@@ -1017,17 +1040,26 @@ function rawConvert(buf,fileName){
   const hi=findHeaderIndex(rows),hs=rows[hi].map(canonicalHeader),ci=n=>hs.indexOf(n);
   const cO=ci('주문번호'),cN=ci('NO.'),cR=ci('비고(내역)'),cP=ci('품번'),cS=ci('규격'),cD=ci('주문일자'),cQ=ci('수량')>=0?ci('수량'):ci('출고수량');
   if(cO<0||cR<0)throw new Error('주문번호 또는 비고(내역) 열을 찾지 못함');
-  const occ=new Map();let tot=0,had=0,put=0,none=0;
-  for(let r=hi+1;r<rows.length;r++){const a=rows[r];if(!a.some(v=>clean(v)!==''))continue;tot++;
-    const rem=clean(a[cR]);if(extractCode(rem)){had++;continue}
+  const occ=new Map(),keepRows=[],found=new Set();let tot=0,had=0,put=0,none=0,src=0;
+  for(let r=hi+1;r<rows.length;r++){const a=rows[r];if(!a.some(v=>clean(v)!==''))continue;src++;
+    const rem=clean(a[cR]);
     const o={o:clean(a[cO]),no:cN>=0?clean(a[cN]):'',od:cD>=0?normalizeDate(a[cD]):'',p:cP>=0?clean(a[cP]):'',s:cS>=0?clean(a[cS]):'',r:rem,q:cQ>=0?clean(a[cQ]):''};
     const b=orderBaseKey(o),n=(occ.get(b)||0)+1;occ.set(b,n);const k=(n===1&&o.no)?b:`${b}#${n}`;
+    if(keep){if(!keep.has(k))continue;keepRows.push(r);found.add(k)}
+    tot++;if(extractCode(rem)){had++;continue}
     const so=state.db.order.get(k),code=(so&&so.code)||shipByMk.get(k)||'';
     if(!code){none++;continue}
     ws[XLSX.utils.encode_cell({r,c:cR})]={t:'s',v:appendCode(rem,code)};put++}
-  const out=XLSX.write(wb,{bookType:'xls',type:'array'}),name=String(fileName||'주문현황').replace(/\.(xlsx?|xls)$/i,'')+'_제품번호.xls';
+  if(keep){if(!keepRows.length)throw new Error('이 파일에 표에 보이는 주문 줄이 없음 (다른 날짜 파일인지 확인)');
+    // 표에 보이는 줄만 남김 : 머리글까지는 그대로, 아래는 남길 줄만 위로 당겨 붙임 (열·순서 그대로)
+    const rg=XLSX.utils.decode_range(ws['!ref']),nw={};
+    for(const key of Object.keys(ws)){if(key[0]==='!')continue;const c=XLSX.utils.decode_cell(key);if(c.r<=hi)nw[key]=ws[key]}
+    keepRows.forEach((r,i)=>{for(let c=rg.s.c;c<=rg.e.c;c++){const v=ws[XLSX.utils.encode_cell({r,c})];if(v)nw[XLSX.utils.encode_cell({r:hi+1+i,c})]=v}});
+    ['!cols','!margins'].forEach(x=>{if(ws[x])nw[x]=ws[x]});if(ws['!merges'])nw['!merges']=ws['!merges'].filter(m=>m.e.r<=hi);
+    nw['!ref']=XLSX.utils.encode_range({s:rg.s,e:{r:hi+keepRows.length,c:rg.e.c}});wb.Sheets[wb.SheetNames[0]]=nw}
+  const out=XLSX.write(wb,{bookType:'xls',type:'array'}),name=String(fileName||'주문현황').replace(/\.(xlsx?|xls)$/i,'')+(keep?'_제품번호_표시행.xls':'_제품번호.xls');
   const aEl=document.createElement('a');aEl.href=URL.createObjectURL(new Blob([out],{type:'application/vnd.ms-excel'}));aEl.download=name;document.body.appendChild(aEl);aEl.click();aEl.remove();setTimeout(()=>URL.revokeObjectURL(aEl.href),5000);
-  return {name,tot,had,put,none};
+  return {name,tot,had,put,none,src,miss:keep?Math.max(0,keep.size-found.size):0};
 }
 /* 다운로드 알림 (오른쪽 아래, 10초 뒤 자동으로 닫힘) */
 let dlTimer=null;
@@ -1037,7 +1069,7 @@ function showDlToast(list){let el=document.getElementById('dlToast');if(!el){el=
 document.getElementById('syncBtn').onclick=()=>{if(auValid())sync();else auShowGate()};
 {const wrap=document.getElementById('tableWrap'),hs=document.getElementById('hScroll'),hw=document.getElementById('headWrap');wrap.addEventListener('scroll',()=>{hw.scrollLeft=wrap.scrollLeft;if(hs.scrollLeft!==wrap.scrollLeft)hs.scrollLeft=wrap.scrollLeft});hs.addEventListener('scroll',()=>{if(wrap.scrollLeft!==hs.scrollLeft)wrap.scrollLeft=hs.scrollLeft});hw.addEventListener('wheel',e=>{if(e.deltaX){wrap.scrollLeft+=e.deltaX}},{passive:true});window.addEventListener('resize',()=>requestAnimationFrame(syncHead));if(document.fonts)document.fonts.ready.then(syncHead)}
 new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)&&state.rendered<state.viewRows.length)renderMore()},{rootMargin:'800px 0px'}).observe(document.getElementById('moreRows'));
-document.getElementById('priceToggle').onclick=e=>{state.showPrice=!state.showPrice;if(!state.showPrice&&PRICE_HEADERS.includes(state.sort.key))state.sort={key:'출고일자',dir:'asc'};e.currentTarget.setAttribute('aria-pressed',String(state.showPrice));e.currentTarget.textContent=state.showPrice?'공급가 숨기기':'공급가 보기';renderTable(true)};
+{const pt=document.getElementById('priceToggle');if(pt)pt.onclick=e=>{state.showPrice=!state.showPrice;if(!state.showPrice&&PRICE_HEADERS.includes(state.sort.key))state.sort={key:'출고일자',dir:'asc'};e.currentTarget.setAttribute('aria-pressed',String(state.showPrice));e.currentTarget.textContent=state.showPrice?'공급가 숨기기':'공급가 보기';renderTable(true)}}
 document.getElementById('dateFrom').onchange=e=>setDateRange(e.target.value,state.filters.to);document.getElementById('dateTo').onchange=e=>setDateRange(state.filters.from,e.target.value);
 document.getElementById('datePreset').onchange=e=>{const v=e.target.value,n=new Date();if(!v)return;
   if(v==='all')return setDateRange('','');
