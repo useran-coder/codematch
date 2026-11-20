@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v47">
+  <meta name="sm-ver" content="v48">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -1026,6 +1026,23 @@ const rawStore={_db:null,
   async getMany(keys){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction(['rows','meta']),rs=t.objectStore('rows'),out=new Map();let hdr=null;
     keys.forEach(k=>{const q=rs.get(k);q.onsuccess=()=>{if(q.result)out.set(k,q.result.a)}});const h=t.objectStore('meta').get('hdr');h.onsuccess=()=>{hdr=h.result||null};
     t.oncomplete=()=>res({hdr,rows:out});t.onerror=()=>rej(t.error)})}};
+/* v48 : xls 저장 = 글자 맑은 고딕 8pt · 열 너비 글자에 맞춤 (주문현황 변환·엑셀 내보내기 공통) */
+function textWch(t){let w=0;for(const ch of String(t)){const c=ch.codePointAt(0);w+=c>=0x1100?1.55:/[0-9]/.test(ch)?1:ch===' '?0.5:/[A-Z]/.test(ch)?1.15:0.85}return w}
+function fitCols(ws){if(!ws||!ws['!ref'])return;const rg=XLSX.utils.decode_range(ws['!ref']),w=[];
+  for(let r=rg.s.r;r<=rg.e.r;r++)for(let c=rg.s.c;c<=rg.e.c;c++){const cell=ws[XLSX.utils.encode_cell({r,c})];if(!cell)continue;const t=cell.w!=null?cell.w:cell.v;if(t==null||t==='')continue;const x=textWch(t);if(!(w[c]>=x))w[c]=x}
+  ws['!cols']=[];for(let c=0;c<=rg.e.c;c++)ws['!cols'][c]={wch:Math.min(80,Math.max(3,Math.ceil(((w[c]||0)+1.8)*10)/10))}}
+function xlsOut(wb){wb.SheetNames.forEach(n=>fitCols(wb.Sheets[n]));
+  const raw=new Uint8Array(XLSX.write(wb,{bookType:'xls',type:'array'}));
+  try{const cfb=XLSX.CFB.read(raw,{type:'array'}),e=XLSX.CFB.find(cfb,'Workbook');const d=e&&e.content;if(!d)return raw;
+    const NAME='맑은 고딕';let o=0,hit=0;
+    while(o+4<=d.length){const t=d[o]|d[o+1]<<8,l=d[o+2]|d[o+3]<<8;
+      if(t===0x31&&l>=16){const p=o+4,cch=d[p+14],hb=d[p+15];
+        // 글꼴 이름 길이가 같을 때만 바꿈 (레코드 길이가 그대로라 다른 위치 정보가 안 틀어짐)
+        if(cch===NAME.length&&hb===1&&l===16+cch*2){d[p]=160;d[p+1]=0;d[p+12]=129;for(let i=0;i<cch;i++){const u=NAME.charCodeAt(i);d[p+16+i*2]=u&255;d[p+17+i*2]=u>>8}hit++}
+        else{d[p]=160;d[p+1]=0}}
+      o+=4+l}
+    if(!hit)return raw;return new Uint8Array(XLSX.CFB.write(cfb,{type:'array',fileType:'cfb'}))}
+  catch(err){console.warn('글꼴 바꾸기 실패',err);return raw}}
 function ymdCompact(d){return /^\d{4}-\d{2}-\d{2}$/.test(d||'')?d.replace(/-/g,''):clean(d)}
 async function exportRaw(){
   const list=state.viewRows;if(!list.length){alert('표에 보이는 행이 없음');return}
@@ -1049,7 +1066,7 @@ async function exportRaw(){
     const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aoa),'Sheet1');
     const dates=[...new Set(items.map(x=>ymdCompact(x.rec.od)).filter(Boolean))].sort();
     const name=`주문현황_제품번호_${dates.length?dates[0]+(dates.length>1?'-'+dates[dates.length-1]:''):ymdCompact(new Date().toISOString().slice(0,10))}.xls`;
-    const out=XLSX.write(wb,{bookType:'xls',type:'array'});const aEl=document.createElement('a');aEl.href=URL.createObjectURL(new Blob([out],{type:'application/vnd.ms-excel'}));aEl.download=name;document.body.appendChild(aEl);aEl.click();aEl.remove();setTimeout(()=>URL.revokeObjectURL(aEl.href),5000);
+    const out=xlsOut(wb);const aEl=document.createElement('a');aEl.href=URL.createObjectURL(new Blob([out],{type:'application/vnd.ms-excel'}));aEl.download=name;document.body.appendChild(aEl);aEl.click();aEl.remove();setTimeout(()=>URL.revokeObjectURL(aEl.href),5000);
     const rc={name,tot:items.length,had,put,none,fb};showDlToast([rc]);
     showInfo(`${name}: 표에 보이는 ${items.length.toLocaleString()}줄 저장`+(fb?` · 원시 줄 없는 ${fb.toLocaleString()}줄은 주요 열만 채움 (이 PC에서 그 주문현황 파일을 다시 올리면 전체 열로 저장됨)`:''))}
   catch(e){showError('엑셀 내보내기 오류: '+(e.message||e))}finally{btn.disabled=false;btn.textContent=old}}
@@ -1085,7 +1102,7 @@ function rawConvert(buf,fileName,keep){
     keepRows.forEach((r,i)=>{for(let c=rg.s.c;c<=rg.e.c;c++){const v=ws[XLSX.utils.encode_cell({r,c})];if(v)nw[XLSX.utils.encode_cell({r:hi+1+i,c})]=v}});
     ['!cols','!margins'].forEach(x=>{if(ws[x])nw[x]=ws[x]});if(ws['!merges'])nw['!merges']=ws['!merges'].filter(m=>m.e.r<=hi);
     nw['!ref']=XLSX.utils.encode_range({s:rg.s,e:{r:hi+keepRows.length,c:rg.e.c}});wb.Sheets[wb.SheetNames[0]]=nw}
-  const out=XLSX.write(wb,{bookType:'xls',type:'array'}),name=String(fileName||'주문현황').replace(/\.(xlsx?|xls)$/i,'')+(keep?'_제품번호_표시행.xls':'_제품번호.xls');
+  const out=xlsOut(wb),name=String(fileName||'주문현황').replace(/\.(xlsx?|xls)$/i,'')+(keep?'_제품번호_표시행.xls':'_제품번호.xls');
   const aEl=document.createElement('a');aEl.href=URL.createObjectURL(new Blob([out],{type:'application/vnd.ms-excel'}));aEl.download=name;document.body.appendChild(aEl);aEl.click();aEl.remove();setTimeout(()=>URL.revokeObjectURL(aEl.href),5000);
   return {name,tot,had,put,none,src,miss:keep?Math.max(0,keep.size-found.size):0};
 }
