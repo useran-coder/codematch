@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v52">
+  <meta name="sm-ver" content="v53">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -18,11 +18,11 @@
     .title h1{font-size:22px;margin:0;letter-spacing:-.4px}.title{flex:none}
     /* v51 : 제목 오른쪽 음각 알림 필드 (스위치 홈 모양) — 매칭 기준 카드의 알림을 한 줄로 */
     .top-msg{flex:1 1 auto;min-width:0;max-width:760px;height:34px;display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:3px;background:linear-gradient(180deg,#0b1220,#141e33);box-shadow:inset 0 3px 6px #000c,inset 0 -1px 0 #ffffff1f,0 1px 0 #ffffff14;overflow:hidden}
-    .top-msg .notice{margin:0;padding:0;border:0;background:none;border-radius:0;font-size:12.5px;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 auto;line-height:34px}
+    .top-msg .notice{margin:0;padding:0;border:0;background:none;border-radius:0;font-size:12px;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 auto;line-height:34px}
     .top-msg .notice.show{display:block}.top-msg .notice.info{background:none;border:0}.topbar>.top-actions{flex:none;flex-wrap:nowrap}@media(max-width:1050px){.top-msg{width:100%;max-width:none;flex:none}}.top-msg .notice br{display:none}.top-msg .notice .btn{height:22px;margin:0 0 0 8px!important;padding:0 8px;font-size:11px;vertical-align:middle}
     .top-msg .notice::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:middle;position:relative;top:-1px}
     .top-msg #notice{color:#fde047}.top-msg #notice::before{background:#f59e0b;box-shadow:0 0 6px #f59e0b}
-    .top-msg #infoNotice{color:#fde047}.top-msg #infoNotice::before{background:#22c55e;box-shadow:0 0 6px #22c55e}
+    .top-msg #infoNotice{color:#fde047}.top-msg #infoNotice.go{text-overflow:clip}.top-msg #infoNotice .tm-run{display:inline}.top-msg #infoNotice.go .tm-run{display:inline-block;will-change:transform}.top-msg #infoNotice::before{transition:opacity .4s}.top-msg #infoNotice.go::before{opacity:0}.top-msg #infoNotice::before{background:#22c55e;box-shadow:0 0 6px #22c55e}
     .top-msg .tm-empty{color:#64748b;font-size:12px}.top-msg:has(.notice.show) .tm-empty{display:none}
     .top-msg:has(#infoNotice.show) #notice{flex:0 1 auto;max-width:45%}.title p{margin:0;color:#cbd5e1;font-size:13px}
     .top-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #b9c5d6;background:#fff;color:#26354d;border-radius:7px;padding:9px 14px;font-weight:700;box-shadow:0 1px 2px #0f172a12}
@@ -936,7 +936,13 @@ async function runDiag(){const n=document.getElementById('notice');n.classList.a
 let infoTimer=null;
 /* 알림을 제목 오른쪽 음각 필드로 옮김 · 마우스 올리면 전체 문구 */
 {const tm=document.getElementById('topMsg');['notice','infoNotice'].forEach(id=>{const n=document.getElementById(id);if(!n)return;tm.appendChild(n);new MutationObserver(()=>{n.title=n.textContent.replace(/🩺?\s*서버 점검$/,'')}).observe(n,{childList:true,characterData:true,subtree:true})})}
-function showInfo(msg){const n=document.getElementById('infoNotice');n.textContent=msg;n.classList.toggle('show',!!msg);clearTimeout(infoTimer);/* v52 : 알림은 자동으로 사라지지 않고 다음 알림이 올 때까지 그대로 */}
+/* v53 : 안내 알림 = 10초 보인 뒤 왼쪽으로 흘러가며 사라짐 (글자 12px) */
+function showInfo(msg){const n=document.getElementById('infoNotice');clearTimeout(infoTimer);n.classList.remove('go');n.innerHTML='';
+  if(!msg){n.classList.remove('show');return}
+  const sp=document.createElement('span');sp.className='tm-run';sp.textContent=msg;n.appendChild(sp);n.classList.add('show');
+  infoTimer=setTimeout(()=>{if(!sp.isConnected)return;n.classList.add('go');const dist=sp.offsetWidth+16,ms=Math.max(2500,dist/90*1000);
+    sp.style.transition=`transform ${ms}ms linear`;requestAnimationFrame(()=>requestAnimationFrame(()=>{sp.style.transform=`translateX(${-dist}px)`}));
+    infoTimer=setTimeout(()=>{if(sp.isConnected){n.classList.remove('show','go');n.innerHTML=''}},ms+50)},10000)}
 
 /* ───────── 엑셀 내보내기 (지금 화면 조건의 모든 행) ───────── */
 async function exportExcel(){
