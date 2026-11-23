@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v73">
+  <meta name="sm-ver" content="v74">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -1945,7 +1945,8 @@ if (typeof module !== 'undefined') module.exports = SU;
   document.getElementById('suPart').onchange=()=>rebuildView();
 
   async function run(file){
-    say(`«${file.name}» 읽는 중 (큰 파일은 10초 정도)`);await new Promise(r=>setTimeout(r,50));
+    /* v74 : 수불 엑셀 올리기 진행 — 알림창에 단계 · % · 막대 */
+    const PG=(t,v)=>showProg('수불 엑셀 · '+t,v);PG('파일 읽는 중',3);await new Promise(r=>setTimeout(r,50));
     const buf=await file.arrayBuffer();
     const wb=XLSX.read(buf,{type:'array',dense:true,cellFormula:true,cellStyles:false,cellHTML:false,cellNF:false,cellText:false,cellDates:true});
     let names=wb.SheetNames.filter(n=>/수불/.test(n));if(!names.length)names=wb.SheetNames.slice();
@@ -1973,7 +1974,7 @@ if (typeof module !== 'undefined') module.exports = SU;
     /* 지금 수불관리 자료 받기 (이 품목들의 지울 입력·ERP 반영 시작일 확인) */
     const ids={};P.items.forEach(it=>{ids[it.id]=1});const dset={};P.dates.forEach(d=>{dset[d]=1});
     const cur=new Map(),keep={};let pos=0,ep='',erpFrom='';
-    for(;;){say(`수불관리 자료 받는 중 … ${pos.toLocaleString()}줄`);const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(d.reset)cur.clear();ep=d.epoch||ep;
+    const estT=ldEst()||0;for(;;){PG(`수불관리 자료 확인 ${pos.toLocaleString()}줄`,10+(estT?Math.min(30,pos/estT*30):Math.min(30,pos/2000)));const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(d.reset)cur.clear();ep=d.epoch||ep;
       (d.recs||[]).forEach(x=>{if(x.k==='c:erp'){erpFrom=x.v&&x.v.from||'';return}if(x.k.slice(0,2)==='i:'&&ids[x.k.slice(2)]){const kv={};if(x.v&&x.v.code){kv.code=x.v.code;kv.pcBy=x.v.pcBy}if(x.v&&x.v.smHide)kv.smHide=x.v.smHide;if(Object.keys(kv).length)keep[x.k.slice(2)]=kv;else delete keep[x.k.slice(2)];return}if(x.k.slice(0,2)!=='e:')return;const a=x.k.slice(2).split('|');if(!ids[a[0]]||!dset[a[2]])return;if(x.v==null)cur.delete(x.k);else cur.set(x.k,1)});
       pos=d.pos;if(!d.more)break}
     const recs=[],want={};
@@ -1981,15 +1982,16 @@ if (typeof module !== 'undefined') module.exports = SU;
     P.ents.forEach(e=>{want[e.k]=1;recs.push(e)});
     let del=0;cur.forEach((_,k)=>{if(!want[k]){recs.push({k,v:null});del++}});
     if(lastOut){const nf=SU.addDays(lastOut,1);if(!erpFrom||nf>erpFrom)recs.push({k:'c:erp',v:{from:nf}})}
-    for(let i=0;i<recs.length;i+=2500){say(`수불관리에 저장 중 … ${Math.min(recs.length,i+2500).toLocaleString()} / ${recs.length.toLocaleString()}`);await suApi({action:'suPush',recs:recs.slice(i,i+2500),force:true},300000)}
+    for(let i=0;i<recs.length;i+=2500){PG(`수불관리에 저장 ${Math.min(recs.length,i+2500).toLocaleString()} / ${recs.length.toLocaleString()}`,40+50*(i/recs.length));await suApi({action:'suPush',recs:recs.slice(i,i+2500),force:true},300000)}PG('화면 반영',90);
     setSubul(tmp,`수불 엑셀 ${src.name} «${tab}»`);showView();
-    const nCodes=await pushSubulCodes(P.items,`수불 엑셀 ${src.name} «${tab}»`).catch(e=>{showError('제품번호 등록 실패(수불 저장은 됨): '+(e.message||e));return 0});
+    PG('제품번호 등록',94);const nCodes=await pushSubulCodes(P.items,`수불 엑셀 ${src.name} «${tab}»`).catch(e=>{showError('제품번호 등록 실패(수불 저장은 됨): '+(e.message||e));return 0});
+    PG('완료',100);await new Promise(r=>setTimeout(r,500));
     say(`수불관리로 넘김 완료 — ${src.name} «${tab}» 품목 ${P.items.length.toLocaleString()} · 입력 ${P.ents.length.toLocaleString()}${del?` · 지운 입력 ${del.toLocaleString()}`:''} · 재고 대조 ${V.bad.length?V.bad.length+'줄 다름':'모두 같음'} (수불관리 화면은 1분 안에 반영)${nCodes?` · 제품번호 ${nCodes.toLocaleString()}개 출고매칭에 등록`:''}`);
   }
   const btn=document.getElementById('suUpBtn'),inp=document.getElementById('suUpInput');
   btn.onclick=()=>{if(AU.role!=='admin'){alert('수불 엑셀 올리기는 관리자만 가능');return}inp.click()};
   inp.onchange=async()=>{const f=inp.files[0];inp.value='';if(!f)return;btn.disabled=true;const old=btn.textContent;btn.textContent='수불 엑셀 처리 중';
-    try{await run(f)}catch(e){showError('수불 엑셀 올리기 오류: '+(e.message||e))}finally{btn.disabled=false;btn.textContent=old}};
+    try{await run(f)}catch(e){showInfo('');showError('수불 엑셀 올리기 오류: '+(e.message||e))}finally{{const n=document.getElementById('infoNotice');if(n&&n.querySelector('.tm-bar'))showInfo('')}btn.disabled=false;btn.textContent=old}};
 })();
 </script>
 <script id="sm-new-version-popup">
