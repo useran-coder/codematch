@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v86">
+  <meta name="sm-ver" content="v87">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -1827,9 +1827,14 @@ if (typeof module !== 'undefined') module.exports = SU;
   const LS_TOT='sm_su_total';let ldTimer=null;
   function ldEst(){try{return Number(localStorage.getItem(LS_TOT))||0}catch(_){return 0}}
   function ldRender(){const L=state.suLoading,el=document.getElementById('suLoad');if(!el)return;if(!L||state.view!=='subul'){el.hidden=true;return}
-    el.hidden=false;el.classList.toggle('slim',!!state.subul);const sec=((Date.now()-L.t0)/1000).toFixed(1),est=L.est,pct=est?Math.min(99,Math.round(L.rows/est*100)):0;
+    el.hidden=false;el.classList.toggle('slim',!!state.subul);const secN=(Date.now()-L.t0)/1000,sec=secN.toFixed(1),est=L.est,base=L.base||0;
+    /* v87 : 전체 진행 % — 서버 연결 0~15% (시간에 따라 천천히) · 자료 받기 15~90% (지난번 전체 줄 수 기준, 없으면 시간) · 표 만들기 95% */
+    const creep=(lo,hi,t,k)=>lo+(hi-lo)*(1-Math.exp(-t/k));let pct;
+    if(L.phase===0)pct=creep(0,15,secN,4);
+    else if(L.phase===1){if(!L.t1)L.t1=Date.now();const span=est-base;if(L.lastRows!==L.rows){L.lastRows=L.rows;L.tLast=Date.now()}if(span>0){const done=Math.min(1,Math.max(0,(L.rows-base)/span)),next=Math.min(1-done,15000/span);pct=15+75*done+creep(0,75*next*0.8,(Date.now()-L.tLast)/1000,3)}else pct=creep(15,90,(Date.now()-L.t1)/1000,6)}   /* 한 번에 15,000줄씩 받으므로 받는 동안에도 조금씩 오름 */
+    else pct=95;pct=Math.max(L.pctMax||0,Math.min(99,Math.floor(pct)));L.pctMax=pct;
     const st=['서버 연결','자료 받기','표 만들기'],cur=L.phase;
-    el.innerHTML=`<div class="sl-num">${L.rows.toLocaleString()}<small>줄 받음${est?` / 약 ${est.toLocaleString()} · ${pct}%`:''} · ${sec}초</small></div><div class="sl-bar${est&&L.phase===1?'':' ind'}"><i style="width:${L.phase===2?100:pct}%"></i></div><div class="sl-steps">${st.map((t,i)=>`<span class="${i<cur?'ok':i===cur?'on':''}">${t}</span>`).join('')}</div>`}
+    el.innerHTML=`<div class="sl-num">${pct}%<small>${L.rows.toLocaleString()}줄 받음${est?` / 약 ${est.toLocaleString()}`:''} · ${sec}초</small></div><div class="sl-bar"><i style="width:${pct}%"></i></div><div class="sl-steps">${st.map((t,i)=>`<span class="${i<cur?'ok':i===cur?'on':''}">${t}</span>`).join('')}</div>`}
   function ldStart(){state.suLoading={t0:Date.now(),rows:0,est:ldEst(),phase:0};const e=document.getElementById('emptyState');if(e&&!state.subul)e.style.display='none';ldRender();clearInterval(ldTimer);ldTimer=setInterval(ldRender,100)}
   function ldEnd(){clearInterval(ldTimer);ldTimer=null;state.suLoading=null;const el=document.getElementById('suLoad');if(el){el.hidden=true;el.innerHTML=''}}
   /* v69 : 수불 자료 캐시 — 서버 기록은 덧붙이기만 하므로 지난번 받은 위치(pos)부터 새 줄만 받음
