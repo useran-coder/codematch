@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v63">
+  <meta name="sm-ver" content="v64">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -236,7 +236,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field" style="display:none"><label for="suPart">파트</label><select id="suPart"><option value="">전체 파트</option><option value="p1">생산1파트 (A동)</option><option value="p2">생산2파트 (B동)</option><option value="p3">생산3파트 (레이저)</option></select></div><span class="su-cnt" id="suCount" hidden></span>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 제품번호 검색"></div>
-        <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="cat-btn su-only su-auto" id="suAuto" role="switch" aria-checked="false"><span class="sw"><i></i></span>제품번호 자동부여</button><button type="button" class="btn small del-toggle su-only su-del" id="suDel" aria-pressed="false" title="체크박스로 수불 품목을 골라 이 화면에서만 숨김 (수불관리 자료는 그대로)">숨기기</button><button type="button" class="btn small su-only su-del" id="suHid" aria-pressed="false" title="숨긴 품목 보기 · 골라서 다시 보이게 할 수 있음">숨긴 품목&nbsp;<b id="suHidN">0</b></button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
+        <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="cat-btn su-only su-auto" id="suAuto" role="switch" aria-checked="false"><span class="sw"><i></i></span>제품번호 자동부여</button><button type="button" class="btn small del-toggle su-del" id="suDel" aria-pressed="false" title="체크박스로 행을 골라 목록에서만 숨김 (자료는 그대로 · 모든 PC 같음)">숨기기</button><button type="button" class="btn small su-del" id="suHid" aria-pressed="false" title="숨긴 품목 보기 · 골라서 다시 보이게 할 수 있음">숨긴 항목&nbsp;<b id="suHidN">0</b></button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
         <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제 (개별 선택 · 머리글 체크 = 전체 선택)">삭제</button>
       </div>
       <div class="del-bar" id="delBar" hidden><b id="delCount">0건 선택</b><button type="button" class="btn small" id="delAllVisible">보이는 행 모두 선택</button><button type="button" class="btn small" id="delNone">선택 해제</button><span class="spacer"></span><button type="button" class="btn small danger" id="delGo" disabled>선택 삭제</button><button type="button" class="btn small" id="delCancel">취소</button></div>
@@ -421,6 +421,13 @@ const STATUS_TEXT={existing:'기존 입력',matched:'매칭 완료',auto:'자동
 /* v45 : 구분별 자동번호 글자 (각 5자리) · 스위치 켠 구분만 자동 부여 (기본 내부보강만 켬) */
 const CAT_PRE={'내부보강':'B','레이저':'D','부자재':'A','유통/OEM':'G','문틀':'C'},PRE_ORDER=['부자재','내부보강','문틀','레이저','유통/OEM'];
 /* v63 : 숫자 자리 — 내부보강 B 5자리(이미 B10000 넘음), 나머지 A·D·G·C 4자리 (사용자 요청 2026-11-23) */
+/* v64 : 주문현황·출고현황 숨기기 — 서버 upload 기록 {kind:'rowhide',view,keys,on,t} 을 순서대로 적용 (서버 수정 없음, 모든 PC 같음) */
+let rowHideCache=null,rowHideKey='';
+function rowHidden(){const k=state.db.upload.size+'|'+state.db.rev;if(rowHideCache&&rowHideKey===k)return rowHideCache;const m=new Set();
+  [...state.db.upload.values()].filter(u=>u.kind==='rowhide').sort((a,b)=>(a.t||0)-(b.t||0)||String(a.at||'').localeCompare(String(b.at||''))).forEach(u=>(u.keys||[]).forEach(x=>{const kk=u.view+'|'+x;if(u.on)m.add(kk);else m.delete(kk)}));
+  rowHideCache=m;rowHideKey=k;return m}
+function isRowHidden(r){if(state.view==='subul')return false;return rowHidden().has(state.view+'|'+rowKey(r))}
+function showingHidden(){return !!(state.showHidden||{})[state.view]}
 function pW(P){return P==='B'?5:4}function fmtP(P,n){return P+String(n).padStart(pW(P),'0')}
 function srvV(){return Number((/sm-v(\d+)/.exec(state.srvVer||'')||[])[1]||0)}
 function autoOn(P){return !!((state.db&&state.db.auto)||{})[P]}
@@ -773,7 +780,7 @@ document.getElementById('lastS').onclick=async()=>{
   catch(e){showError('마지막 자동번호를 바꾸지 못함: '+(e.message||e))}
 };
 function renderCatBtns(){renderLastS();const f=state.filters,cnt={};const q=norm(f.search);
-  state.rows.forEach(r=>{if(!inDateRange(r['출고일자']))return;if(f.status&&r.__status!==f.status)return;if(f.missingOnly&&r.__status!=='auto'&&r.__status!=='none')return;
+  const hv=state.view!=='subul',sh=showingHidden();state.rows.forEach(r=>{if(hv&&isRowHidden(r)!==sh)return;if(!inDateRange(r['출고일자']))return;if(f.status&&r.__status!==f.status)return;if(f.missingOnly&&r.__status!=='auto'&&r.__status!=='none')return;
     if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','제품번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return;cnt[r.__cat]=(cnt[r.__cat]||0)+1});
   {const c={all:0,nc:0,chk:0,no:0};state.rows.forEach(r=>{if(r.__status!=='auto'||!inDateRange(r['출고일자']))return;if(f.status&&r.__status!==f.status)return;if(f.cat&&r.__cat!==f.cat)return;if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','제품번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return;c.all++;if(r.__reason==='주문 제품번호 없음')c.nc++;else if(r.__reason==='내용 확인 필요')c.chk++;else c.no++});
     document.getElementById('autoN').textContent=c.all.toLocaleString();document.getElementById('missingLbl').title=`자동 부여 ${c.all.toLocaleString()}행\n· 주문현황 비고에 제품번호 없음 ${c.nc.toLocaleString()}\n· 내용 확인 필요 ${c.chk.toLocaleString()}\n· 주문현황에 수주번호 없음 등 ${c.no.toLocaleString()}`}
@@ -833,7 +840,8 @@ function rebuildView(keep=false){
 }
 function getDisplayValue(row,key){if(key==='제품번호')return row.__code||'';if(key==='매칭상태')return row.__statusText||'';if(key==='비고(내역)')return row.__remark??row[key]??'';if(key==='출고일자')return dateDisplay(row[key]);return row[key]??''}
 function visibleRows(){
-  const q=norm(state.filters.search);let rows=state.rows.filter(r=>{
+  const q=norm(state.filters.search),hv=state.view!=='subul',sh=showingHidden();if(hv){const e=document.getElementById('suHidN');if(e)e.textContent=state.rows.filter(isRowHidden).length.toLocaleString()}let rows=state.rows.filter(r=>{
+    if(hv&&isRowHidden(r)!==sh)return false;
     if(!inDateRange(r['출고일자']))return false;
     if(state.filters.status&&r.__status!==state.filters.status)return false;
     if(state.filters.missingOnly&&r.__status!=='auto'&&r.__status!=='none')return false;
@@ -1021,17 +1029,30 @@ document.getElementById('resetBtn').onclick=async()=>{if(AU.role!=='admin'){aler
 /* 선택 삭제 : 🗑 삭제 → 체크박스 → 선택 삭제 */
 function allVisibleSelected(){return state.viewRows.length>0&&state.viewRows.every(r=>state.sel.has(rowKey(r)))}
 function selectVisible(on){state.viewRows.forEach(r=>{const k=rowKey(r);if(on)state.sel.add(k);else state.sel.delete(k)});document.querySelectorAll('#tableBody .row-chk').forEach(c=>{c.checked=on;c.closest('tr').classList.toggle('sel',on)});renderDelBar()}
-function renderDelBar(){const bar=document.getElementById('delBar'),t=document.getElementById('delToggle');bar.hidden=!state.delMode;t.classList.toggle('on',state.delMode);t.setAttribute('aria-pressed',String(state.delMode));t.textContent=state.delMode?'삭제 끝내기':'삭제';{const u=document.getElementById('suDel');if(u){u.classList.toggle('on',state.delMode);u.setAttribute('aria-pressed',String(state.delMode));u.textContent=state.delMode?'숨기기 끝내기':'숨기기'}const g=document.getElementById('delGo');if(state.view==='subul'&&g.textContent.indexOf('중…')<0)g.textContent=state.suShowHidden?'선택 다시 보이기':'선택 숨기기';else if(state.view!=='subul'&&g.textContent.indexOf('중…')<0)g.textContent='선택 삭제'}
+function renderDelBar(){const bar=document.getElementById('delBar'),t=document.getElementById('delToggle');bar.hidden=!state.delMode;const dOn=state.delMode&&state.delKind!=='hide';t.classList.toggle('on',dOn);t.setAttribute('aria-pressed',String(dOn));t.textContent=dOn?'삭제 끝내기':'삭제';{const u=document.getElementById('suDel');const hOn=state.delMode&&(state.delKind==='hide'||state.view==='subul');if(u){u.classList.toggle('on',hOn);u.setAttribute('aria-pressed',String(hOn));u.textContent=hOn?'숨기기 끝내기':'숨기기'}const g=document.getElementById('delGo');if(g.textContent.indexOf('중…')<0)g.textContent=hOn?(hidOn()?'선택 다시 보이기':'선택 숨기기'):'선택 삭제';const hb=document.getElementById('suHid');if(hb){hb.classList.toggle('on',hidOn());hb.setAttribute('aria-pressed',String(hidOn()))}if(state.view!=='subul'){const e=document.getElementById('suHidN');if(e)e.textContent=state.rows.filter(isRowHidden).length.toLocaleString()}}
   const n=state.sel.size;document.getElementById('delCount').textContent=`${n.toLocaleString()}건 선택`;document.getElementById('delGo').disabled=!n;
   const ca=document.querySelector('#headCloneRow .chk-all');if(ca)ca.checked=allVisibleSelected();requestAnimationFrame(syncHead)}
 function setDelMode(on){state.delMode=on;if(!on)state.sel.clear();renderDelBar();renderTable(true)}
-document.getElementById('delToggle').onclick=()=>setDelMode(!state.delMode);
+document.getElementById('delToggle').onclick=()=>{const on=!(state.delMode&&state.delKind!=='hide');state.delKind='del';setDelMode(on)};
+document.getElementById('suDel').onclick=()=>{const on=!(state.delMode&&state.delKind==='hide');state.delKind='hide';setDelMode(on)};
+document.getElementById('suHid').onclick=()=>{if(state.view==='subul')state.suShowHidden=!state.suShowHidden;else{state.showHidden=state.showHidden||{};state.showHidden[state.view]=!state.showHidden[state.view]}state.sel.clear();rebuildView(true);renderDelBar()};
+function hidOn(){return state.view==='subul'?!!state.suShowHidden:showingHidden()}
+/* v64 : 주문·출고 행 숨기기 / 다시 보이기 (upload 기록 rowhide, 1000개씩) */
+async function hideRows(){const show=hidOn(),keys=[...state.sel];if(!keys.length)return;
+  if(!show&&!confirm(`선택한 ${state.view==='order'?'주문':'출고'} ${keys.length.toLocaleString()}줄을 숨길까요?\n\n· 목록에서만 빠짐 (자료·제품번호는 그대로) · 모든 PC 같음\n· «숨긴 항목»을 눌러 다시 보이게 할 수 있음`))return;
+  const btn=document.getElementById('delGo');btn.disabled=true;btn.textContent=show?'다시 보이는 중…':'숨기는 중…';
+  try{const t0=Date.now();for(let i=0;i<keys.length;i+=1000){const part=keys.slice(i,i+1000);const u={id:uid(),kind:'rowhide',view:state.view,name:(show?'다시 보이기 ':'숨기기 ')+part.length,rows:part.length,maxS:0,keys:part,on:!show,t:t0+i};
+      await sync({payload:{upload:u}});state.db.upload.set(u.id,Object.assign(state.db.upload.get(u.id)||{},u))}
+    rowHideCache=null;state.sel.clear();state.delMode=false;rebuildView(true);renderDelBar();showInfo(`${keys.length.toLocaleString()}줄 ${show?'다시 보이게 함':'숨김 (자료는 그대로)'}`)}
+  catch(e){showError((show?'다시 보이게 하지':'숨기지')+' 못함: '+(e.message||e))}
+  finally{btn.textContent='선택 삭제';renderDelBar()}}
 document.getElementById('delCancel').onclick=()=>setDelMode(false);
 document.getElementById('delAllVisible').onclick=()=>selectVisible(true);
 document.getElementById('delNone').onclick=()=>{state.sel.clear();selectVisible(false)};
 tableBodyEl.addEventListener('change',e=>{const c=e.target.closest('.row-chk');if(!c)return;if(c.checked)state.sel.add(c.dataset.key);else state.sel.delete(c.dataset.key);c.closest('tr').classList.toggle('sel',c.checked);renderDelBar()});
 document.getElementById('delGo').onclick=async()=>{
   if(state.view==='subul')return window.suDelItems&&window.suDelItems();
+  if(state.delKind==='hide')return hideRows();
   if(state.view==='order')return delOrders();
   const keys=[...state.sel].filter(k=>state.db.ship.has(k));if(!keys.length)return;
   const codes=keys.map(k=>state.db.ship.get(k).code).filter(Boolean);
@@ -1821,13 +1842,11 @@ if (typeof module !== 'undefined') module.exports = SU;
     catch(e){showError('제품번호 자동부여 실패: '+(e.message||e))}finally{autoBusy=false}}
   document.getElementById('suAuto').onclick=async()=>{const on=!suAutoOn();try{localStorage.setItem(AUTO_LS,on?'1':'0')}catch(_){}renderSuAuto();if(on){if(!state.subul)try{await loadSubul()}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e));return}await autoAssign(true)}};
   renderSuAuto();
-  document.getElementById('suDel').onclick=()=>setDelMode(!state.delMode);
   /* v63 : 수불 품목 숨기기 (사용자 결정 2026-11-23) — 수불관리 자료는 그대로, 품목에 smHide 표시만 저장 → 출고매칭 수불현황 목록에서만 빠짐 (모든 PC 같음)
-     · «숨긴 품목» 누르면 숨긴 품목만 보이고 골라서 다시 보이게 함 · 실제 품목 삭제는 수불관리 «품목 삭제»에서 */
-  document.getElementById('suHid').onclick=()=>{state.suShowHidden=!state.suShowHidden;const b=document.getElementById('suHid');b.classList.toggle('on',state.suShowHidden);b.setAttribute('aria-pressed',String(state.suShowHidden));state.sel.clear();rebuildView(true);renderDelBar()};
+     · «숨긴 항목» 누르면 숨긴 품목만 보이고 골라서 다시 보이게 함 · 실제 품목 삭제는 수불관리 «품목 삭제»에서 */
   async function suDelItems(){const S=state.subul;if(!S)return;const show=!!state.suShowHidden;
     const ids=[...state.sel].filter(k=>k.startsWith('su:')).map(k=>k.slice(3)).filter(id=>S.store.items.has(id));if(!ids.length)return;
-    if(!show&&!confirm(`선택한 수불 품목 ${ids.length.toLocaleString()}개를 숨길까요?\n\n· 이 화면(수불현황) 목록에서만 빠짐 · 모든 PC 같음\n· 수불관리의 품목·공정·입력·재고는 그대로\n· «숨긴 품목»을 눌러 다시 보이게 할 수 있음`))return;
+    if(!show&&!confirm(`선택한 수불 품목 ${ids.length.toLocaleString()}개를 숨길까요?\n\n· 이 화면(수불현황) 목록에서만 빠짐 · 모든 PC 같음\n· 수불관리의 품목·공정·입력·재고는 그대로\n· «숨긴 항목»을 눌러 다시 보이게 할 수 있음`))return;
     const btn=document.getElementById('delGo');btn.disabled=true;btn.textContent=show?'다시 보이는 중…':'숨기는 중…';
     try{const by=`${AU.name||AU.id} ${SU.today()}`;let ok=0,conf=0;
       const recs=ids.map(id=>{const it=S.store.items.get(id),nv=Object.assign({},it);if(show){delete nv.smHide}else nv.smHide=by;const r=S.store.recs.get('i:'+id);return {k:'i:'+id,v:SU.cleanForSave(nv),base:r?r.r:undefined}});
