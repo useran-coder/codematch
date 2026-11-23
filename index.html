@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v54">
+  <meta name="sm-ver" content="v55">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -530,7 +530,7 @@ function matchRec(s,ctx){
 // 자동 부여된 행 중에서, 나중에 올라온 주문현황으로 제품번호를 찾게 된 행 → 매칭 완료로 바꿈 (S번호는 다시 쓰지 않음)
 function rematchUpdates(){
   const ctx=matchContext(),ups=[],orderCodes=new Map();
-  state.db.upload.forEach(u=>{if(u.kind==='order')(u.sCodes||[]).forEach(c=>orderCodes.set(c,'(파일)'))});
+  state.db.upload.forEach(u=>{if(u.kind==='order'||u.kind==='subul')(u.sCodes||[]).forEach(c=>orderCodes.set(c,'(파일)'))});   /* v55 : 수불 엑셀 순번(B번호)과 겹친 자동 번호도 새로 부여 */
   state.db.order.forEach(o=>{if(o.code)orderCodes.set(o.code,o.k)});
   const v6=srvV()>=6;let noneRe=0;
   state.db.ship.forEach(s=>{if(s.st!=='auto'&&s.st!=='none')return;const P=CAT_PRE[catOfShip(s)];
@@ -1158,7 +1158,7 @@ function canAutoPull(){if(!auValid()||!state.cfg.auto||state.sync.busy||document
 function startPoll(){clearInterval(pollTimer);pollTimer=setInterval(()=>{if(canAutoPull())sync({quiet:true})},60000)}
 window.addEventListener('focus',()=>{if(canAutoPull())sync({quiet:true})});
 let dataStarted=false;
-async function startData(){renderSyncBtn();state.db=emptyDb();state.firstView=true;await loadCache();rebuildView();await sync()}
+async function startData(){renderSyncBtn();state.db=emptyDb();state.firstView=true;await loadCache();rebuildView();await sync();setTimeout(()=>{if(window.suSeedFromServer)window.suSeedFromServer()},3000)}
 function appStart(){if(dataStarted){sync({quiet:true});return}dataStarted=true;startData().then(startPoll)}
 document.getElementById('verTag').textContent=SM_VER;document.getElementById('verTag').title='화면 버전 · 눌러서 서버 점검';document.getElementById('verTag').onclick=runDiag;
 auBoot();
@@ -1702,6 +1702,23 @@ if (typeof module !== 'undefined') module.exports = SU;
   const ymdL=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const say=m=>{try{showInfo(m)}catch(_){}};
   async function suApi(p,ms){return await smCall(p,ms||120000)}
+  /* v55 : 수불 품목의 제품번호를 출고매칭에 «쓴 번호»로 등록
+     · 생산2파트(B동·내부보강) 순번 = 내부보강 제품번호 (순 10356 = B10356)
+     · 모든 파트 : 비고에 적힌 B·D·S 등 제품번호
+     → 자동 번호가 수불에서 이미 쓴 번호와 겹치지 않고, 구분별 마지막 번호가 수불 순번 다음부터 이어짐 */
+  function subulCodes(items){const set=new Set();items.forEach(it=>{const src=it.src||'';
+      if(src==='p2'){const n=Number(String(it.seq||'').trim());if(Number.isInteger(n)&&n>0&&n<1e6)set.add('B'+String(n).padStart(5,'0'))}
+      [it.memo,it.s,it.n].forEach(t=>{const c=extractCode(t);if(c)set.add(c)})});return [...set].sort()}
+  async function pushSubulCodes(items,label){const codes=subulCodes(items);if(!codes.length)return 0;
+    const up={id:uid(),kind:'subul',name:label,rows:items.length,maxS:0,sCodes:codes};
+    await sync({payload:{upload:up}});return codes.length}
+  /* 지금 수불관리 서버에 있는 품목으로 한 번 등록 (이 출고매칭 자료에 수불 등록 기록이 없을 때만, 화면 열 때 자동) */
+  async function seedFromServer(){if(!auValid())return;if([...state.db.upload.values()].some(u=>u.kind==='subul'))return;
+    try{const it=new Map();let pos=0,ep='';for(;;){const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(d.reset)it.clear();ep=d.epoch||ep;(d.recs||[]).forEach(x=>{if(x.k.slice(0,2)!=='i:')return;if(x.v==null)it.delete(x.k);else it.set(x.k,x.v)});pos=d.pos;if(!d.more)break}
+      if([...state.db.upload.values()].some(u=>u.kind==='subul'))return;
+      const n=await pushSubulCodes([...it.values()],`수불관리 품목 (서버 ${SU.today()})`);if(n)say(`수불관리 품목의 제품번호 ${n.toLocaleString()}개를 «쓴 번호»로 등록 (자동 번호가 겹치지 않게)`)}
+    catch(e){console.warn('수불 품목 등록 실패',e)}}
+  window.suSeedFromServer=seedFromServer;
   async function run(file){
     say(`«${file.name}» 읽는 중 (큰 파일은 10초 정도)`);await new Promise(r=>setTimeout(r,50));
     const buf=await file.arrayBuffer();
@@ -1740,7 +1757,8 @@ if (typeof module !== 'undefined') module.exports = SU;
     let del=0;cur.forEach((_,k)=>{if(!want[k]){recs.push({k,v:null});del++}});
     if(lastOut){const nf=SU.addDays(lastOut,1);if(!erpFrom||nf>erpFrom)recs.push({k:'c:erp',v:{from:nf}})}
     for(let i=0;i<recs.length;i+=2500){say(`수불관리에 저장 중 … ${Math.min(recs.length,i+2500).toLocaleString()} / ${recs.length.toLocaleString()}`);await suApi({action:'suPush',recs:recs.slice(i,i+2500),force:true},300000)}
-    say(`수불관리로 넘김 완료 — ${src.name} «${tab}» 품목 ${P.items.length.toLocaleString()} · 입력 ${P.ents.length.toLocaleString()}${del?` · 지운 입력 ${del.toLocaleString()}`:''} · 재고 대조 ${V.bad.length?V.bad.length+'줄 다름':'모두 같음'} (수불관리 화면은 1분 안에 반영)`);
+    const nCodes=await pushSubulCodes(P.items,`수불 엑셀 ${src.name} «${tab}»`).catch(e=>{showError('제품번호 등록 실패(수불 저장은 됨): '+(e.message||e));return 0});
+    say(`수불관리로 넘김 완료 — ${src.name} «${tab}» 품목 ${P.items.length.toLocaleString()} · 입력 ${P.ents.length.toLocaleString()}${del?` · 지운 입력 ${del.toLocaleString()}`:''} · 재고 대조 ${V.bad.length?V.bad.length+'줄 다름':'모두 같음'} (수불관리 화면은 1분 안에 반영)${nCodes?` · 제품번호 ${nCodes.toLocaleString()}개 출고매칭에 등록`:''}`);
   }
   const btn=document.getElementById('suUpBtn'),inp=document.getElementById('suUpInput');
   btn.onclick=()=>{if(AU.role!=='admin'){alert('수불 엑셀 올리기는 관리자만 가능');return}inp.click()};
