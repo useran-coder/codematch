@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v68">
+  <meta name="sm-ver" content="v69">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -813,7 +813,7 @@ function cardFilter(kind){const f=state.filters,cur=cardOn();
   const sf=document.getElementById('statusFilter');if(sf)sf.value=f.status;const mo=document.getElementById('missingOnly');if(mo)mo.checked=f.missingOnly;
   renderAll();document.querySelector('.table-panel').scrollIntoView({behavior:'smooth',block:'start'})}
 [['cardMatched','matched'],['cardAuto','auto'],['cardPend','pend']].forEach(([id,k])=>{const el=document.getElementById(id);el.onclick=()=>cardFilter(k);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();cardFilter(k)}}});
-document.getElementById('viewTabs').addEventListener('click',e=>{const b=e.target.closest('.vt');if(!b)return;state.cardPrev=null;if(b.dataset.view===state.view)return;if(b.dataset.view==='subul'){window.suShowView&&window.suShowView();return}
+document.getElementById('viewTabs').addEventListener('click',e=>{const b=e.target.closest('.vt');if(!b)return;state.cardPrev=null;if(b.dataset.view===state.view)return;state.viewSwitch=true;if(b.dataset.view==='subul'){window.suShowView&&window.suShowView();return}
   if(b.dataset.view==='order'){const ds=[...state.db.order.values()].map(o=>o.od).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('order',l,l)}else{const ds=[...state.db.ship.values()].map(s=>s.d).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('ship',l,l)}});
 /* v45 : 구분 버튼 안 스위치 = 그 구분 제품번호 자동 부여 켜기/끄기 (모든 PC 같이 적용) */
 async function toggleAuto(P){const cat=PRE_ORDER.find(c=>CAT_PRE[c]===P);
@@ -835,7 +835,9 @@ function orderViewRow(o,i,shipped){const code=o.code||'',sh=shipped.get(o.k);
     __who:[sh?`출고 ${dateDisplay(sh)}`:'',o.cs==='new'?'제품번호: 출고 전 미리 부여':o.cs==='ship'?'제품번호: 출고 줄 번호':'',o.by&&`등록 ${o.by} ${fmtDateTime(o.at)}`].filter(Boolean).join(' · ')}}
 function headLabel(h){if(state.view==='subul'){if(h==='출고일자')return '주문일자';if(h==='출고수량')return '수량';if(h==='매칭상태')return '매칭'}if(state.view==='order'){if(h==='출고일자')return '주문일자';if(h==='출고수량')return '수량';if(h==='매칭상태')return '출고 여부'}return h}
 function rebuildView(keep=false){
-  const rows=[];let i=0;state.db.ship.forEach(s=>rows.push(viewRow(s,i++)));state.shipRows=rows;
+  /* v69 : 출고 행은 자료가 바뀌었을 때만 다시 만듦 (보기 바꿀 때 65,000줄 다시 만들지 않음) */
+  const shipKey=state.db.rev+'|'+state.db.ship.size+'|'+(state.editSeq||0);let rows=state.shipRows;
+  if(!rows||state.shipKey!==shipKey||!state.viewSwitch){rows=[];let i=0;state.db.ship.forEach(s=>rows.push(viewRow(s,i++)));state.shipRows=rows;state.shipKey=shipKey}state.viewSwitch=false;
   if(state.view==='subul'){state.rows=window.suViewRows?window.suViewRows():[]}else if(state.view==='order'){const shipped=new Map();state.db.ship.forEach(s=>{if(s.mk&&(!shipped.has(s.mk)||s.d<shipped.get(s.mk)))shipped.set(s.mk,s.d||'')});const orows=[];let j=0;state.db.order.forEach(o=>orows.push(orderViewRow(o,j++,shipped)));state.rows=orows}else state.rows=rows;
   /* v49 : 처음 화면 = 주문현황 보기, 마지막 주문일자 하루 */
   if(state.view==='order'&&state.firstView&&state.db.order.size){state.firstView=false;if(!state.filters.from&&!state.filters.to){let l='';state.db.order.forEach(o=>{if(o.od&&o.od>l)l=o.od});state.filters.from=l;state.filters.to=l}}
@@ -1775,8 +1777,16 @@ if (typeof module !== 'undefined') module.exports = SU;
     el.innerHTML=`<div class="sl-num">${L.rows.toLocaleString()}<small>줄 받음${est?` / 약 ${est.toLocaleString()} · ${pct}%`:''} · ${sec}초</small></div><div class="sl-bar${est&&L.phase===1?'':' ind'}"><i style="width:${L.phase===2?100:pct}%"></i></div><div class="sl-steps">${st.map((t,i)=>`<span class="${i<cur?'ok':i===cur?'on':''}">${t}</span>`).join('')}</div>`}
   function ldStart(){state.suLoading={t0:Date.now(),rows:0,est:ldEst(),phase:0};const e=document.getElementById('emptyState');if(e&&!state.subul)e.style.display='none';ldRender();clearInterval(ldTimer);ldTimer=setInterval(ldRender,100)}
   function ldEnd(){clearInterval(ldTimer);ldTimer=null;state.suLoading=null;ldRender()}
-  async function loadSubul(keep){say('수불관리 자료 받는 중');if(!state.suLoading)ldStart();let ok=false;try{const st=new SU.Store();let pos=0,ep='';
-    for(;;){const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(state.suLoading){state.suLoading.phase=1;state.suLoading.rows=d.pos||0}if(d.reset){pos=0}ep=d.epoch||ep;(d.recs||[]).forEach(x=>{if(/^[iear]:/.test(x.k))st.set(x.k,x.v,{r:x.r,by:x.by,at:x.at})});pos=d.pos;if(!d.more)break}
+  /* v69 : 수불 자료 캐시 — 서버 기록은 덧붙이기만 하므로 지난번 받은 위치(pos)부터 새 줄만 받음
+     · 이 PC IndexedDB 에 품목(i:)만 저장 → 다음에 열 때 바로 표시, 뒤에서 새 줄만 받아 반영 · 서버 epoch 바뀌면(정리·초기화) 처음부터 */
+  let suCache=null,suSaveT=null;const suKey=()=>'suCache_'+(AU.id||'');
+  async function suCacheLoad(){if(suCache)return suCache;try{const c=await idb.get(suKey());if(!c||!c.recs)return null;const st=new SU.Store();c.recs.forEach(x=>st.set(x[0],x[1],{r:x[2],by:x[3],at:x[4]}));suCache={st,pos:c.pos||0,ep:c.ep||''};return suCache}catch(_){return null}}
+  function suCacheSave(){clearTimeout(suSaveT);suSaveT=setTimeout(()=>{const C=suCache;if(!C)return;const recs=[];C.st.recs.forEach((rc,k)=>{if(k.charAt(0)==='i'&&rc.v!=null)recs.push([k,rc.v,rc.r,rc.by,rc.at])});idb.set(suKey(),{pos:C.pos,ep:C.ep,recs,at:Date.now()}).catch(e=>console.warn('수불 캐시 저장 실패',e))},1500)}
+  window.suCacheLoad=suCacheLoad;
+  async function loadSubul(keep){say('수불관리 자료 받는 중');if(!state.suLoading)ldStart();let ok=false;try{const C=await suCacheLoad();let st=C?C.st:new SU.Store(),pos=C?C.pos:0,ep=C?C.ep:'';const base=pos;
+    if(state.suLoading)state.suLoading.base=base;
+    for(;;){const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(d.reset){st=new SU.Store()}if(state.suLoading){state.suLoading.phase=1;state.suLoading.rows=d.pos||0}ep=d.epoch||ep;(d.recs||[]).forEach(x=>{if(x.k.charAt(0)==='i'&&x.k.charAt(1)===':')st.set(x.k,x.v,{r:x.r,by:x.by,at:x.at})});pos=d.pos;if(!d.more)break}
+    suCache={st,pos,ep};suCacheSave();
     try{localStorage.setItem(LS_TOT,String(pos||0))}catch(_){}if(state.suLoading){state.suLoading.phase=2;ldRender()}await new Promise(r=>setTimeout(r,30));
     setSubul(st,'수불관리 서버');say(`수불 품목 ${st.items.size.toLocaleString()}개 받음`);ok=true;return st}finally{if(!keep||!ok)ldEnd()}}
   /* v65 : 이전 제품번호 — 비고·규격에 적힌 번호(C421·C4421·D332·D1408·B10509·S00012 등, 머리글자 + 숫자 3~6자리) */
@@ -1908,7 +1918,7 @@ if (typeof module !== 'undefined') module.exports = SU;
     const tp=document.querySelector('.table-panel');tp.classList.remove('order-view');tp.classList.add('su-view');if(state.delMode&&typeof setDelMode==='function')setDelMode(false);
     state.filters.from='';state.filters.to='';state.filters.status='';state.filters.missingOnly=false;state.filters.pend=false;state.sort={key:'출고일자',dir:'asc'};
     const dl=document.querySelector('label[for="dateFrom"]');if(dl)dl.textContent='주문일자 기간';
-    const need=!(state.subul&&Date.now()-new Date(state.subul.at).getTime()<60000);if(need)ldStart();rebuildView();if(need){try{await loadSubul(true)}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e))}await new Promise(r=>setTimeout(r,20));if(state.view==='subul')rebuildView();ldEnd();if(state.view==='subul'&&!state.viewRows.length)rebuildView(true)}if(suAutoOn()&&state.subul)await autoAssign(false);await registerMissing()}
+    if(!state.subul){const C=await suCacheLoad();if(C){state.subul={store:C.st,label:'이 PC 저장본',at:new Date(0)}}}const need=!(state.subul&&Date.now()-new Date(state.subul.at).getTime()<60000);if(need)ldStart();rebuildView();if(need){try{await loadSubul(true)}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e))}await new Promise(r=>setTimeout(r,20));if(state.view==='subul')rebuildView();ldEnd();if(state.view==='subul'&&!state.viewRows.length)rebuildView(true)}if(suAutoOn()&&state.subul)await autoAssign(false);await registerMissing()}
   window.suShowView=showView;
   document.getElementById('suPart').onchange=()=>rebuildView();
 
