@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v91">
+  <meta name="sm-ver" content="v92">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -2071,7 +2071,7 @@ if (typeof module !== 'undefined') module.exports = SU;
     const q=`수불관리로 넘길까요?\n\n${src.name} · «${tab}»\n· 품목 ${P.items.length.toLocaleString()} · 공정 ${procN.toLocaleString()} · 입력 칸 ${P.ents.length.toLocaleString()} · 기초재고 날짜 ${P.base}\n· 재고 대조(${V.day}): ${V.checked.toLocaleString()}줄 중 ${V.bad.length}줄 다름${V.bad.length?' (시트 수식 오류 — 웹은 기초재고+입력으로 다시 계산)':' — 엑셀과 같음'}\n· 입력 마지막 날 ${lastIn||'-'}${lastOut?` · 마지막 출고 ${lastOut} → ERP 출고는 다음 날부터 자동 반영`:''}\n· 확인 필요 품목 ${chk} (#REF! 등)${fixed?`\n· 공정 이름 통일 ${fixed}곳: ${Object.keys(seenFix).join(', ')}`:''}\n\n· 같은 품목은 엑셀 값으로 덮어씀 (웹에서 고친 공정·기초재고도 엑셀 값으로)\n· 이 달에 엑셀에 없는 입력은 지움`;
     if(!confirm(q))return;
     /* 지금 수불관리 자료 받기 (이 품목들의 지울 입력·ERP 반영 시작일 확인) */
-    const ids={};P.items.forEach(it=>{ids[it.id]=1});const dset={};P.dates.forEach(d=>{dset[d]=1});
+    const ids={};P.items.forEach(it=>{ids[it.id]=1});let lastE='';P.ents.forEach(e=>{const d=String(e.k).split('|')[2]||'';if(d>lastE)lastE=d});const dset={};P.dates.forEach(d=>{if(lastE&&d<=lastE)dset[d]=1});   /* v92 : 엑셀에 입력이 있는 마지막 날짜까지만 지움 (그 뒤 수불관리 웹에서 넣은 생산·출고 입력은 그대로 · 수불관리 v122 와 같은 기준) */
     const cur=new Map(),keep={};let pos=0,ep='',erpFrom='';
     const estT=ldEst()||0;for(;;){PG(`수불관리 자료 확인 ${pos.toLocaleString()}줄`,10+(estT?Math.min(30,pos/estT*30):Math.min(30,pos/2000)));const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(d.reset)cur.clear();ep=d.epoch||ep;
       (d.recs||[]).forEach(x=>{if(x.k==='c:erp'){erpFrom=x.v&&x.v.from||'';return}if(x.k.slice(0,2)==='i:'&&ids[x.k.slice(2)]){const kv={};if(x.v&&x.v.code){kv.code=x.v.code;kv.pcBy=x.v.pcBy}if(x.v&&x.v.smHide)kv.smHide=x.v.smHide;if(Object.keys(kv).length)keep[x.k.slice(2)]=kv;else delete keep[x.k.slice(2)];return}if(x.k.slice(0,2)!=='e:')return;const a=x.k.slice(2).split('|');if(!ids[a[0]]||!dset[a[2]])return;if(x.v==null)cur.delete(x.k);else cur.set(x.k,1)});
