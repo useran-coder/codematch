@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v69">
+  <meta name="sm-ver" content="v70">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -1790,7 +1790,8 @@ if (typeof module !== 'undefined') module.exports = SU;
     try{localStorage.setItem(LS_TOT,String(pos||0))}catch(_){}if(state.suLoading){state.suLoading.phase=2;ldRender()}await new Promise(r=>setTimeout(r,30));
     setSubul(st,'수불관리 서버');say(`수불 품목 ${st.items.size.toLocaleString()}개 받음`);ok=true;return st}finally{if(!keep||!ok)ldEnd()}}
   /* v65 : 이전 제품번호 — 비고·규격에 적힌 번호(C421·C4421·D332·D1408·B10509·S00012 등, 머리글자 + 숫자 3~6자리) */
-  function oldCode(it){for(const t of [it.memo,it.s]){const re=/(?:^|[^A-Z0-9])([ABCDGS]\d{3,6})(?=$|[^A-Z0-9])/gi;let m,last='';while((m=re.exec(String(t||'')))!==null)last=m[1].toUpperCase();if(last)return last}return ''}
+  /* v70 : 제품번호 = 머리글자 A·B·C·D·G + 숫자만 (S1000 같은 모델명 제외, 사용자 확인 2026-11-23) · 한글에 바로 붙은 글자는 번호 아님 */
+  function oldCode(it){for(const t of [it.memo,it.s]){const re=/(?:^|[^A-Z0-9가-힣])([ABCDG]\d{3,6})(?=$|[^A-Z0-9가-힣])/gi;let m,last='';while((m=re.exec(String(t||'')))!==null)last=m[1].toUpperCase();if(last)return last}return ''}
   function seqCode(it){if(it.src!=='p2')return '';const n=Number(String(it.seq||'').trim());return Number.isInteger(n)&&n>0?'B'+String(n).padStart(5,'0'):''}
   function codeOf(it){if(it.code)return clean(it.code).toUpperCase();if(it.pc)return clean(it.pc).toUpperCase();return seqCode(it)||oldCode(it)||''}
   /* v57 : 수불 품목 ↔ ERP(주문·출고) 매칭 분석
@@ -1863,6 +1864,8 @@ if (typeof module !== 'undefined') module.exports = SU;
   async function autoAssign(ask){const S=state.subul;if(!S||autoBusy)return;autoBusy=true;
     try{const used=suUsed(''),todo=[],next={};
       S.store.items.forEach(it=>{if(it.src==='erp'||it._v)return;const cur=clean(it.code).toUpperCase(),auto=/^자동/.test(it.pcBy||'');
+        /* 이전번호로 넣은 번호가 이제 번호가 아니면(S1000 등) 다시 정함 : 다른 이전번호 → 그 번호, 없으면 새 자동번호 */
+        if(cur&&/^이전번호/.test(it.pcBy||'')){const o=seqCode(it)||oldCode(it);if(o===cur)return;if(o){todo.push({it,v:o,fix:1});return}const P=preOf(it);if(!next[P])next[P]=nextOf(P,used);while(used.has(fmtP(P,next[P])))next[P]++;const v=fmtP(P,next[P]++);used.set(v,'자동');todo.push({it,v,fix:1});return}
         /* 전에 자동부여한 번호 다시 확인 : 이전 번호(비고·규격)가 있으면 그 번호로, 4자리(v63)면 5자리로 */
         if(cur&&auto){const o=seqCode(it)||oldCode(it);if(o&&o!==cur){todo.push({it,v:o,fix:1});return}const m=/^([ADGC])(\d{4})$/.exec(cur);if(m){const P=m[1];if(!next[P])next[P]=nextOf(P,used);let v=P+'0'+m[2];if(used.has(v)){while(used.has(fmtP(P,next[P])))next[P]++;v=fmtP(P,next[P]++)}used.set(v,'자동');todo.push({it,v,fix:1})}return}
         if(cur)return;
