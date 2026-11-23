@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v62">
+  <meta name="sm-ver" content="v63">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -216,7 +216,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <div class="panel rule-card">
         <h2>매칭 기준</h2>
         <ol class="rule-list"><li>수주번호(주문번호) 먼저 일치</li><li>같은 번호가 여러 행이면 품번 → 품명 → 규격 → 고객 → 수량 순으로 비교</li><li>비고 안의 B·D·A·G·C·S 번호·숫자 6자리 = 제품번호</li><li>못 찾은 행은 구분별 마지막 번호 다음으로 자동 부여(겹치지 않음) · 스위치 꺼진 구분은 번호 없음 · 표에서 직접 수정 가능</li></ol>
-        <div class="last-p" id="lastP"><div class="lp-h">마지막 자동번호</div><div class="lp-list"><button type="button" class="last-s lp" data-pre="B"><span class="lp-c">내부보강</span><b>B00000</b><span class="ls-edit">✎</span></button><button type="button" class="last-s lp" data-pre="D"><span class="lp-c">레이저</span><b>D00000</b><span class="ls-edit">✎</span></button><button type="button" class="last-s lp" data-pre="A"><span class="lp-c">부자재</span><b>A00000</b><span class="ls-edit">✎</span></button><button type="button" class="last-s lp" data-pre="G"><span class="lp-c">유통/OEM</span><b>G00000</b><span class="ls-edit">✎</span></button><button type="button" class="last-s lp" data-pre="C"><span class="lp-c">문틀</span><b>C00000</b><span class="ls-edit">✎</span></button></div></div>
+        <div class="last-p" id="lastP"><div class="lp-h">마지막 자동번호</div><div class="lp-list"><button type="button" class="last-s lp" data-pre="A"><span class="lp-c">부자재</span><b>A0000</b><span class="ls-edit">✎</span></button><button type="button" class="last-s lp" data-pre="B"><span class="lp-c">내부보강</span><b>B00000</b><span class="ls-edit">✎</span></button><button type="button" class="last-s lp" data-pre="C"><span class="lp-c">문틀</span><b>C0000</b><span class="ls-edit">✎</span></button><button type="button" class="last-s lp" data-pre="D"><span class="lp-c">레이저</span><b>D0000</b><span class="ls-edit">✎</span></button><button type="button" class="last-s lp" data-pre="G"><span class="lp-c">유통/OEM</span><b>G0000</b><span class="ls-edit">✎</span></button></div></div>
         <div class="notice info" id="infoNotice"></div>
         <div class="notice" id="notice"></div>
       </div>
@@ -236,7 +236,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field" style="display:none"><label for="suPart">파트</label><select id="suPart"><option value="">전체 파트</option><option value="p1">생산1파트 (A동)</option><option value="p2">생산2파트 (B동)</option><option value="p3">생산3파트 (레이저)</option></select></div><span class="su-cnt" id="suCount" hidden></span>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 제품번호 검색"></div>
-        <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button></div><button type="button" class="cat-btn su-only su-auto" id="suAuto" role="switch" aria-checked="false"><span class="sw"><i></i></span>제품번호 자동부여</button><button type="button" class="btn small del-toggle su-only su-del" id="suDel" aria-pressed="false" title="체크박스로 수불 품목을 골라 삭제 (수불관리에서도 지워짐)">삭제</button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
+        <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="cat-btn su-only su-auto" id="suAuto" role="switch" aria-checked="false"><span class="sw"><i></i></span>제품번호 자동부여</button><button type="button" class="btn small del-toggle su-only su-del" id="suDel" aria-pressed="false" title="체크박스로 수불 품목을 골라 이 화면에서만 숨김 (수불관리 자료는 그대로)">숨기기</button><button type="button" class="btn small su-only su-del" id="suHid" aria-pressed="false" title="숨긴 품목 보기 · 골라서 다시 보이게 할 수 있음">숨긴 품목&nbsp;<b id="suHidN">0</b></button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
         <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제 (개별 선택 · 머리글 체크 = 전체 선택)">삭제</button>
       </div>
       <div class="del-bar" id="delBar" hidden><b id="delCount">0건 선택</b><button type="button" class="btn small" id="delAllVisible">보이는 행 모두 선택</button><button type="button" class="btn small" id="delNone">선택 해제</button><span class="spacer"></span><button type="button" class="btn small danger" id="delGo" disabled>선택 삭제</button><button type="button" class="btn small" id="delCancel">취소</button></div>
@@ -419,7 +419,9 @@ const DISPLAY_HEADERS=['출고일자','주문번호','제품번호','매칭상�
 const PRICE_HEADERS=['공급가','부가세','합계액'];
 const STATUS_TEXT={existing:'기존 입력',matched:'매칭 완료',auto:'자동 부여',manual:'직접 입력',none:'번호 없음'};
 /* v45 : 구분별 자동번호 글자 (각 5자리) · 스위치 켠 구분만 자동 부여 (기본 내부보강만 켬) */
-const CAT_PRE={'내부보강':'B','레이저':'D','부자재':'A','유통/OEM':'G','문틀':'C'},PRE_ORDER=['내부보강','레이저','부자재','유통/OEM','문틀'];
+const CAT_PRE={'내부보강':'B','레이저':'D','부자재':'A','유통/OEM':'G','문틀':'C'},PRE_ORDER=['부자재','내부보강','문틀','레이저','유통/OEM'];
+/* v63 : 숫자 자리 — 내부보강 B 5자리(이미 B10000 넘음), 나머지 A·D·G·C 4자리 (사용자 요청 2026-11-23) */
+function pW(P){return P==='B'?5:4}function fmtP(P,n){return P+String(n).padStart(pW(P),'0')}
 function srvV(){return Number((/sm-v(\d+)/.exec(state.srvVer||'')||[])[1]||0)}
 function autoOn(P){return !!((state.db&&state.db.auto)||{})[P]}
 function pNum(c,P){const m=new RegExp('^'+P+'(\\d{4,6})$').exec(clean(c).toUpperCase());return m?Number(m[1]):0}
@@ -453,7 +455,7 @@ function normalizeDate(v){
 function dateDisplay(v){const s=normalizeDate(v);const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[1]}/${m[2]}/${m[3]}`:clean(v)}
 function fmtTime(d){if(!d)return '';const x=new Date(d);if(isNaN(x))return '';return `${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`}
 function fmtDateTime(d){const x=new Date(d);if(isNaN(x))return '';return `${x.getFullYear()}/${String(x.getMonth()+1).padStart(2,'0')}/${String(x.getDate()).padStart(2,'0')} ${fmtTime(x)}`}
-const CODE_RE_SRC='(?:D\\d{4,5}|B\\d{4,5}|S\\d{5}|A\\d{5}|G\\d{5}|C\\d{5}|\\d{6})';
+const CODE_RE_SRC='(?:D\\d{4,5}|B\\d{4,5}|S\\d{5}|A\\d{4,5}|G\\d{4,5}|C\\d{4,5}|\\d{6})';
 function extractCode(v){const s=clean(v),re=new RegExp(`(?:^|[^A-Z0-9])(${CODE_RE_SRC})(?=$|[^A-Z0-9])`,'gi');let m,last='';while((m=re.exec(s))!==null){last=m[1].toUpperCase();if(m[0].length===0)re.lastIndex++}return last}
 function stripCode(v){return clean(v).replace(new RegExp(`(^|[^A-Z0-9])${CODE_RE_SRC}(?=$|[^A-Z0-9])`,'gi'),'$1').replace(/\s{2,}/g,' ').trim()}
 function appendCode(v,code){const base=clean(v);if(!code||extractCode(base))return base;return base?`${base} / ${code}`:code}
@@ -498,7 +500,7 @@ function workbookRows(buffer){
   if(!wb)throw new Error('엑셀 파일을 읽지 못함: '+(lastErr&&lastErr.message||lastErr));const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'yyyy/mm/dd'});if(!rows.length)throw new Error('첫 번째 시트에 데이터가 없음');
   const headerIndex=findHeaderIndex(rows),headers=rows[headerIndex].map(canonicalHeader);const out=[];let maxS=0;const sSet=new Set();
   // 파일 어디에든 적힌 S번호는 «이미 쓴 번호»로 기억 (자동 부여 때 피함)
-  rows.forEach(arr=>arr.forEach(v=>{String(v??'').replace(/(?:^|[^A-Z0-9])(S\d{5}|[BD]\d{4,5}|[AGC]\d{5})(?=$|[^A-Z0-9])/gi,(m,c)=>{c=c.toUpperCase();sSet.add(c);maxS=Math.max(maxS,sNum(c));return m})}));
+  rows.forEach(arr=>arr.forEach(v=>{String(v??'').replace(/(?:^|[^A-Z0-9])(S\d{5}|[BD]\d{4,5}|[AGC]\d{4,5})(?=$|[^A-Z0-9])/gi,(m,c)=>{c=c.toUpperCase();sSet.add(c);maxS=Math.max(maxS,sNum(c));return m})}));
   for(let r=headerIndex+1;r<rows.length;r++){const arr=rows[r];if(!arr.some(v=>clean(v)!==''))continue;const obj={__row:r+1};headers.forEach((h,i)=>{if(h)obj[h]=arr[i]??''});out.push(obj)}return {headers,rows:out,maxS,sCodes:[...sSet].sort(),cutInfo};
 }
 function readFile(file){return new Promise((resolve,reject)=>{const fr=new FileReader();fr.onload=()=>resolve(fr.result);fr.onerror=()=>reject(fr.error);fr.readAsArrayBuffer(file)})}
@@ -748,15 +750,15 @@ function catOfShip(s){const n=String(s.n||''),p=String(s.p||'');
   return '부자재'}
 /* 버튼 숫자 = 지금 일자·상태·검색 조건에서 구분별 행 수 */
 function renderLastP(){document.querySelectorAll('#lastP .lp').forEach(b=>{const P=b.dataset.pre,n=lastPOf(P),man=!!(state.db.manualP||{})[P],ao=autoOn(P),cat=PRE_ORDER.find(c=>CAT_PRE[c]===P);
-  b.querySelector('b').textContent=P+String(n).padStart(5,'0');b.classList.toggle('manual',man);b.classList.toggle('off',!ao);
-  b.title=`${cat} · 자동 부여 ${ao?'켬':'끔'}\n`+(man?'직접 지정한 마지막 번호':`지금까지 나간 ${P}번호 중 가장 큰 번호`)+`\n다음 자동 부여: ${P}${String(n+1).padStart(5,'0')}부터 (이미 쓴 번호는 건너뜀)\n눌러서 마지막 번호 바꾸기 (관리자)`})}
+  b.querySelector('b').textContent=fmtP(P,n);b.classList.toggle('manual',man);b.classList.toggle('off',!ao);
+  b.title=`${cat} · 자동 부여 ${ao?'켬':'끔'}\n`+(man?'직접 지정한 마지막 번호':`지금까지 나간 ${P}번호 중 가장 큰 번호`)+`\n다음 자동 부여: ${fmtP(P,n+1)}부터 (이미 쓴 번호는 건너뜀)\n눌러서 마지막 번호 바꾸기 (관리자)`})}
 document.getElementById('lastP').addEventListener('click',async e=>{const b=e.target.closest('.lp');if(!b)return;const P=b.dataset.pre,cat=PRE_ORDER.find(c=>CAT_PRE[c]===P),cur=lastPOf(P),man=!!(state.db.manualP||{})[P];
   if(srvV()<6){alert('구분별 마지막 번호는 서버(shipmatch.gs) sm-v6 배포 후 사용 가능\n지금 서버: '+(state.srvVer||'확인 전'));return}
-  const v=prompt(`${cat} 마지막 자동번호 입력 (예: ${P}00120 또는 120)\n\n· 다음 자동 부여는 입력한 번호 다음부터 나옴\n· 이미 쓴 번호를 만나면 자동으로 건너뜀 (번호가 겹치지 않음)\n· 모든 PC에 같이 적용됨\n· 비우고 확인하면 «가장 큰 번호 다음부터»(기본 방식)로 되돌림\n\n지금: ${P}${String(cur).padStart(5,'0')}${man?' (직접 지정)':''}`,P+String(cur).padStart(5,'0'));
+  const v=prompt(`${cat} 마지막 자동번호 입력 (예: ${fmtP(P,120)} 또는 120)\n\n· 다음 자동 부여는 입력한 번호 다음부터 나옴\n· 이미 쓴 번호를 만나면 자동으로 건너뜀 (번호가 겹치지 않음)\n· 모든 PC에 같이 적용됨\n· 비우고 확인하면 «가장 큰 번호 다음부터»(기본 방식)로 되돌림\n\n지금: ${fmtP(P,cur)}${man?' (직접 지정)':''}`,P+String(cur).padStart(5,'0'));
   if(v===null)return;
-  if(v.trim()&&!new RegExp('^\\s*'+P+'?\\s*\\d{1,5}\\s*$','i').test(v)){alert(`번호 형식이 맞지 않음 (예: ${P}00120 또는 120).`);return}
+  if(v.trim()&&!new RegExp('^\\s*'+P+'?\\s*\\d{1,5}\\s*$','i').test(v)){alert(`번호 형식이 맞지 않음 (예: ${fmtP(P,120)} 또는 120).`);return}
   try{const r=await queue(()=>backendCall({action:'setCounter',n:v.trim(),pre:P}));if(r.counters)state.db.counters=r.counters;if(r.manualP)state.db.manualP=r.manualP;saveCache();renderLastP();
-    const c=Number(r.counter);showInfo(r.manualP&&r.manualP[P]?`${cat} 마지막 자동번호를 ${P}${String(c).padStart(5,'0')}로 바꿈 · 다음 자동 부여 ${P}${String(c+1).padStart(5,'0')}부터`:`${cat} 기본 방식으로 되돌림 · 다음 자동 부여는 가장 큰 번호 ${P}${String(c).padStart(5,'0')} 다음부터`)}
+    const c=Number(r.counter);showInfo(r.manualP&&r.manualP[P]?`${cat} 마지막 자동번호를 ${fmtP(P,c)}로 바꿈 · 다음 자동 부여 ${fmtP(P,c+1)}부터`:`${cat} 기본 방식으로 되돌림 · 다음 자동 부여는 가장 큰 번호 ${fmtP(P,c)} 다음부터`)}
   catch(e){showError('마지막 자동번호를 바꾸지 못함: '+(e.message||e))}});
 function renderLastS(){renderLastP();const el=document.getElementById('lastS');if(!el)return;const c=Number(state.db.counter||0),n=state.db.manual?c:Math.max(c,maxSInDb());
   el.querySelector('b').textContent='S'+String(n).padStart(5,'0');el.classList.toggle('manual',!!state.db.manual);
@@ -775,7 +777,7 @@ function renderCatBtns(){renderLastS();const f=state.filters,cnt={};const q=norm
     if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','제품번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return;cnt[r.__cat]=(cnt[r.__cat]||0)+1});
   {const c={all:0,nc:0,chk:0,no:0};state.rows.forEach(r=>{if(r.__status!=='auto'||!inDateRange(r['출고일자']))return;if(f.status&&r.__status!==f.status)return;if(f.cat&&r.__cat!==f.cat)return;if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','제품번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return;c.all++;if(r.__reason==='주문 제품번호 없음')c.nc++;else if(r.__reason==='내용 확인 필요')c.chk++;else c.no++});
     document.getElementById('autoN').textContent=c.all.toLocaleString();document.getElementById('missingLbl').title=`자동 부여 ${c.all.toLocaleString()}행\n· 주문현황 비고에 제품번호 없음 ${c.nc.toLocaleString()}\n· 내용 확인 필요 ${c.chk.toLocaleString()}\n· 주문현황에 수주번호 없음 등 ${c.no.toLocaleString()}`}
-  document.querySelectorAll('#catBtns .cat-btn').forEach(b=>{const c=b.dataset.cat,on=f.cat===c;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));const P=CAT_PRE[c],ao=autoOn(P);b.innerHTML=`<span class="sw${ao?' on':''}" data-pre="${P}" role="switch" aria-checked="${ao}" title="${c} 제품번호 자동 부여 ${ao?'켬':'끔'} (${P}00000) · 눌러서 ${ao?'끄기':'켜기'} (관리자)"><i></i></span>${c}<small>${(cnt[c]||0).toLocaleString()}</small>`;b.title=on?'다시 누르면 전체 구분 표시':`${c}만 표시`})}
+  document.querySelectorAll('#catBtns .cat-btn').forEach(b=>{const c=b.dataset.cat,on=f.cat===c;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));const P=CAT_PRE[c],ao=autoOn(P);b.innerHTML=`<span class="sw${ao?' on':''}" data-pre="${P}" role="switch" aria-checked="${ao}" title="${c} 제품번호 자동 부여 ${ao?'켬':'끔'} (${fmtP(P,0)}) · 눌러서 ${ao?'끄기':'켜기'} (관리자)"><i></i></span>${c}<small>${(cnt[c]||0).toLocaleString()}</small>`;b.title=on?'다시 누르면 전체 구분 표시':`${c}만 표시`})}
 function setView(v,from,to){if(v!=='order')v='ship';const changed=state.view!==v;state.view=v;document.querySelector('.table-panel').classList.remove('su-view');
   document.querySelectorAll('#viewTabs .vt').forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
   document.querySelector('.table-panel').classList.toggle('order-view',v==='order');
@@ -807,7 +809,7 @@ async function toggleAuto(P){const cat=PRE_ORDER.find(c=>CAT_PRE[c]===P);
   if(srvV()<6){alert('구분별 자동 부여는 서버(shipmatch.gs) sm-v6 배포 후 사용 가능\n지금 서버: '+(state.srvVer||'확인 전'));return}
   if(AU.role!=='admin'){alert('자동 부여 스위치는 관리자만 바꿀 수 있음');return}
   const on=!autoOn(P);let none=0;state.db.ship.forEach(s=>{if(s.st==='none'&&CAT_PRE[catOfShip(s)]===P)none++});
-  const q=on?`${cat} 자동 부여 켬\n\n· 새로 올리는 출고·주문 줄 중 번호 없는 줄에 ${P}번호 부여 (마지막 ${P}${String(lastPOf(P)).padStart(5,'0')} 다음부터)`+(none?`\n· 지금 번호 없는 ${cat} ${none.toLocaleString()}행에도 번호 부여`:''):`${cat} 자동 부여 끔\n\n· 앞으로 번호 없는 ${cat} 줄은 번호 없이 둠\n· 이미 부여된 번호는 그대로`;
+  const q=on?`${cat} 자동 부여 켬\n\n· 새로 올리는 출고·주문 줄 중 번호 없는 줄에 ${P}번호 부여 (마지막 ${fmtP(P,lastPOf(P))} 다음부터)`+(none?`\n· 지금 번호 없는 ${cat} ${none.toLocaleString()}행에도 번호 부여`:''):`${cat} 자동 부여 끔\n\n· 앞으로 번호 없는 ${cat} 줄은 번호 없이 둠\n· 이미 부여된 번호는 그대로`;
   if(!confirm(q))return;
   try{const auto=Object.assign({},state.db.auto||{});if(on)auto[P]=1;else delete auto[P];
     const r=await queue(()=>backendCall({action:'setAuto',auto}));state.db.auto=r.auto||auto;saveCache();renderCatBtns();renderLastS();
@@ -861,7 +863,7 @@ function buildRow(row){
   if(state.delMode){const td=document.createElement('td');td.className='chk-col';const on=state.sel.has(rowKey(row));td.innerHTML=`<input type="checkbox" class="row-chk" data-key="${escapeHtml(rowKey(row))}"${on?' checked':''}>`;if(on)tr.classList.add('sel');tr.appendChild(td)}
   tableHeaders().forEach(h=>{const td=document.createElement('td');const v=getDisplayValue(row,h);td.title=clean(v);if(['출고수량','단가','공급가','부가세','합계액'].includes(h))td.className='num';if(['출고일자','단위','제품번호','매칭상태'].includes(h))td.classList.add('center');
     if(h==='비고(내역)'){td.classList.add('remark');td.innerHTML=remarkHtml(row)}
-    else if(h==='제품번호'&&row.__suEdit){td.classList.add('code-cell');td.innerHTML=`<input class="code-input su-ci" data-su="${escapeHtml(row.__suId)}" value="${escapeHtml(row.__code||'')}" placeholder="${CAT_PRE[row.__cat]||'A'}00000" spellcheck="false" title="제품번호 입력·수정 (${CAT_PRE[row.__cat]||'A'}00000 · 숫자만 넣으면 ${CAT_PRE[row.__cat]||'A'}가 붙음) · 수불관리 품목에 저장 · 비우면 지움${row.__who?'\n'+escapeHtml(row.__who):''}">`}
+    else if(h==='제품번호'&&row.__suEdit){td.classList.add('code-cell');td.innerHTML=`<input class="code-input su-ci" data-su="${escapeHtml(row.__suId)}" value="${escapeHtml(row.__code||'')}" placeholder="${fmtP(CAT_PRE[row.__cat]||'A',0)}" spellcheck="false" title="제품번호 입력·수정 (${fmtP(CAT_PRE[row.__cat]||'A',0)} · 숫자만 넣으면 ${CAT_PRE[row.__cat]||'A'}가 붙음) · 수불관리 품목에 저장 · 비우면 지움${row.__who?'\n'+escapeHtml(row.__who):''}">`}
     else if(h==='제품번호'){td.classList.add('code-cell');td.innerHTML=((row.__status==='auto'||row.__status==='manual')&&row.__autoCode)?`<input class="code-input ${row.__status}" data-key="${escapeHtml(rowKey(row))}" value="${escapeHtml(row.__code||'')}" placeholder="입력" spellcheck="false" title="눌러서 제품번호 수정 · 비우거나 ${escapeHtml(row.__autoCode)}로 되돌리면 자동 부여로 표시 · Ctrl+Z 되돌리기">`:`<span class="code-text">${escapeHtml(row.__code||'—')}</span>`}
     else if(h==='매칭상태'){td.innerHTML=`<span class="badge ${({matched:'ok',shipped:'ok',pending:'warn',auto:'warn',manual:'manual'})[row.__status]||'bad'}">${escapeHtml(row.__statusText)}</span>`;td.title=[row.__status!=='matched'&&row.__reason?`사유: ${row.__reason}`:'',row.__who].filter(Boolean).join('\n')}
     else td.textContent=clean(v);
@@ -1019,7 +1021,7 @@ document.getElementById('resetBtn').onclick=async()=>{if(AU.role!=='admin'){aler
 /* 선택 삭제 : 🗑 삭제 → 체크박스 → 선택 삭제 */
 function allVisibleSelected(){return state.viewRows.length>0&&state.viewRows.every(r=>state.sel.has(rowKey(r)))}
 function selectVisible(on){state.viewRows.forEach(r=>{const k=rowKey(r);if(on)state.sel.add(k);else state.sel.delete(k)});document.querySelectorAll('#tableBody .row-chk').forEach(c=>{c.checked=on;c.closest('tr').classList.toggle('sel',on)});renderDelBar()}
-function renderDelBar(){const bar=document.getElementById('delBar'),t=document.getElementById('delToggle');bar.hidden=!state.delMode;t.classList.toggle('on',state.delMode);t.setAttribute('aria-pressed',String(state.delMode));t.textContent=state.delMode?'삭제 끝내기':'삭제';{const u=document.getElementById('suDel');if(u){u.classList.toggle('on',state.delMode);u.setAttribute('aria-pressed',String(state.delMode));u.textContent=state.delMode?'삭제 끝내기':'삭제'}}
+function renderDelBar(){const bar=document.getElementById('delBar'),t=document.getElementById('delToggle');bar.hidden=!state.delMode;t.classList.toggle('on',state.delMode);t.setAttribute('aria-pressed',String(state.delMode));t.textContent=state.delMode?'삭제 끝내기':'삭제';{const u=document.getElementById('suDel');if(u){u.classList.toggle('on',state.delMode);u.setAttribute('aria-pressed',String(state.delMode));u.textContent=state.delMode?'숨기기 끝내기':'숨기기'}const g=document.getElementById('delGo');if(state.view==='subul'&&g.textContent.indexOf('중…')<0)g.textContent=state.suShowHidden?'선택 다시 보이기':'선택 숨기기';else if(state.view!=='subul'&&g.textContent.indexOf('중…')<0)g.textContent='선택 삭제'}
   const n=state.sel.size;document.getElementById('delCount').textContent=`${n.toLocaleString()}건 선택`;document.getElementById('delGo').disabled=!n;
   const ca=document.querySelector('#headCloneRow .chk-all');if(ca)ca.checked=allVisibleSelected();requestAnimationFrame(syncHead)}
 function setDelMode(on){state.delMode=on;if(!on)state.sel.clear();renderDelBar();renderTable(true)}
@@ -1762,12 +1764,12 @@ if (typeof module !== 'undefined') module.exports = SU;
   const ST={code:['matched','제품번호 일치'],one:['manual','품번 단독 고객'],main:['pending',''],none:['none','이력 없음']};
   function suViewRows(){const S=state.subul;if(!S)return [];const part=document.getElementById('suPart').value,out=[];let i=0;
     const cnt={code:0,one:0,main:0,none:0};
-    S.store.items.forEach(it=>{if(it.src==='erp'||it._v)return;if(part&&it.src!==part)return;const code=codeOf(it),A=analyze(it,code);cnt[A.how]++;
+    let hidN=0;S.store.items.forEach(it=>{if(it.src==='erp'||it._v)return;if(part&&it.src!==part)return;if(it.smHide)hidN++;if(!!it.smHide!==!!state.suShowHidden)return;const code=codeOf(it),A=analyze(it,code);cnt[A.how]++;
       const n=it.it||it.n,fill=!clean(it.cust)&&A.cust,st=ST[A.how];
       out.push({'출고일자':A.od||'','주문번호':clean(it.ord)||A.ord||'','고객':(clean(it.cust)||A.cust||'')+(fill&&A.more?` 외 ${A.more}`:''),'품번':it.p,'품명':n,'규격':it.s,'비고(내역)':it.memo,'단위':A.u||'','출고수량':clean(it.oq)||A.q||'','단가':'','공급가':'','부가세':'','합계액':'','납품처':'',
         __k:'su:'+it.id,__suId:it.id,__suEdit:true,__index:Number(String(it.seq||'').replace(/[^0-9.]/g,''))||i++,__cat:catOfShip({n,p:it.p}),__code:code,__status:st[0],__statusText:A.how==='main'?A.label:st[1],
-        __reason:A.tip,__remark:it.memo,__autoCode:'',__who:[PART[it.src]||'',fill?`고객: ERP 분석 (${A.label})`:'',it.cfill?`고객 채움 ${it.cfill}`:'',it.pcBy?`제품번호 ${it.pcBy}`:''].filter(Boolean).join(' · ')})});
-    document.getElementById('suCount').textContent='';
+        __reason:A.tip,__remark:it.memo,__autoCode:'',__who:[PART[it.src]||'',fill?`고객: ERP 분석 (${A.label})`:'',it.cfill?`고객 채움 ${it.cfill}`:'',it.pcBy?`제품번호 ${it.pcBy}`:'',it.smHide?`숨김 ${it.smHide}`:''].filter(Boolean).join(' · ')})});
+    document.getElementById('suCount').textContent='';{const e=document.getElementById('suHidN');if(e)e.textContent=hidN.toLocaleString()}
     return out}
   window.suViewRows=suViewRows;
   /* v61 : 제품번호 = 수불관리 품목 code 칸 (수불관리 «번호 없음»과 같은 칸) · 모든 파트 수정 가능
@@ -1779,7 +1781,7 @@ if (typeof module !== 'undefined') module.exports = SU;
     const S=state.subul;if(S)S.store.items.forEach(x=>{if(x.id===exceptId||x.src==='erp'||x._v)return;const c=clean(x.code||x.pc).toUpperCase();if(c)add(c,`수불 ${PART[x.src]||''} ${x.p} ${x.s||''}`)});return m}
   function nextOf(P,used){let n=lastPOf(P);const S=state.subul;if(S)S.store.items.forEach(x=>{const k=pNum(x.code||x.pc||'',P);if(k>n)n=k});
     used.forEach((_,c)=>{const k=pNum(c,P);if(k>n&&k<n+1000)n=k});return n+1}
-  function normCode(v,P){v=clean(v).toUpperCase().replace(/\s+/g,'');if(/^\d{1,6}$/.test(v))v=P+v.padStart(5,'0');return v}
+  function normCode(v,P){v=clean(v).toUpperCase().replace(/\s+/g,'');if(/^\d{1,6}$/.test(v))v=fmtP(P,Number(v));return v}
   async function saveCodes(list,label){/* list: [{it,v}] → 수불관리 suPush (code·pcBy) + 출고매칭 «쓴 번호» 등록 */
     const S=state.subul,by=`${AU.name||AU.id} ${SU.today()}`;let saved=0,conf=0;
     const recs=list.map(({it,v})=>{const nv=Object.assign({},it,{code:v,pcBy:(label?'자동 ':'입력 ')+by});delete nv.pc;if(!v){delete nv.code;delete nv.pcBy}const r=S.store.recs.get('i:'+it.id);return {k:'i:'+it.id,v:SU.cleanForSave(nv),base:r?r.r:undefined,it}});
@@ -1790,7 +1792,7 @@ if (typeof module !== 'undefined') module.exports = SU;
     return {saved,conf}}
   async function setSuCode(id,val){const S=state.subul,it=S&&S.store.items.get(id);if(!it)return;
     const P=preOf(it),v=normCode(val,P);
-    if(v&&!/^[A-Z]\d{4,6}$/.test(v)){alert(`제품번호 형식: ${P}00000 (숫자만 넣으면 ${P}가 붙음)`);rebuildView(true);return}
+    if(v&&!/^[A-Z]\d{4,6}$/.test(v)){alert(`제품번호 형식: ${fmtP(P,0)} (숫자만 넣으면 ${P}가 붙음)`);rebuildView(true);return}
     if(v===clean(it.code||it.pc).toUpperCase()){rebuildView(true);return}
     if(v){const where=suUsed(id).get(v);if(where&&!(it.src==='p2'&&v===codeOf(Object.assign({},it,{code:'',pc:''})))){alert(`${v}는 이미 사용 중인 제품번호\n(${where})\n다른 번호 입력`);rebuildView(true);return}}
     try{const r=await saveCodes([{it,v}],'');
@@ -1807,9 +1809,9 @@ if (typeof module !== 'undefined') module.exports = SU;
   let autoBusy=false;
   async function autoAssign(ask){const S=state.subul;if(!S||autoBusy)return;autoBusy=true;
     try{const used=suUsed(''),todo=[],next={};
-      S.store.items.forEach(it=>{if(it.src==='erp'||it._v||clean(it.code))return;
+      S.store.items.forEach(it=>{if(it.src==='erp'||it._v)return;{const c=clean(it.code).toUpperCase(),m=/^([ADGC])0(\d{4})$/.exec(c);if(m&&/^자동/.test(it.pcBy||'')&&!used.has(m[1]+m[2])){const v=m[1]+m[2];used.set(v,'자동');todo.push({it,v});return}}if(clean(it.code))return;
         let v=clean(it.pc).toUpperCase()||codeOf(it);
-        if(!v){const P=preOf(it);if(!next[P])next[P]=nextOf(P,used);while(used.has(P+String(next[P]).padStart(5,'0')))next[P]++;v=P+String(next[P]++).padStart(5,'0');used.set(v,'자동')}
+        if(!v){const P=preOf(it);if(!next[P])next[P]=nextOf(P,used);while(used.has(fmtP(P,next[P])))next[P]++;v=fmtP(P,next[P]++);used.set(v,'자동')}
         todo.push({it,v})});
       if(!todo.length){if(ask)say('제품번호 없는 수불 품목 없음');return}
       const fresh=todo.filter(x=>!codeOf(x.it)).length;
@@ -1820,21 +1822,19 @@ if (typeof module !== 'undefined') module.exports = SU;
   document.getElementById('suAuto').onclick=async()=>{const on=!suAutoOn();try{localStorage.setItem(AUTO_LS,on?'1':'0')}catch(_){}renderSuAuto();if(on){if(!state.subul)try{await loadSubul()}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e));return}await autoAssign(true)}};
   renderSuAuto();
   document.getElementById('suDel').onclick=()=>setDelMode(!state.delMode);
-  /* v62 : 수불 품목 삭제 → 수불관리 서버에서도 지움 (품목 i: + 그 품목의 입력 e:·기초 조정 a:·r: 모두 null, 수불관리 «품목 삭제»와 같은 방식) */
-  async function suDelItems(){const S=state.subul;if(!S)return;
+  /* v63 : 수불 품목 숨기기 (사용자 결정 2026-11-23) — 수불관리 자료는 그대로, 품목에 smHide 표시만 저장 → 출고매칭 수불현황 목록에서만 빠짐 (모든 PC 같음)
+     · «숨긴 품목» 누르면 숨긴 품목만 보이고 골라서 다시 보이게 함 · 실제 품목 삭제는 수불관리 «품목 삭제»에서 */
+  document.getElementById('suHid').onclick=()=>{state.suShowHidden=!state.suShowHidden;const b=document.getElementById('suHid');b.classList.toggle('on',state.suShowHidden);b.setAttribute('aria-pressed',String(state.suShowHidden));state.sel.clear();rebuildView(true);renderDelBar()};
+  async function suDelItems(){const S=state.subul;if(!S)return;const show=!!state.suShowHidden;
     const ids=[...state.sel].filter(k=>k.startsWith('su:')).map(k=>k.slice(3)).filter(id=>S.store.items.has(id));if(!ids.length)return;
-    const sample=ids.slice(0,5).map(id=>{const it=S.store.items.get(id);return `${it.p||''} ${it.s||''}`.trim()}).join('\n· ');
-    if(!confirm(`선택한 수불 품목 ${ids.length.toLocaleString()}개를 지울까요?\n\n· ${sample}${ids.length>5?`\n· 외 ${ids.length-5}개`:''}\n\n· 수불관리에서도 같이 지워짐 (공정·일일 입력·기초재고 포함)\n· 붙어 있던 제품번호는 다른 품목에 다시 쓰지 않음\n· 같은 수불 엑셀을 다시 올리면 그 품목은 다시 들어옴`))return;
-    const btn=document.getElementById('delGo');btn.disabled=true;btn.textContent='지우는 중…';
-    try{const set=new Set(ids),keys=new Set();let pos=0,ep='';
-      for(;;){say(`수불관리 자료 확인 중 … ${pos.toLocaleString()}줄`);const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(d.reset)keys.clear();ep=d.epoch||ep;
-        (d.recs||[]).forEach(x=>{const t=x.k.charAt(0);if(!'ear'.includes(t)||x.k.charAt(1)!==':')return;if(!set.has(x.k.slice(2).split('|')[0]))return;if(x.v==null)keys.delete(x.k);else keys.add(x.k)});pos=d.pos;if(!d.more)break}
-      S.store.recs.forEach((rc,k)=>{const t=k.charAt(0);if('ear'.includes(t)&&k.charAt(1)===':'&&rc.v!=null&&set.has(k.slice(2).split('|')[0]))keys.add(k)});
-      const recs=[...keys].map(k=>({k,v:null})).concat(ids.map(id=>({k:'i:'+id,v:null})));
-      for(let i=0;i<recs.length;i+=2500){say(`수불관리에서 지우는 중 … ${Math.min(recs.length,i+2500).toLocaleString()} / ${recs.length.toLocaleString()}`);await suApi({action:'suPush',recs:recs.slice(i,i+2500),force:true},300000)}
-      recs.forEach(r=>S.store.set(r.k,null));state.sel.clear();state.delMode=false;rebuildView(true);renderDelBar();
-      say(`수불 품목 ${ids.length.toLocaleString()}개 삭제 (입력 ${keys.size.toLocaleString()}칸 포함) · 수불관리에도 반영`)}
-    catch(e){showError('수불 품목을 지우지 못함: '+(e.message||e))}
+    if(!show&&!confirm(`선택한 수불 품목 ${ids.length.toLocaleString()}개를 숨길까요?\n\n· 이 화면(수불현황) 목록에서만 빠짐 · 모든 PC 같음\n· 수불관리의 품목·공정·입력·재고는 그대로\n· «숨긴 품목»을 눌러 다시 보이게 할 수 있음`))return;
+    const btn=document.getElementById('delGo');btn.disabled=true;btn.textContent=show?'다시 보이는 중…':'숨기는 중…';
+    try{const by=`${AU.name||AU.id} ${SU.today()}`;let ok=0,conf=0;
+      const recs=ids.map(id=>{const it=S.store.items.get(id),nv=Object.assign({},it);if(show){delete nv.smHide}else nv.smHide=by;const r=S.store.recs.get('i:'+id);return {k:'i:'+id,v:SU.cleanForSave(nv),base:r?r.r:undefined}});
+      for(let i=0;i<recs.length;i+=1000){const part=recs.slice(i,i+1000);const d=await suApi({action:'suPush',recs:part},300000);const bad=new Set((d.conflicts||[]).map(c=>c.k||c));conf+=bad.size;part.forEach(x=>{if(bad.has(x.k))return;S.store.set(x.k,x.v,{r:d.rev});ok++})}
+      state.sel.clear();state.delMode=false;rebuildView(true);renderDelBar();
+      say(`수불 품목 ${ok.toLocaleString()}개 ${show?'다시 보이게 함':'숨김 (수불관리 자료는 그대로)'}${conf?` · 그사이 다른 사람이 고친 ${conf}개는 건너뜀 (수불현황을 다시 열고 다시 할 것)`:''}`)}
+    catch(e){showError((show?'다시 보이게 하지':'숨기지')+' 못함: '+(e.message||e))}
     finally{btn.textContent='선택 삭제';renderDelBar()}}
   window.suDelItems=suDelItems;
   tableBodyEl.addEventListener('change',e=>{const inp=e.target.closest('.su-ci');if(!inp)return;e.stopImmediatePropagation();setSuCode(inp.dataset.su,inp.value)},true);
@@ -1849,7 +1849,7 @@ if (typeof module !== 'undefined') module.exports = SU;
     let saved=0,conf=0;for(let i=0;i<recs.length;i+=1000){say(`수불관리에 넣는 중 … ${Math.min(recs.length,i+1000).toLocaleString()} / ${recs.length.toLocaleString()}`);const d=await suApi({action:'suPush',recs:recs.slice(i,i+1000)},300000);saved+=d.saved||0;conf+=(d.conflicts||[]).length}
     all.forEach(({it,v})=>Object.assign(it,v));rebuildView(true);
     say(`수불관리 품목 ${saved.toLocaleString()}개에 고객사·수주번호 채움${conf?` · 그사이 다른 사람이 고친 ${conf}개는 건너뜀`:''}`)}
-  async function showView(){state.view='subul';
+  async function showView(){state.view='subul';state.suShowHidden=false;{const b=document.getElementById('suHid');if(b){b.classList.remove('on');b.setAttribute('aria-pressed','false')}}
     document.querySelectorAll('#viewTabs .vt').forEach(b=>{const on=b.dataset.view==='subul';b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
     const tp=document.querySelector('.table-panel');tp.classList.remove('order-view');tp.classList.add('su-view');if(state.delMode&&typeof setDelMode==='function')setDelMode(false);
     state.filters.from='';state.filters.to='';state.filters.status='';state.filters.missingOnly=false;state.filters.pend=false;state.sort={key:'출고일자',dir:'asc'};
@@ -1888,10 +1888,10 @@ if (typeof module !== 'undefined') module.exports = SU;
     const ids={};P.items.forEach(it=>{ids[it.id]=1});const dset={};P.dates.forEach(d=>{dset[d]=1});
     const cur=new Map(),keep={};let pos=0,ep='',erpFrom='';
     for(;;){say(`수불관리 자료 받는 중 … ${pos.toLocaleString()}줄`);const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(d.reset)cur.clear();ep=d.epoch||ep;
-      (d.recs||[]).forEach(x=>{if(x.k==='c:erp'){erpFrom=x.v&&x.v.from||'';return}if(x.k.slice(0,2)==='i:'&&ids[x.k.slice(2)]){if(x.v&&x.v.code)keep[x.k.slice(2)]={code:x.v.code,pcBy:x.v.pcBy};else delete keep[x.k.slice(2)];return}if(x.k.slice(0,2)!=='e:')return;const a=x.k.slice(2).split('|');if(!ids[a[0]]||!dset[a[2]])return;if(x.v==null)cur.delete(x.k);else cur.set(x.k,1)});
+      (d.recs||[]).forEach(x=>{if(x.k==='c:erp'){erpFrom=x.v&&x.v.from||'';return}if(x.k.slice(0,2)==='i:'&&ids[x.k.slice(2)]){const kv={};if(x.v&&x.v.code){kv.code=x.v.code;kv.pcBy=x.v.pcBy}if(x.v&&x.v.smHide)kv.smHide=x.v.smHide;if(Object.keys(kv).length)keep[x.k.slice(2)]=kv;else delete keep[x.k.slice(2)];return}if(x.k.slice(0,2)!=='e:')return;const a=x.k.slice(2).split('|');if(!ids[a[0]]||!dset[a[2]])return;if(x.v==null)cur.delete(x.k);else cur.set(x.k,1)});
       pos=d.pos;if(!d.more)break}
     const recs=[],want={};
-    P.items.forEach(it=>{if(keep[it.id]&&!it.code){Object.assign(it,keep[it.id]);const t=tmp.items.get(it.id);if(t)Object.assign(t,keep[it.id])}const v=SU.cleanForSave(it);v.cby='가져오기(출고매칭)';v.imp=tab;recs.push({k:'i:'+it.id,v})});
+    P.items.forEach(it=>{if(keep[it.id]){const kk=Object.assign({},keep[it.id]);if(it.code){delete kk.code;delete kk.pcBy}Object.assign(it,kk);const t=tmp.items.get(it.id);if(t)Object.assign(t,kk)}const v=SU.cleanForSave(it);v.cby='가져오기(출고매칭)';v.imp=tab;recs.push({k:'i:'+it.id,v})});
     P.ents.forEach(e=>{want[e.k]=1;recs.push(e)});
     let del=0;cur.forEach((_,k)=>{if(!want[k]){recs.push({k,v:null});del++}});
     if(lastOut){const nf=SU.addDays(lastOut,1);if(!erpFrom||nf>erpFrom)recs.push({k:'c:erp',v:{from:nf}})}
