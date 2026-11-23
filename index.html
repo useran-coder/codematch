@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v90">
+  <meta name="sm-ver" content="v91">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -249,7 +249,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <div class="head-wrap" id="headWrap"><table class="data-table head-clone" id="headClone"><thead><tr id="headCloneRow"></tr></thead></table></div>
       <div class="table-wrap" id="tableWrap">
         <table class="data-table" id="dataTable"><thead aria-hidden="true"><tr id="headerRow"></tr></thead><tbody id="tableBody"></tbody></table>
-        <div class="su-load" id="suLoad" hidden></div><div class="empty" id="emptyState"><strong>저장된 자료 불러오는 중</strong>잠시만 기다림</div>
+        <div class="su-load" id="suLoad" hidden></div><div class="su-load" id="mainLoad" hidden></div><div class="empty" id="emptyState"><strong>저장된 자료 불러오는 중</strong>잠시만 기다림</div>
       </div>
       <div class="more-rows" id="moreRows"></div>
       <div class="hscroll" id="hScroll"><div id="hScrollInner"></div></div>
@@ -831,7 +831,10 @@ function cardFilter(kind){const f=state.filters,cur=cardOn();
   renderAll();document.querySelector('.table-panel').scrollIntoView({behavior:'smooth',block:'start'})}
 [['cardMatched','matched'],['cardAuto','auto'],['cardPend','pend']].forEach(([id,k])=>{const el=document.getElementById(id);el.onclick=()=>cardFilter(k);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();cardFilter(k)}}});
 document.getElementById('viewTabs').addEventListener('click',e=>{const b=e.target.closest('.vt');if(!b)return;state.cardPrev=null;if(b.dataset.view===state.view)return;state.viewSwitch=true;if(b.dataset.view==='subul'){window.suShowView&&window.suShowView();return}
-  if(b.dataset.view==='order'){const ds=[...state.db.order.values()].map(o=>o.od).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('order',l,l)}else{const ds=[...state.db.ship.values()].map(s=>s.d).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('ship',l,l)}});
+  const go=()=>{if(b.dataset.view==='order'){const ds=[...state.db.order.values()].map(o=>o.od).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('order',l,l)}else{const ds=[...state.db.ship.values()].map(s=>s.d).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('ship',l,l)}};
+  /* v91 : 자료가 많으면 표 만드는 동안 로딩 화면 (한 번 화면에 그린 뒤 표 만들기) */
+  const big=(b.dataset.view==='order'?state.db.order.size:state.db.ship.size)>1500;if(!big||state.mainLoading){go();return}
+  mlStart(b.dataset.view,2);requestAnimationFrame(()=>setTimeout(()=>{try{go()}finally{mlEnd()}},20))});
 /* v45 : 구분 버튼 안 스위치 = 그 구분 제품번호 자동 부여 켜기/끄기 (모든 PC 같이 적용) */
 async function toggleAuto(P){const cat=PRE_ORDER.find(c=>CAT_PRE[c]===P);
   if(srvV()<6){alert('구분별 자동 부여는 서버(shipmatch.gs) sm-v6 배포 후 사용 가능\n지금 서버: '+(state.srvVer||'확인 전'));return}
@@ -912,7 +915,7 @@ function buildRow(row){
 function renderTable(keep=false){
   requestAnimationFrame(syncHead);renderHeader();const prev=state.rendered,sy=scrollY;state.viewRows=visibleRows();state.rendered=0;
   const body=document.getElementById('tableBody'),empty=document.getElementById('emptyState');body.innerHTML='';document.getElementById('resultCount').textContent=`${state.viewRows.length.toLocaleString()}건 표시`;renderCatBtns();
-  if(!state.viewRows.length){document.getElementById('dataTable').style.display='none';document.getElementById('moreRows').style.display='none';empty.style.display='block';if(state.view==='subul'&&state.suLoading){empty.style.display='none';return}empty.innerHTML=`<strong>${state.rows.length?'조건에 맞는 행이 없음':state.view==='order'?'저장된 주문현황이 없음':state.view==='subul'?'수불 자료가 없음':'저장된 출고현황이 없음'}</strong>${state.rows.length?'필터·검색어 바꾸기':(state.view==='order'?'주문현황':'출고현황')+' XLS 또는 XLSX 파일을 올리면 계속 누적 저장'}`;return}
+  if(!state.viewRows.length){document.getElementById('dataTable').style.display='none';document.getElementById('moreRows').style.display='none';empty.style.display='block';if(state.view==='subul'&&state.suLoading){empty.style.display='none';return}if(state.view!=='subul'&&state.mainLoading){empty.style.display='none';return}empty.innerHTML=`<strong>${state.rows.length?'조건에 맞는 행이 없음':state.view==='order'?'저장된 주문현황이 없음':state.view==='subul'?'수불 자료가 없음':'저장된 출고현황이 없음'}</strong>${state.rows.length?'필터·검색어 바꾸기':(state.view==='order'?'주문현황':'출고현황')+' XLS 또는 XLSX 파일을 올리면 계속 누적 저장'}`;return}
   document.getElementById('dataTable').style.display='table';empty.style.display='none';renderMore(CHUNK);if(keep&&prev>CHUNK){const b=document.getElementById('tableBody'),h=b.offsetHeight/Math.max(1,state.rendered),top=b.getBoundingClientRect().top+scrollY,need=Math.ceil((sy+innerHeight+2500-top)/Math.max(20,h));if(need>state.rendered)renderMore(Math.min(prev,need)-state.rendered);if(Math.abs(scrollY-sy)>2)scrollTo(0,sy)}fillStart();
 }
 /* v84 : 목록 전체 자동 펼치기 — 첫 400행을 바로 그리고 나머지는 화면이 쉬는 틈에 400행씩 이어 그림 (전체 길이 스크롤 가능)
@@ -1258,7 +1261,22 @@ function canAutoPull(){if(!auValid()||!state.cfg.auto||state.sync.busy||document
 function startPoll(){clearInterval(pollTimer);pollTimer=setInterval(()=>{if(canAutoPull())sync({quiet:true})},60000)}
 window.addEventListener('focus',()=>{if(canAutoPull())sync({quiet:true})});
 let dataStarted=false;
-async function startData(){renderSyncBtn();state.db=emptyDb();state.firstView=true;await loadCache();rebuildView();await sync();setTimeout(()=>{if(window.suSeedFromServer)window.suSeedFromServer()},3000)}
+/* v91 : 주문현황·출고현황 로딩 화면 (수불현황과 같은 모양) — 이 PC 자료 0~20% · 서버 받기 20~90%(지난번 걸린 시간 기준) · 표 만들기 95%
+   · 이 PC 저장본이 있으면 바로 표를 보여주고 서버 받기는 뒤에서 (로딩 화면 닫음) */
+const ML_MS='sm_boot_ms';let mlTimer=null;
+function mlStart(view,phase){state.mainLoading={t0:Date.now(),tp:Date.now(),phase:phase||0,view:view||state.view,est:(()=>{try{return Number(localStorage.getItem(ML_MS))||6000}catch(_){return 6000}})(),pm:0};
+  const e=document.getElementById('emptyState');if(e)e.style.display='none';mlRender();clearInterval(mlTimer);mlTimer=setInterval(mlRender,100)}
+function mlPhase(n){const L=state.mainLoading;if(L&&n>L.phase){L.phase=n;L.tp=Date.now()}mlRender()}
+function mlEnd(){clearInterval(mlTimer);mlTimer=null;state.mainLoading=null;const el=document.getElementById('mainLoad');if(el){el.hidden=true;el.innerHTML=''}}
+function mlRender(){const L=state.mainLoading,el=document.getElementById('mainLoad');if(!el)return;if(!L||state.view==='subul'){el.hidden=true;return}
+  el.hidden=false;el.classList.remove('slim');const t=(Date.now()-L.t0)/1000,tp=(Date.now()-L.tp)/1000,cr=(lo,hi,x,k)=>lo+(hi-lo)*(1-Math.exp(-x/k));
+  let pct=L.phase===0?cr(0,20,t,1.5):L.phase===1?20+70*Math.min(1,tp*1000/L.est)*0.9+cr(0,7,tp,8):95;pct=Math.max(L.pm,Math.min(99,Math.floor(pct)));L.pm=pct;
+  const V=L.view==='order'?'주문':'출고',n=state.db?(L.view==='order'?state.db.order.size:state.db.ship.size):0,st=['이 PC 자료','서버 받기','표 만들기'];
+  el.innerHTML=`<div class="sl-num">${pct}%<small>${L.phase===1?'서버에서 주문·출고 자료 받는 중':`${V} ${n.toLocaleString()}줄 표 만드는 중`} · ${t.toFixed(1)}초</small></div><div class="sl-bar"><i style="width:${pct}%"></i></div><div class="sl-steps">${st.map((x,i)=>`<span class="${i<L.phase?'ok':i===L.phase?'on':''}">${x}</span>`).join('')}</div>`}
+async function startData(){renderSyncBtn();state.db=emptyDb();state.firstView=true;mlStart('order',0);await loadCache();
+  const had=state.db.order.size+state.db.ship.size>0;if(had){mlPhase(2);await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,20)))}
+  try{rebuildView()}finally{if(had)mlEnd()}
+  if(!had&&state.mainLoading){mlPhase(1);const t1=Date.now();try{await sync()}finally{try{localStorage.setItem(ML_MS,String(Math.max(1500,Date.now()-t1)))}catch(_){}mlEnd();rebuildView(true)}}else await sync();setTimeout(()=>{if(window.suSeedFromServer)window.suSeedFromServer()},3000)}
 function appStart(){if(dataStarted){sync({quiet:true});return}dataStarted=true;startData().then(startPoll)}
 document.getElementById('verTag').textContent=SM_VER;document.getElementById('verTag').title='화면 버전 · 눌러서 서버 점검';document.getElementById('verTag').onclick=runDiag;
 auBoot();
