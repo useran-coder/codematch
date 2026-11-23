@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v83">
+  <meta name="sm-ver" content="v84">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -904,16 +904,24 @@ function buildRow(row){
   return tr;
 }
 function renderTable(keep=false){
-  requestAnimationFrame(syncHead);renderHeader();const prev=state.rendered;state.viewRows=visibleRows();state.rendered=0;
+  requestAnimationFrame(syncHead);renderHeader();const prev=state.rendered,sy=scrollY;state.viewRows=visibleRows();state.rendered=0;
   const body=document.getElementById('tableBody'),empty=document.getElementById('emptyState');body.innerHTML='';document.getElementById('resultCount').textContent=`${state.viewRows.length.toLocaleString()}건 표시`;renderCatBtns();
   if(!state.viewRows.length){document.getElementById('dataTable').style.display='none';document.getElementById('moreRows').style.display='none';empty.style.display='block';if(state.view==='subul'&&state.suLoading){empty.style.display='none';return}empty.innerHTML=`<strong>${state.rows.length?'조건에 맞는 행이 없음':state.view==='order'?'저장된 주문현황이 없음':state.view==='subul'?'수불 자료가 없음':'저장된 출고현황이 없음'}</strong>${state.rows.length?'필터·검색어 바꾸기':(state.view==='order'?'주문현황':'출고현황')+' XLS 또는 XLSX 파일을 올리면 계속 누적 저장'}`;return}
-  document.getElementById('dataTable').style.display='table';empty.style.display='none';renderMore(keep?Math.max(prev,CHUNK):CHUNK);
+  document.getElementById('dataTable').style.display='table';empty.style.display='none';renderMore(CHUNK);if(keep&&prev>CHUNK){const b=document.getElementById('tableBody'),h=b.offsetHeight/Math.max(1,state.rendered),top=b.getBoundingClientRect().top+scrollY,need=Math.ceil((sy+innerHeight+2500-top)/Math.max(20,h));if(need>state.rendered)renderMore(Math.min(prev,need)-state.rendered);if(Math.abs(scrollY-sy)>2)scrollTo(0,sy)}fillStart();
 }
+/* v84 : 목록 전체 자동 펼치기 — 첫 400행을 바로 그리고 나머지는 화면이 쉬는 틈에 400행씩 이어 그림 (전체 길이 스크롤 가능)
+   · 스크롤이 끝 가까이 오면 바로 더 그림 · 필터·보기 바꾸면 이전 작업은 멈춤 */
+let fillGen=0;
+function nearEnd(){const m=document.getElementById('moreRows');if(!m||m.style.display==='none')return false;return m.getBoundingClientRect().top<innerHeight+2500}
+function fillStart(){const g=++fillGen;const idle=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>12}),30));
+  const tick=()=>{if(g!==fillGen||state.rendered>=state.viewRows.length)return;renderMore(CHUNK);if(state.rendered<state.viewRows.length)idle(tick,{timeout:400})};
+  idle(tick,{timeout:400})}
+{let sq=false;addEventListener('scroll',()=>{if(sq)return;sq=true;requestAnimationFrame(()=>{sq=false;let n=0;while(n++<5&&state.rendered<state.viewRows.length&&nearEnd())renderMore(CHUNK)})},{passive:true})}
 function renderMore(count=CHUNK){
   const rows=state.viewRows,end=Math.min(rows.length,state.rendered+count),frag=document.createDocumentFragment();
   for(let i=state.rendered;i<end;i++)frag.appendChild(buildRow(rows[i]));
   document.getElementById('tableBody').appendChild(frag);state.rendered=end;
-  const more=document.getElementById('moreRows');more.style.display=end<rows.length?'':'none';more.textContent=`${end.toLocaleString()} / ${rows.length.toLocaleString()}행 표시 중 — 아래로 스크롤하면 계속 불러옴`;
+  const more=document.getElementById('moreRows');more.style.display=end<rows.length?'':'none';more.textContent=`${end.toLocaleString()} / ${rows.length.toLocaleString()}행 불러오는 중 · 곧 모두 표시`;
   requestAnimationFrame(syncHead);
 }
 function uploadsOf(kind){return [...state.db.upload.values()].filter(u=>u.kind===kind&&!u.hidden).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')))}
@@ -1220,7 +1228,7 @@ function showDlToast(list){let el=document.getElementById('dlToast');if(!el){el=
   el.classList.toggle('bad',list.every(x=>x.err));el.classList.add('on');el.querySelector('.dl-x').onclick=()=>el.classList.remove('on');clearTimeout(dlTimer);dlTimer=setTimeout(()=>el.classList.remove('on'),10000)}
 document.getElementById('syncBtn').onclick=()=>{if(auValid())sync();else auShowGate()};
 {const wrap=document.getElementById('tableWrap'),hs=document.getElementById('hScroll'),hw=document.getElementById('headWrap');wrap.addEventListener('scroll',()=>{hw.scrollLeft=wrap.scrollLeft;if(hs.scrollLeft!==wrap.scrollLeft)hs.scrollLeft=wrap.scrollLeft});hs.addEventListener('scroll',()=>{if(wrap.scrollLeft!==hs.scrollLeft)wrap.scrollLeft=hs.scrollLeft});hw.addEventListener('wheel',e=>{if(e.deltaX){wrap.scrollLeft+=e.deltaX}},{passive:true});window.addEventListener('resize',()=>requestAnimationFrame(syncHead));if(document.fonts)document.fonts.ready.then(syncHead)}
-new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)&&state.rendered<state.viewRows.length)renderMore()},{rootMargin:'800px 0px'}).observe(document.getElementById('moreRows'));
+new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)&&state.rendered<state.viewRows.length)renderMore()},{rootMargin:'2500px 0px'}).observe(document.getElementById('moreRows'));
 {const pt=document.getElementById('priceToggle');if(pt)pt.onclick=e=>{state.showPrice=!state.showPrice;if(!state.showPrice&&PRICE_HEADERS.includes(state.sort.key))state.sort={key:'출고일자',dir:'asc'};e.currentTarget.setAttribute('aria-pressed',String(state.showPrice));e.currentTarget.textContent=state.showPrice?'공급가 숨기기':'공급가 보기';renderTable(true)}}
 document.getElementById('dateFrom').onchange=e=>setDateRange(e.target.value,state.filters.to);document.getElementById('dateTo').onchange=e=>setDateRange(state.filters.from,e.target.value);
 document.getElementById('datePreset').onchange=e=>{const v=e.target.value,n=new Date();if(!v)return;
