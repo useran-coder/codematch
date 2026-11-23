@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v77">
+  <meta name="sm-ver" content="v78">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -241,7 +241,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field" style="display:none"><label for="suPart">파트</label><select id="suPart"><option value="">전체 파트</option><option value="p1">생산1파트 (A동)</option><option value="p2">생산2파트 (B동)</option><option value="p3">생산3파트 (레이저)</option></select></div><span class="su-cnt" id="suCount" hidden></span>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 제품번호 검색"></div>
-        <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="cat-btn su-only su-auto" id="suAuto" role="switch" aria-checked="false"><span class="sw"><i></i></span>제품번호 자동부여</button><button type="button" class="btn small su-del su-miss" id="suMiss" style="display:none" aria-pressed="false" title="수불관리에서 «번호 없음·번호 대기»로 보이는 품목만 보기 (초기화·숨김과 관계없이 전체)">제품번호 없음&nbsp;<b id="suMissN">0</b></button><button type="button" class="btn small su-only su-del" id="suFillNow" hidden title="지금 보이는 제품번호 없는 품목에 번호 넣기 (B동 순번·비고 번호 먼저, 없으면 구분별 다음 번호) · 수불관리에도 저장">모두 자동입력</button><button type="button" class="btn small del-toggle su-del" id="suDel" aria-pressed="false" title="체크박스로 행을 골라 목록에서만 숨김 (자료는 그대로 · 모든 PC 같음)">숨기기</button><button type="button" class="btn small su-del" id="suHid" aria-pressed="false" title="숨긴 품목 보기 · 골라서 다시 보이게 할 수 있음">숨긴 항목&nbsp;<b id="suHidN">0</b></button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
+        <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="cat-btn su-only su-auto" id="suAuto" role="switch" aria-checked="false"><span class="sw"><i></i></span>수불엑셀 자동부여</button><button type="button" class="btn small su-del su-miss" id="suMiss" style="display:none" aria-pressed="false" title="수불관리에서 «번호 없음·번호 대기»로 보이는 품목만 보기 (초기화·숨김과 관계없이 전체)">제품번호 없음&nbsp;<b id="suMissN">0</b></button><button type="button" class="btn small su-only su-del" id="suFillNow" hidden title="지금 보이는 제품번호 없는 품목에 번호 넣기 (B동 순번·비고 번호 먼저, 없으면 구분별 다음 번호) · 수불관리에도 저장">모두 자동입력</button><button type="button" class="btn small del-toggle su-del" id="suDel" aria-pressed="false" title="체크박스로 행을 골라 목록에서만 숨김 (자료는 그대로 · 모든 PC 같음)">숨기기</button><button type="button" class="btn small su-del" id="suHid" aria-pressed="false" title="숨긴 품목 보기 · 골라서 다시 보이게 할 수 있음">숨긴 항목&nbsp;<b id="suHidN">0</b></button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
         <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제 (개별 선택 · 머리글 체크 = 전체 선택)">삭제</button>
       </div>
       <div class="del-bar" id="delBar" hidden><b id="delCount">0건 선택</b><button type="button" class="btn small" id="delAllVisible">보이는 행 모두 선택</button><button type="button" class="btn small" id="delNone">선택 해제</button><span class="spacer"></span><button type="button" class="btn small danger" id="delGo" disabled>선택 삭제</button><button type="button" class="btn small" id="delCancel">취소</button></div>
@@ -1879,8 +1879,8 @@ if (typeof module !== 'undefined') module.exports = SU;
   const AUTO_LS='sm_su_auto';
   function suAutoOn(){try{return localStorage.getItem(AUTO_LS)==='1'}catch(_){return false}}
   function renderSuAuto(){const b=document.getElementById('suAuto');if(!b)return;const on=suAutoOn();b.querySelector('.sw').classList.toggle('on',on);b.setAttribute('aria-checked',String(on));
-    b.title=on?'제품번호 자동부여 켬 · 번호 없는 수불 품목에 자동으로 번호 붙임 (수불관리에도 저장) · 눌러서 끄기':'제품번호 자동부여 끔 · 눌러서 켜면 번호 없는 수불 품목에 번호를 붙임'}
-  let autoBusy=false;
+    b.title=on?'수불엑셀 자동부여 켬 · 수불 엑셀을 올리거나 수불현황을 열 때 번호 없는 품목에 제품번호 자동으로 붙임 (수불관리에도 저장) · 눌러서 끄기':'수불엑셀 자동부여 끔 · 눌러서 켜면 수불 엑셀을 올릴 때 번호 없는 품목에 제품번호 자동으로 붙임'}
+  let autoBusy=false,autoDone=0;
   async function autoAssign(ask,all){const S=state.subul;if(!S||autoBusy)return;autoBusy=true;
     try{const used=suUsed(''),todo=[],next={};
       const RR=all?0:suResetRev();S.store.items.forEach(it=>{if(it.src==='erp'||it._v)return;if(!suAfterReset(it,RR))return;if(all&&!suMissing(it))return;const cur=clean(it.code).toUpperCase(),auto=/^자동/.test(it.pcBy||'');
@@ -1896,11 +1896,14 @@ if (typeof module !== 'undefined') module.exports = SU;
       const fresh=todo.filter(x=>!x.fix&&!codeOf(x.it)).length;
       if(ask&&!confirm(`수불 품목 ${todo.length.toLocaleString()}개에 제품번호를 넣을까요?\n\n· 새 번호 ${fresh.toLocaleString()}개 (구분별 다음 번호 · 부자재 A · 내부보강 B · 레이저 D · 유통/OEM G · 문틀 C)\n· 이미 보이는 번호(B동 순번·비고 번호) ${(todo.length-fresh).toLocaleString()}개는 그 번호로 저장\n· 수불관리 «번호 없음»에도 같이 반영\n· 표에서 제품번호 칸을 눌러 수정 가능`)){localStorage.setItem(AUTO_LS,'0');renderSuAuto();return}
       const r=await saveCodes(todo,`수불 제품번호 자동부여 ${SU.today()}`);rebuildView(true);
-      say(`수불 품목 ${r.saved.toLocaleString()}개 제품번호 자동부여 (새 번호 ${fresh.toLocaleString()}) · 수불관리에도 반영${r.conf?` · 그사이 다른 사람이 고친 ${r.conf}개는 건너뜀`:''}`)}
+      say(`수불 품목 ${r.saved.toLocaleString()}개 제품번호 자동부여 (새 번호 ${fresh.toLocaleString()}) · 수불관리에도 반영${r.conf?` · 그사이 다른 사람이 고친 ${r.conf}개는 건너뜀`:''}`);autoDone+=r.saved}
     catch(e){showError('제품번호 자동부여 실패: '+(e.message||e))}finally{autoBusy=false}}
   document.getElementById('suAuto').onclick=async()=>{const on=!suAutoOn();try{localStorage.setItem(AUTO_LS,on?'1':'0')}catch(_){}renderSuAuto();if(on){if(!state.subul)try{await loadSubul()}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e));return}await autoAssign(true)}};
   renderSuAuto();
   document.getElementById('suMiss').onclick=()=>{state.suMissOnly=!state.suMissOnly;const b=document.getElementById('suMiss');b.classList.toggle('on',state.suMissOnly);b.setAttribute('aria-pressed',String(state.suMissOnly));document.getElementById('cardNoCode').classList.toggle('on',state.suMissOnly);rebuildView(true)};
+  /* v78 : 수불 엑셀 올린 뒤 (스위치 켬일 때만) — 먼저 돌고 있는 자동부여 끝나길 기다렸다가 다시 한 번 */
+  window.suAutoReset=()=>{autoDone=0};
+  window.suAutoAfterUpload=async()=>{if(!suAutoOn()||!state.subul)return 0;for(let i=0;i<600&&autoBusy;i++)await new Promise(r=>setTimeout(r,100));await autoAssign(false);return autoDone};
   document.getElementById('suFillNow').onclick=async()=>{if(!state.subul)return;await autoAssign(true,true);rebuildView(true)};
   /* v63 : 수불 품목 숨기기 (사용자 결정 2026-11-23) — 수불관리 자료는 그대로, 품목에 smHide 표시만 저장 → 출고매칭 수불현황 목록에서만 빠짐 (모든 PC 같음)
      · «숨긴 항목» 누르면 숨긴 품목만 보이고 골라서 다시 보이게 함 · 실제 품목 삭제는 수불관리 «품목 삭제»에서 */
@@ -2003,10 +2006,12 @@ if (typeof module !== 'undefined') module.exports = SU;
     let del=0;cur.forEach((_,k)=>{if(!want[k]){recs.push({k,v:null});del++}});
     if(lastOut){const nf=SU.addDays(lastOut,1);if(!erpFrom||nf>erpFrom)recs.push({k:'c:erp',v:{from:nf}})}
     for(let i=0;i<recs.length;i+=2500){PG(`수불관리에 저장 ${Math.min(recs.length,i+2500).toLocaleString()} / ${recs.length.toLocaleString()}`,40+50*(i/recs.length));await suApi({action:'suPush',recs:recs.slice(i,i+2500),force:true},300000)}PG('화면 반영',90);
-    setSubul(tmp,`수불 엑셀 ${src.name} «${tab}»`);showView();
+    window.suAutoReset&&window.suAutoReset();setSubul(tmp,`수불 엑셀 ${src.name} «${tab}»`);showView();
     PG('제품번호 등록',94);const nCodes=await pushSubulCodes(P.items,`수불 엑셀 ${src.name} «${tab}»`).catch(e=>{showError('제품번호 등록 실패(수불 저장은 됨): '+(e.message||e));return 0});
+    /* v78 : 수불엑셀 자동부여 켜져 있으면 제품번호 등록 끝난 뒤 번호 없는 품목에 바로 번호 붙임 */
+    let nAuto=0;if(window.suAutoAfterUpload){PG('제품번호 자동부여',97);nAuto=await window.suAutoAfterUpload().catch(e=>{showError('제품번호 자동부여 실패(수불 저장은 됨): '+(e.message||e));return 0})}
     PG('완료',100);await new Promise(r=>setTimeout(r,500));
-    say(`수불관리로 넘김 완료 — ${src.name} «${tab}» 품목 ${P.items.length.toLocaleString()} · 입력 ${P.ents.length.toLocaleString()}${del?` · 지운 입력 ${del.toLocaleString()}`:''} · 재고 대조 ${V.bad.length?V.bad.length+'줄 다름':'모두 같음'} (수불관리 화면은 1분 안에 반영)${nCodes?` · 제품번호 ${nCodes.toLocaleString()}개 출고매칭에 등록`:''}`);
+    say(`수불관리로 넘김 완료 — ${src.name} «${tab}» 품목 ${P.items.length.toLocaleString()} · 입력 ${P.ents.length.toLocaleString()}${del?` · 지운 입력 ${del.toLocaleString()}`:''} · 재고 대조 ${V.bad.length?V.bad.length+'줄 다름':'모두 같음'} (수불관리 화면은 1분 안에 반영)${nCodes?` · 제품번호 ${nCodes.toLocaleString()}개 출고매칭에 등록`:''}${nAuto?` · 자동부여 ${nAuto.toLocaleString()}개`:''}`);
   }
   const btn=document.getElementById('suUpBtn'),inp=document.getElementById('suUpInput');
   btn.onclick=()=>{if(AU.role!=='admin'){alert('수불 엑셀 올리기는 관리자만 가능');return}inp.click()};
