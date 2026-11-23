@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v55">
+  <meta name="sm-ver" content="v56">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -23,6 +23,14 @@
     .top-msg .notice::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:middle;position:relative;top:-1px}
     .top-msg #notice{color:#fde047}.top-msg #notice::before{background:#f59e0b;box-shadow:0 0 6px #f59e0b}
     .top-msg #infoNotice{color:#fde047}.top-msg #infoNotice.go{text-overflow:clip}.top-msg #infoNotice .tm-run{display:inline}.top-msg #infoNotice.go .tm-run{display:inline-block;will-change:transform}.top-msg #infoNotice::before{transition:opacity .4s}.top-msg #infoNotice.go::before{opacity:0}.top-msg #infoNotice::before{background:#22c55e;box-shadow:0 0 6px #22c55e}
+    .su-only{display:none!important}.su-view .su-only{display:flex!important}.su-view #suBox{display:block!important}
+    .su-view .toolbar>*:not(.view-field):not(.su-only),.su-view #delBar,.su-view #headWrap,.su-view #tableWrap,.su-view #moreRows,.su-view #hScroll,.su-view .footer-note{display:none!important}
+    .su-cnt{align-self:flex-end;height:35px;align-items:center;color:#475569;font-size:12px}#suReload{align-self:flex-end}
+    .su-box{max-height:70vh;overflow:auto;border-top:1px solid var(--line)}.su-box table{border-collapse:separate;border-spacing:0;width:100%;font-size:12px;white-space:nowrap}
+    .su-box th{position:sticky;top:0;z-index:2;background:#59636f;color:#fff;height:34px;padding:0 9px;border-right:1px solid #7a838d;font-weight:700}
+    .su-box td{height:30px;padding:4px 9px;border-bottom:1px solid #e3e7eb;border-right:1px solid #eef1f4}.su-box tr:nth-child(even) td{background:#fafbfc}.su-box tr:hover td{background:#eef5ff}
+    .su-box .su-code{font-weight:800;color:#1f2937}.su-box .pr{display:inline-block;margin-right:6px;padding:1px 6px;border-radius:4px;background:#eef2f7;color:#334155}.su-box .pr b{margin-left:3px;font-variant-numeric:tabular-nums}.su-box .pr.neg b{color:#b42318}.su-box .num{text-align:right;font-variant-numeric:tabular-nums}.su-box .chk{color:#b45309;font-weight:700}
+    .su-box .su-empty{padding:40px;text-align:center;color:#64748b}
     .top-msg .tm-empty{color:#64748b;font-size:12px}.top-msg:has(.notice.show) .tm-empty{display:none}
     .top-msg:has(#infoNotice.show) #notice{flex:0 1 auto;max-width:45%}.title p{margin:0;color:#cbd5e1;font-size:13px}
     .top-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #b9c5d6;background:#fff;color:#26354d;border-radius:7px;padding:9px 14px;font-weight:700;box-shadow:0 1px 2px #0f172a12}
@@ -222,13 +230,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <div class="panel metric"><div class="label">주문 데이터</div><div class="value" id="orderCount">0</div><div class="sub" id="orderFiles">0개 파일</div></div>
     </section>
     <section class="panel table-panel order-view">
-      <div class="toolbar"><div class="field view-field"><label>보기</label><div class="view-tabs" id="viewTabs" role="tablist"><button type="button" class="vt on" data-view="order" aria-selected="true">주문현황</button><button type="button" class="vt" data-view="ship" aria-selected="false">출고현황</button></div></div>
+      <div class="toolbar"><div class="field view-field"><label>보기</label><div class="view-tabs" id="viewTabs" role="tablist"><button type="button" class="vt on" data-view="order" aria-selected="true">주문현황</button><button type="button" class="vt" data-view="ship" aria-selected="false">출고현황</button><button type="button" class="vt" data-view="subul" aria-selected="false" title="수불 엑셀 올리기로 넘긴 수불 품목 (수불관리 서버)">수불현황</button></div></div>
         <div class="field"><label for="dateFrom">주문일자 기간</label><div class="date-range"><input type="date" id="dateFrom" title="시작일"><span>~</span><input type="date" id="dateTo" title="종료일"><select id="datePreset" title="빠른 선택"><option value="">빠른 선택</option><option value="last">마지막 출고일</option><option value="today">오늘</option><option value="7">최근 7일</option><option value="month">이번 달</option><option value="prev">지난 달</option><option value="all">전체 기간</option></select></div></div>
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
+        <div class="field search su-only" id="suTools"><label for="suSearch">수불 검색</label><input id="suSearch" type="search" placeholder="제품번호, 고객사, 품번, 품명, 규격, 비고 검색"></div><div class="field su-only"><label for="suPart">파트</label><select id="suPart"><option value="">전체 파트</option><option value="p1">생산1파트 (A동)</option><option value="p2">생산2파트 (B동)</option><option value="p3">생산3파트 (레이저)</option></select></div><span class="su-only su-cnt" id="suCount"></span><button type="button" class="btn small su-only" id="suReload" title="수불관리 서버에서 다시 받기">다시 받기</button>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="수주번호, 고객, 품번, 품명, 규격, 제품번호 검색"></div>
         <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button></div><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
         <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제 (개별 선택 · 머리글 체크 = 전체 선택)">삭제</button>
       </div>
+      <div class="su-box su-only" id="suBox"></div>
       <div class="del-bar" id="delBar" hidden><b id="delCount">0건 선택</b><button type="button" class="btn small" id="delAllVisible">보이는 행 모두 선택</button><button type="button" class="btn small" id="delNone">선택 해제</button><span class="spacer"></span><button type="button" class="btn small danger" id="delGo" disabled>선택 삭제</button><button type="button" class="btn small" id="delCancel">취소</button></div>
       <div class="head-wrap" id="headWrap"><table class="data-table head-clone" id="headClone"><thead><tr id="headCloneRow"></tr></thead></table></div>
       <div class="table-wrap" id="tableWrap">
@@ -766,7 +776,7 @@ function renderCatBtns(){renderLastS();const f=state.filters,cnt={};const q=norm
   {const c={all:0,nc:0,chk:0,no:0};state.rows.forEach(r=>{if(r.__status!=='auto'||!inDateRange(r['출고일자']))return;if(f.status&&r.__status!==f.status)return;if(f.cat&&r.__cat!==f.cat)return;if(q&&!['주문번호','고객','품번','품명','규격','비고(내역)','납품처','제품번호'].some(k=>norm(getDisplayValue(r,k)).includes(q)))return;c.all++;if(r.__reason==='주문 제품번호 없음')c.nc++;else if(r.__reason==='내용 확인 필요')c.chk++;else c.no++});
     document.getElementById('autoN').textContent=c.all.toLocaleString();document.getElementById('missingLbl').title=`자동 부여 ${c.all.toLocaleString()}행\n· 주문현황 비고에 제품번호 없음 ${c.nc.toLocaleString()}\n· 내용 확인 필요 ${c.chk.toLocaleString()}\n· 주문현황에 수주번호 없음 등 ${c.no.toLocaleString()}`}
   document.querySelectorAll('#catBtns .cat-btn').forEach(b=>{const c=b.dataset.cat,on=f.cat===c;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));const P=CAT_PRE[c],ao=autoOn(P);b.innerHTML=`<span class="sw${ao?' on':''}" data-pre="${P}" role="switch" aria-checked="${ao}" title="${c} 제품번호 자동 부여 ${ao?'켬':'끔'} (${P}00000) · 눌러서 ${ao?'끄기':'켜기'} (관리자)"><i></i></span>${c}<small>${(cnt[c]||0).toLocaleString()}</small>`;b.title=on?'다시 누르면 전체 구분 표시':`${c}만 표시`})}
-function setView(v,from,to){if(v!=='order')v='ship';const changed=state.view!==v;state.view=v;
+function setView(v,from,to){if(v!=='order')v='ship';const changed=state.view!==v;state.view=v;document.querySelector('.table-panel').classList.remove('su-view');
   document.querySelectorAll('#viewTabs .vt').forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
   document.querySelector('.table-panel').classList.toggle('order-view',v==='order');
   if(changed){state.filters.status='';state.filters.missingOnly=false;state.filters.pend=false;const sf=document.getElementById('statusFilter');if(sf)sf.value='';const mo=document.getElementById('missingOnly');if(mo)mo.checked=false;
@@ -790,7 +800,7 @@ function cardFilter(kind){const f=state.filters,cur=cardOn();
   const sf=document.getElementById('statusFilter');if(sf)sf.value=f.status;const mo=document.getElementById('missingOnly');if(mo)mo.checked=f.missingOnly;
   renderAll();document.querySelector('.table-panel').scrollIntoView({behavior:'smooth',block:'start'})}
 [['cardMatched','matched'],['cardAuto','auto'],['cardPend','pend']].forEach(([id,k])=>{const el=document.getElementById(id);el.onclick=()=>cardFilter(k);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();cardFilter(k)}}});
-document.getElementById('viewTabs').addEventListener('click',e=>{const b=e.target.closest('.vt');if(!b)return;state.cardPrev=null;if(b.dataset.view===state.view)return;
+document.getElementById('viewTabs').addEventListener('click',e=>{const b=e.target.closest('.vt');if(!b)return;state.cardPrev=null;if(b.dataset.view===state.view)return;if(b.dataset.view==='subul'){window.suShowView&&window.suShowView();return}
   if(b.dataset.view==='order'){const ds=[...state.db.order.values()].map(o=>o.od).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('order',l,l)}else{const ds=[...state.db.ship.values()].map(s=>s.d).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('ship',l,l)}});
 /* v45 : 구분 버튼 안 스위치 = 그 구분 제품번호 자동 부여 켜기/끄기 (모든 PC 같이 적용) */
 async function toggleAuto(P){const cat=PRE_ORDER.find(c=>CAT_PRE[c]===P);
@@ -1071,7 +1081,7 @@ function renderConvSw(){const b=document.getElementById('convSw');if(!b)return;c
 document.getElementById('convSw').onclick=()=>{const on=!autoConvOn();try{localStorage.setItem('sm_auto_conv',on?'1':'0')}catch(_){}renderConvSw();showInfo(on?'자동 엑셀변환 켬 · 주문현황 올리면 원시파일 바로 다운로드':'자동 엑셀변환 끔 · 필요하면 «엑셀 내보내기»로 저장')};
 renderConvSw();
 function ymdCompact(d){return /^\d{4}-\d{2}-\d{2}$/.test(d||'')?d.replace(/-/g,''):clean(d)}
-async function exportRaw(){
+async function exportRaw(){if(state.view==='subul'){alert('수불현황 보기에서는 엑셀 내보내기 없음 (주문현황·출고현황 보기에서 사용)');return}
   const list=state.viewRows;if(!list.length){alert('표에 보이는 행이 없음');return}
   const btn=document.getElementById('exportBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='파일 만드는 중';
   try{
@@ -1719,6 +1729,31 @@ if (typeof module !== 'undefined') module.exports = SU;
       const n=await pushSubulCodes([...it.values()],`수불관리 품목 (서버 ${SU.today()})`);if(n)say(`수불관리 품목의 제품번호 ${n.toLocaleString()}개를 «쓴 번호»로 등록 (자동 번호가 겹치지 않게)`)}
     catch(e){console.warn('수불 품목 등록 실패',e)}}
   window.suSeedFromServer=seedFromServer;
+  /* v56 : 수불현황 보기 — 수불 엑셀 올리기로 넘긴 품목 목록 (수불관리 서버 자료, 공정별 오늘 재고·출고 누계) */
+  const PART={p1:'생산1파트',p2:'생산2파트',p3:'생산3파트'};
+  function setSubul(store,label){state.subul={store,label,at:new Date()}}
+  async function loadSubul(){say('수불관리 자료 받는 중');const st=new SU.Store();let pos=0,ep='';
+    for(;;){const d=await suApi({action:'suGet',pos,epoch:ep},180000);if(d.reset){pos=0}ep=d.epoch||ep;(d.recs||[]).forEach(x=>{if(/^[ie]:/.test(x.k))st.set(x.k,x.v)});pos=d.pos;if(!d.more)break}
+    setSubul(st,'수불관리 서버');say(`수불 품목 ${st.items.size.toLocaleString()}개 받음`);return st}
+  function codeOf(it){if(it.src==='p2'){const n=Number(String(it.seq||'').trim());if(Number.isInteger(n)&&n>0)return 'B'+String(n).padStart(5,'0')}return extractCode(it.memo)||String(it.seq||'')}
+  function renderSubul(){const box=document.getElementById('suBox'),S=state.subul;
+    if(!S){box.innerHTML='<div class="su-empty">불러오는 중</div>';return}
+    const q=norm(document.getElementById('suSearch').value),part=document.getElementById('suPart').value,td=SU.today(),st=S.store;
+    const list=[];st.items.forEach(it=>{if(it.src==='erp'||it._v)return;if(part&&it.src!==part)return;const code=codeOf(it);
+      if(q&&![code,it.cust,it.ord,it.p,it.n,it.it,it.s,it.memo].some(v=>norm(v).includes(q)))return;list.push({it,code})});
+    const sn=x=>Number(String(x.it.seq||'').replace(/[^0-9.]/g,''))||0;list.sort((a,b)=>String(a.it.src).localeCompare(String(b.it.src))||sn(a)-sn(b));
+    document.getElementById('suCount').textContent=`${list.length.toLocaleString()}개 품목${list.length>1500?' (앞 1,500개 표시 · 검색으로 좁히기)':''}`;
+    if(!list.length){box.innerHTML='<div class="su-empty">'+(st.items.size?'조건에 맞는 품목 없음':'수불 품목 없음 · 위 «수불 엑셀 올리기»로 넘기면 여기에 나옴')+'</div>';return}
+    const rows=list.slice(0,1500).map(({it,code})=>{let outN=0;const prs=(it.procs||[]).map((pr,pi)=>{if(SU.isOut(pr.n)){outN+=st.sum(it.id,pr.id,it.d0||'0000-00-00',td).g;return ''}const v=st.stock(it,pi,td);return `<span class="pr${v<0?' neg':''}">${escapeHtml(pr.n)}<b>${v==null?'-':Number(v).toLocaleString()}</b></span>`}).join('');
+      return `<tr><td class="su-code">${escapeHtml(code)}</td><td>${escapeHtml(PART[it.src]||it.src||'')}</td><td>${escapeHtml(it.cust)}</td><td>${escapeHtml(it.ord)}</td><td>${escapeHtml(it.p)}</td><td>${escapeHtml(it.it||it.n)}</td><td>${escapeHtml(it.s)}</td><td>${escapeHtml(it.memo)}</td><td>${prs}</td><td class="num">${outN?outN.toLocaleString():''}</td><td>${it.chk&&it.chk.length?`<span class="chk" title="${escapeHtml(it.chk.join('\n'))}">확인 필요</span>`:''}</td></tr>`}).join('');
+    box.innerHTML=`<table><thead><tr><th>제품번호</th><th>파트</th><th>고객사</th><th>수주번호</th><th>품번</th><th>품명</th><th>규격</th><th>비고</th><th>공정별 재고 (${td.slice(5).replace('-','/')})</th><th>출고 누계</th><th>확인</th></tr></thead><tbody>${rows}</tbody></table>`}
+  async function showView(){state.view='subul';
+    document.querySelectorAll('#viewTabs .vt').forEach(b=>{const on=b.dataset.view==='subul';b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
+    const tp=document.querySelector('.table-panel');tp.classList.remove('order-view');tp.classList.add('su-view');if(state.delMode&&typeof setDelMode==='function')setDelMode(false);
+    renderSubul();if(!state.subul){try{await loadSubul()}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e))}renderSubul()}}
+  window.suShowView=showView;
+  let suT;document.getElementById('suSearch').oninput=()=>{clearTimeout(suT);suT=setTimeout(renderSubul,200)};document.getElementById('suPart').onchange=renderSubul;
+  document.getElementById('suReload').onclick=async()=>{try{await loadSubul()}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e))}renderSubul()};
   async function run(file){
     say(`«${file.name}» 읽는 중 (큰 파일은 10초 정도)`);await new Promise(r=>setTimeout(r,50));
     const buf=await file.arrayBuffer();
@@ -1757,6 +1792,7 @@ if (typeof module !== 'undefined') module.exports = SU;
     let del=0;cur.forEach((_,k)=>{if(!want[k]){recs.push({k,v:null});del++}});
     if(lastOut){const nf=SU.addDays(lastOut,1);if(!erpFrom||nf>erpFrom)recs.push({k:'c:erp',v:{from:nf}})}
     for(let i=0;i<recs.length;i+=2500){say(`수불관리에 저장 중 … ${Math.min(recs.length,i+2500).toLocaleString()} / ${recs.length.toLocaleString()}`);await suApi({action:'suPush',recs:recs.slice(i,i+2500),force:true},300000)}
+    setSubul(tmp,`수불 엑셀 ${src.name} «${tab}»`);document.getElementById('suPart').value=src.id;document.getElementById('suSearch').value='';showView();
     const nCodes=await pushSubulCodes(P.items,`수불 엑셀 ${src.name} «${tab}»`).catch(e=>{showError('제품번호 등록 실패(수불 저장은 됨): '+(e.message||e));return 0});
     say(`수불관리로 넘김 완료 — ${src.name} «${tab}» 품목 ${P.items.length.toLocaleString()} · 입력 ${P.ents.length.toLocaleString()}${del?` · 지운 입력 ${del.toLocaleString()}`:''} · 재고 대조 ${V.bad.length?V.bad.length+'줄 다름':'모두 같음'} (수불관리 화면은 1분 안에 반영)${nCodes?` · 제품번호 ${nCodes.toLocaleString()}개 출고매칭에 등록`:''}`);
   }
