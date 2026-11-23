@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v81">
+  <meta name="sm-ver" content="v82">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -898,6 +898,7 @@ function buildRow(row){
     else if(h==='제품번호'){td.classList.add('code-cell');td.innerHTML=((row.__status==='auto'||row.__status==='manual')&&row.__autoCode)?`<input class="code-input ${row.__status}" data-key="${escapeHtml(rowKey(row))}" value="${escapeHtml(row.__code||'')}" placeholder="입력" spellcheck="false" title="눌러서 제품번호 수정 · 비우거나 ${escapeHtml(row.__autoCode)}로 되돌리면 자동 부여로 표시 · Ctrl+Z 되돌리기">`:`<span class="code-text">${escapeHtml(row.__code||'—')}</span>`}
     else if(h==='매칭상태'){td.innerHTML=`<span class="badge ${({matched:'ok',shipped:'ok',pending:'warn',auto:'warn',manual:'manual'})[row.__status]||'bad'}">${escapeHtml(row.__statusText)}</span>`;td.title=[row.__status!=='matched'&&row.__reason?`사유: ${row.__reason}`:'',row.__who].filter(Boolean).join('\n')}
     else if(row.__suId&&row.__code&&(h==='규격')&&clean(v).toUpperCase().includes(row.__code)){const t=clean(v),i=t.toUpperCase().lastIndexOf(row.__code);td.innerHTML=`${escapeHtml(t.slice(0,i))}<span class="code">${escapeHtml(t.slice(i,i+row.__code.length))}</span>${escapeHtml(t.slice(i+row.__code.length))}`}
+    else if(td.className==='num'){const t=clean(v).replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');td.textContent=t;td.title=t}   /* v82 : 수량·단가·금액 소수점 뒤 0 없앰 (500.00 → 500 · 2.50 → 2.5) */
     else td.textContent=clean(v);
     tr.appendChild(td)});
   return tr;
