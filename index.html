@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v95">
+  <meta name="sm-ver" content="v96">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -62,6 +62,7 @@
     #lastS{display:none!important}.last-p{margin-top:10px;padding-top:8px;border-top:1px dashed #cbd5e1}.last-p .lp-h{font-size:12px;font-weight:700;color:#254a80;margin-bottom:5px}.lp-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:4px}.last-s.lp{height:28px;justify-content:space-between}.last-s.lp .lp-c{color:#475569;font-weight:600}.last-s.lp b{margin-left:auto}.last-s.lp.off b{color:#94a3b8}
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
     .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px;white-space:pre-line}.notice.show{display:block}
+    #exclBtn.on b{color:#fbbf24}.cg-box.ex-box{width:min(900px,96vw)}.ex-tool{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line);font-size:12.5px}.ex-tool .ex-q{flex:1;max-width:320px;height:32px;border:1px solid #cbd5e1;border-radius:7px;padding:0 10px}.ex-tool label{display:flex;align-items:center;gap:5px;color:#475569}.ex-tool .cg-n{margin-left:auto}
     .cg-ov{position:fixed;inset:0;z-index:200;background:rgba(15,23,42,.42);display:flex;align-items:center;justify-content:center;padding:20px}.cg-box{background:#fff;border-radius:10px;box-shadow:0 12px 40px rgba(15,23,42,.3);width:min(1400px,96vw);max-height:90vh;display:flex;flex-direction:column}.cg-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);font-size:15px}.cg-x{border:0;background:none;font-size:22px;line-height:1;color:#64748b;cursor:pointer}.cg-note{padding:10px 18px;font-size:12.5px;color:#475569;background:#f8fafc;border-bottom:1px solid var(--line);line-height:1.6}.cg-tw{overflow:auto;flex:1;min-height:120px}.cg-tb{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap}.cg-tb th{position:sticky;top:0;background:#59636f;color:#fff;padding:7px 8px;text-align:left;font-weight:700;z-index:1}.cg-tb td{padding:6px 8px;border-bottom:1px solid #e3e7eb}.cg-tb tr:hover td{background:#eef5ff}.cg-tb .num{text-align:right}.cg-tb .cg-c{width:28px;text-align:center}.cg-tb .cg-t{max-width:160px;overflow:hidden;text-overflow:ellipsis}.cg-tb .cg-w{max-width:420px;overflow:hidden;text-overflow:ellipsis;color:#334155}.cg-tb .cg-w small{color:#94a3b8}.cg-empty{text-align:center;color:#94a3b8;padding:30px!important}.cg-f{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}.cg-f .btn{margin:0!important;height:auto}.cg-n{margin-right:auto;font-size:12.5px;color:#475569;font-weight:700}.cg-done{color:var(--ok);font-weight:700;font-size:12px}.metric.click.warn.bad .value{color:var(--bad)}
     .to-top{position:fixed;right:18px;bottom:28px;z-index:60;height:34px;padding:0 14px;border:1px solid #cbd3dc;border-radius:17px;background:#fff;color:#334155;font-size:12.5px;font-weight:700;box-shadow:0 2px 8px rgba(15,23,42,.12);cursor:pointer;opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .15s,transform .15s,visibility .15s}.to-top.show{opacity:1;visibility:visible;transform:none}.to-top:hover{background:#f1f5f9;border-color:#94a3b8}
     .table-wrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;position:relative}.table-wrap::-webkit-scrollbar{display:none}#dataTable thead{visibility:hidden}.head-wrap{position:sticky;top:var(--tb-h,60px);z-index:15;overflow:hidden;background:#59636f}.head-clone{table-layout:fixed;width:auto}.data-table.head-clone th{position:static}.hscroll{position:sticky;bottom:0;z-index:15;overflow-x:auto;overflow-y:hidden;background:#f1f5f9;border-top:1px solid var(--line)}.hscroll>div{height:1px}.data-table{width:100%;border-collapse:separate;border-spacing:0;white-space:nowrap;font-size:12px}.data-table th{position:sticky;top:0;z-index:3;background:#59636f;color:#fff;border-right:1px solid #7a838d;border-bottom:1px solid #414a54;padding:0;text-align:center;height:38px}.data-table th button{width:100%;height:100%;border:0;background:transparent;color:inherit;font-weight:700;padding:0 22px 0 9px;position:relative;white-space:nowrap}.data-table th button:hover{background:#49535f}.sort-icon{position:absolute;right:7px;color:#dbe1e7}.data-table td{height:31px;padding:5px 8px;border-right:1px solid #e1e5ea;border-bottom:1px solid #e3e7eb;background:#fff;max-width:330px;overflow:hidden;text-overflow:ellipsis}.data-table tr:nth-child(even) td{background:#fafbfc}.data-table tr:hover td{background:#eef5ff}.data-table tr.missing td{background:#fff8f7}.data-table tr.missing:hover td{background:#ffefed}.data-table td.remark{max-width:none;overflow:visible}.data-table td.dl .dl-in{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dataTable{table-layout:fixed;width:100%}#dataTable td.remark{overflow:hidden;text-overflow:ellipsis}#dataTable td.remark.ov,#dataTable td.dl.ov,#dataTable td.spec.ov{cursor:pointer}#dataTable td.remark.open,#dataTable td.spec.open,#dataTable td.dl.open,#dataTable td.dl.open .dl-in{white-space:normal;overflow-wrap:anywhere;overflow:visible;text-overflow:clip}#dataTable td.remark.open,#dataTable td.spec.open,#dataTable td.dl.open{background:#fffbeb}#dataTable td{max-width:none}#dataTable .code-input{max-width:100%}.data-table td.code-cell{padding:3px 5px}.code-input{width:84px;height:24px;border:1px solid transparent;border-radius:4px;background:transparent;color:#1f2937;font-weight:700;font-size:12px;text-align:center;padding:0 4px;cursor:text}.code-input:hover{border-color:#cbd5e1}.code-input:focus{outline:none;border-color:#2f6ac6;background:#fff;color:#1f2937;box-shadow:0 0 0 2px #2f6ac633}.code-input.auto{background:#ffe7c2;color:#ad5a00;font-weight:800}.code-text{font-weight:700;color:#1f2937}tr.flash td{animation:flash 1.2s ease-out}@keyframes flash{from{background:#bfdbfe}}.badge.manual{color:#1d4ed8;background:#dbeafe}.num{text-align:right;font-variant-numeric:tabular-nums}.center{text-align:center}.code{color:#b42318;font-weight:800;background:#fff1a8;padding:1px 3px;border-radius:2px}.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700}.badge.ok{color:var(--ok);background:var(--okbg)}.badge.warn{color:var(--warn);background:var(--warnbg)}.badge.bad{color:var(--bad);background:var(--badbg)}
@@ -198,6 +199,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="top-actions">
       <a class="tb" id="subulLink" href="https://useran-coder.github.io/subul/" target="_blank" rel="noopener" title="여기 올린 수주현황·출고현황은 수불관리에 1분 안에 자동 반영 (수주 품목 등록·출고·잔량)">수불관리</a>
       <button class="tb" id="suUpBtn" type="button" hidden title="수불현황 엑셀(월 탭)을 읽어 수불관리로 넘김 · 수불관리 «시트 가져오기»와 같은 계산 · 관리자만">수불 엑셀 올리기</button><input type="file" id="suUpInput" accept=".xlsx,.xls" hidden>
+      <button class="tb" id="exclBtn" type="button" title="운반비 같은 품목을 품번으로 골라 주문·출고·수불 목록과 건수, 제품번호 자동부여에서 뺌 (모든 PC 같음)">제외품목</button>
       <span class="tb-sep"></span>
       <button class="tb sync-btn" id="syncBtn" type="button">동기화</button>
       <button class="tb danger" id="resetBtn" type="button">초기화</button>
@@ -565,7 +567,7 @@ function matchRec(s,ctx){
    · 출고된 주문 : 매칭된 출고 줄 번호 복사 · 출고 전 주문 : 구분 스위치 켠 것만 새 번호(출고 전 미리 부여) · 한 번에 2,000줄 */
 let ordFillTried=new Set();
 function orderFillNeeds(){if(srvV()<6||!state.db)return [];const smap=new Map();state.db.ship.forEach(x=>{if(x.mk&&x.code&&!smap.has(x.mk))smap.set(x.mk,x.code)});const shipped=new Set();state.db.ship.forEach(x=>{if(x.mk)shipped.add(x.mk)});
-  const out=[];state.db.order.forEach(o=>{if(out.length>=2000||o.code||o.del)return;const sc=smap.get(o.k);let x=null;
+  const out=[];state.db.order.forEach(o=>{if(out.length>=2000||o.code||o.del||isExcl(o))return;const sc=smap.get(o.k);let x=null;
     if(sc)x={k:o.k,code:sc};else if(!shipped.has(o.k)){const P=CAT_PRE[catOfShip(o)];if(P&&autoOn(P))x={k:o.k,code:'',pre:P}}
     if(!x)return;const t=x.k+'|'+x.code+'|'+(x.pre||'');if(ordFillTried.has(t))return;ordFillTried.add(t);out.push(x)});return out}
 function rematchUpdates(){
@@ -573,7 +575,7 @@ function rematchUpdates(){
   state.db.upload.forEach(u=>{if(u.kind==='order'||u.kind==='subul')(u.sCodes||[]).forEach(c=>orderCodes.set(c,'(파일)'))});   /* v55 : 수불 엑셀 순번(B번호)과 겹친 자동 번호도 새로 부여 */
   state.db.order.forEach(o=>{if(o.code)orderCodes.set(o.code,o.k)});
   const v6=srvV()>=6;let noneRe=0;
-  state.db.ship.forEach(s=>{if(s.st!=='auto'&&s.st!=='none')return;const P=CAT_PRE[catOfShip(s)];
+  state.db.ship.forEach(s=>{if(s.st!=='auto'&&s.st!=='none')return;if(isExcl(s))return;const P=CAT_PRE[catOfShip(s)];
     if(s.st==='none'){
       if(s.mk){const o=state.db.order.get(s.mk);if(o&&o.code&&o.cs!=='ship'){ups.push({k:s.k,code:o.code,st:'matched',rs:'',mk:s.mk});return}}
       else{const m=matchRec(s,ctx);if(m.st==='matched'){ups.push({k:s.k,code:m.code,st:'matched',rs:'',mk:m.mk});return}}
@@ -735,7 +737,7 @@ let overCache=null,overKey='';
 function chgOk(){const m=new Set();state.db.upload.forEach(u=>{if(u.kind==='chg')(u.ok||[]).forEach(k=>m.add(k))});return m}
 function overShip(ex){const key=state.db.rev+'|'+state.db.ship.size+'|'+state.db.order.size+'|'+state.db.upload.size;if(!ex&&overCache&&overKey===key)return overCache;
   const by=new Map(),ok=chgOk();
-  state.db.ship.forEach(s=>{if(ex&&ex.has(s.k))return;const ok2=s.ono&&state.db.order.has(norm(s.o)+'|'+norm(s.ono))?norm(s.o)+'|'+norm(s.ono):s.mk;if(!ok2)return;let L=by.get(ok2);if(!L)by.set(ok2,L=[]);L.push(s)});
+  state.db.ship.forEach(s=>{if((ex&&ex.has(s.k))||isExcl(s))return;const ok2=s.ono&&state.db.order.has(norm(s.o)+'|'+norm(s.ono))?norm(s.o)+'|'+norm(s.ono):s.mk;if(!ok2)return;let L=by.get(ok2);if(!L)by.set(ok2,L=[]);L.push(s)});
   const out=[];
   by.forEach((L,k)=>{if(L.length<2)return;const o=state.db.order.get(k);if(!o)return;const oq=num(o.q);if(!(oq>0))return;if(L.some(s=>(num(s.q)||0)<0))return;
     const tot=L.reduce((a,s)=>a+(num(s.q)||0),0);if(tot<=oq+1e-6)return;
@@ -790,7 +792,7 @@ function chgModal({title,note,items,mode}){return new Promise(res=>{
 async function chgReview(found){const items=[],seen=new Set();let note=[];
   found.forEach(f=>{if(!f||!f.list)return;const cancel=f.list.filter(x=>x.type==='취소').length,partial=cancel>Math.max(20,f.inRange*0.3);
     if(partial)note.push(`⚠ ${f.kind==='ship'?'출고':'주문'} 파일에 없는 줄이 많음 (${cancel.toLocaleString()} / ${f.inRange.toLocaleString()}줄) — 일부만 내보낸 파일이면 정리하지 말 것. 미리 선택 안 함`);
-    f.list.forEach(x=>{if(seen.has(x.k))return;seen.add(x.k);x.pre=!partial&&!x.shipped;items.push(x)})});
+    f.list.forEach(x=>{if(seen.has(x.k)||isExcl(x.rec))return;seen.add(x.k);x.pre=!partial&&!x.shipped;items.push(x)})});
   if(found.some(f=>f&&f.kind==='ship'))overShip(new Set(seen)).forEach(x=>{if(seen.has(x.k))return;seen.add(x.k);items.push(x)});
   if(!items.length)return;
   const rg=found.filter(f=>f&&f.lo).map(f=>`${f.kind==='ship'?'출고일자':'주문일자'} ${dateDisplay(f.lo)} ~ ${dateDisplay(f.hi)}`);
@@ -800,6 +802,36 @@ function openChgCard(){const sus=overShip();const hist=chgHistory();
   if(sus.length)return chgModal({title:`변경·취소 확인할 것 (${sus.length.toLocaleString()}줄)`,items:sus,note:escapeHtml('주문 수량보다 출고가 많은 주문 줄의 먼저 올라온 출고 줄 · ERP에서 출고일자·수량을 바꾸면 새 줄로 다시 들어와 두 번 잡힘. 확인 뒤 옛 줄은 «정리», 실제 출고면 «정상으로 표시»')+` · <a href="#" class="cg-hist">정리 기록 ${hist.length.toLocaleString()}줄 보기</a>`}).then(()=>renderSummary());
   return chgModal({title:`변경·취소 정리 기록 (${hist.length.toLocaleString()}줄)`,items:hist,mode:'hist',note:escapeHtml('ERP에서 바뀌거나 취소되어 정리한 줄 · 자동 갱신한 주문 줄 · 잘못 정리했으면 «되살리기»')}).then(()=>renderSummary())}
 document.addEventListener('click',e=>{if(e.target.closest('#chgModal .cg-hist')){e.preventDefault();document.getElementById('chgModal')?.remove();const hist=chgHistory();chgModal({title:`변경·취소 정리 기록 (${hist.length.toLocaleString()}줄)`,items:hist,mode:'hist',note:escapeHtml('ERP에서 바뀌거나 취소되어 정리한 줄 · 자동 갱신한 주문 줄 · 잘못 정리했으면 «되살리기»')}).then(()=>renderSummary())}});
+/* v96 : 제외품목 — 운반비_매출시(MAINTRAN1) 같은 품목을 품번으로 골라 주문·출고 목록·건수·제품번호 자동부여·변경 확인에서 뺌
+   저장 = 서버 upload 기록 {kind:'excl',list:[{p,n}],t} 마지막 것 (모든 PC 같음) · 자료는 지우지 않음 */
+let exclCache=null,exclKey='';
+function exclList(){const k=state.db.upload.size+'|'+state.db.rev;if(exclCache&&exclKey===k)return exclCache;let last=null;
+  state.db.upload.forEach(u=>{if(u.kind==='excl'&&(!last||(u.t||0)>(last.t||0)))last=u});exclCache={list:(last&&last.list)||[],set:new Set(((last&&last.list)||[]).map(x=>norm(x.p)))};exclKey=k;return exclCache}
+function isExcl(r){const S=exclList().set;return S.size>0&&!!r&&S.has(norm(r.p))}
+function freightLike(p,n){return /MAINTRAN/i.test(p||'')||/운반|택배|화물/.test(n||'')}
+function exclGroups(){const g=new Map();const add=(r,f)=>{const k=norm(r.p);if(!k)return;let x=g.get(k);if(!x)g.set(k,x={p:r.p,n:r.n||'',s:r.s||'',o:0,sh:0});x[f]++;if(!x.n&&r.n)x.n=r.n};
+  state.db.order.forEach(o=>add(o,'o'));state.db.ship.forEach(s=>add(s,'sh'));exclList().list.forEach(x=>{if(!g.has(norm(x.p)))g.set(norm(x.p),{p:x.p,n:x.n||'',s:'',o:0,sh:0})});return g}
+function renderExclBtn(){const b=document.getElementById('exclBtn');if(!b)return;const n=exclList().list.length;b.innerHTML='제외품목'+(n?`&nbsp;<b>${n}</b>`:'');b.classList.toggle('on',n>0)}
+async function exclSave(list){const u={id:uid(),kind:'excl',name:'제외품목 '+list.length,rows:0,maxS:0,hidden:true,t:Date.now(),list};await sync({payload:{upload:u}});state.db.upload.set(u.id,Object.assign(state.db.upload.get(u.id)||{},u));exclCache=null;overCache=null;state.shipKey='';rebuildView(true);renderExclBtn()}
+function openExcl(){document.getElementById('chgModal')?.remove();const G=exclGroups(),cur=exclList().set;
+  const all=[...G.values()].sort((a,b)=>(cur.has(norm(b.p))-cur.has(norm(a.p)))||(freightLike(b.p,b.n)-freightLike(a.p,a.n))||(b.o+b.sh-a.o-a.sh));
+  const ov=document.createElement('div');ov.id='chgModal';ov.className='cg-ov';
+  ov.innerHTML=`<div class="cg-box ex-box" role="dialog" aria-modal="true"><div class="cg-h"><b>제외품목</b><button type="button" class="cg-x" aria-label="닫기">×</button></div>
+   <div class="cg-note">체크한 품번은 주문현황·출고현황 목록과 건수에서 빠짐 · 제품번호 자동부여·변경·취소 확인도 안 함 · 자료는 그대로 (체크 풀면 다시 보임) · 모든 PC 같음<br>운반비 등 비슷한 품목을 위에 먼저 보여 줌</div>
+   <div class="ex-tool"><input type="search" class="ex-q" placeholder="품번·품명 검색"><label><input type="checkbox" class="ex-only"> 체크한 것만</label><span class="cg-n ex-n"></span></div>
+   <div class="cg-tw"><table class="cg-tb"><thead><tr><th class="cg-c"></th><th>품번</th><th>품명</th><th>규격 (예)</th><th class="num">주문 줄</th><th class="num">출고 줄</th></tr></thead><tbody></tbody></table></div>
+   <div class="cg-f"><button type="button" class="btn small primary ex-save">저장</button><button type="button" class="btn small cg-close">닫기</button></div></div>`;
+  document.body.appendChild(ov);const chk=new Set([...cur]),tb=ov.querySelector('tbody'),q=ov.querySelector('.ex-q'),only=ov.querySelector('.ex-only');
+  const draw=()=>{const t=norm(q.value);const L=all.filter(x=>(!only.checked||chk.has(norm(x.p)))&&(!t||norm(x.p).includes(t)||norm(x.n).includes(t)));
+    tb.innerHTML=L.slice(0,300).map(x=>{const k=norm(x.p);return `<tr data-k="${escapeHtml(k)}"><td class="cg-c"><input type="checkbox" ${chk.has(k)?'checked':''}></td><td><b>${escapeHtml(x.p)}</b>${freightLike(x.p,x.n)?' <span class="badge warn">운반비</span>':''}</td><td class="cg-t">${escapeHtml(x.n)}</td><td class="cg-t">${escapeHtml(x.s)}</td><td class="num">${x.o.toLocaleString()}</td><td class="num">${x.sh.toLocaleString()}</td></tr>`}).join('')+(L.length>300?`<tr><td colspan="6" class="cg-empty">앞 300개만 표시 · 검색으로 찾기 (전체 ${L.length.toLocaleString()}개)</td></tr>`:'')||'<tr><td colspan="6" class="cg-empty">없음</td></tr>';
+    ov.querySelector('.ex-n').textContent=`체크 ${chk.size.toLocaleString()}개`};
+  const done=()=>{ov.remove();document.removeEventListener('keydown',esc)},esc=e=>{if(e.key==='Escape')done()};document.addEventListener('keydown',esc);
+  q.addEventListener('input',draw);only.addEventListener('change',draw);
+  tb.addEventListener('change',e=>{const tr=e.target.closest('tr[data-k]');if(!tr)return;if(e.target.checked)chk.add(tr.dataset.k);else chk.delete(tr.dataset.k);ov.querySelector('.ex-n').textContent=`체크 ${chk.size.toLocaleString()}개`});
+  ov.addEventListener('click',async e=>{const t=e.target;if(t===ov||t.closest('.cg-x')||t.closest('.cg-close'))return done();
+    if(t.closest('.ex-save')){const list=[...chk].map(k=>{const x=G.get(k)||{p:k,n:''};return {p:x.p,n:x.n}});t.disabled=true;t.textContent='저장 중…';
+      try{await exclSave(list);done();showInfo(list.length?`제외품목 ${list.length}개 저장 · ${list.map(x=>x.p).slice(0,3).join(', ')}${list.length>3?' 외':''} 목록에서 뺌`:'제외품목 없음 · 모두 다시 보임')}catch(err){t.disabled=false;t.textContent='저장';alert('저장하지 못함: '+(err.message||err))}}});
+  draw();q.focus()}
 const SHIP_CHUNK=3000;
 async function addFiles(kind,files){
   const msgs=[],dls=[],found=[];let latest='',ordFrom='',ordTo='';const g=gauge(kind);g.start();{const m0=document.getElementById(kind+'Msg');if(m0)m0.hidden=true}const nf=files.length;let phase='시작',skipped=0;
@@ -823,6 +855,7 @@ async function addFiles(kind,files){
       const fresh=recs.filter(s=>!state.db.ship.has(s.k)),ctx=matchContext();
       fresh.forEach(s=>{const m=matchRec(s,ctx);s.st=m.st;s.code=m.code||'';s.rs=m.rs||'';if(m.mk)s.mk=m.mk});
       const v6=srvV()>=6;   /* v45 : 구분별 번호 — 스위치 꺼진 구분은 번호 없음 */
+      fresh.forEach(s=>{if(isExcl(s)&&s.st!=='existing'){s.st='none';s.code='';s.rs='제외품목'}});   /* v96 : 제외품목은 번호 안 붙임 */
       if(v6)fresh.forEach(s=>{if(s.st!=='auto')return;const P=CAT_PRE[catOfShip(s)];if(autoOn(P)){s.pre=P;s.code=''}else{s.st='none';s.code=''}});
       else if(fresh.some(s=>s.st==='auto'))msgs.push('⚠ 구분별 번호(B·D·A·G·C) 쓰려면 서버(shipmatch.gs) sm-v6 배포 필요 — 지금은 S번호로 부여');
       up.rows=recs.length;
@@ -857,7 +890,7 @@ async function addFiles(kind,files){
       /* 비고에 번호 없는 주문 줄 → 제품번호 채우기 (매칭된 출고 줄 번호, 없으면 서버가 새 S번호) — 서버 sm-v5 부터 */
       {const smap=new Map();state.db.ship.forEach(x=>{if(x.mk&&x.code&&!smap.has(x.mk))smap.set(x.mk,x.code)});
        const sv=srvV();
-       const need=recs.filter(o=>{const e=state.db.order.get(o.k);return e&&!e.code}).map(o=>{const x={k:o.k,code:smap.get(o.k)||''};if(sv>=6){const P=CAT_PRE[catOfShip(o)];x.pre=autoOn(P)?P:''}return x});
+       const need=recs.filter(o=>{const e=state.db.order.get(o.k);return e&&!e.code&&!isExcl(e)}).map(o=>{const x={k:o.k,code:smap.get(o.k)||''};if(sv>=6){const P=CAT_PRE[catOfShip(o)];x.pre=autoOn(P)?P:''}return x});
        if(need.length){
          if(sv>=5){phase='제품번호 채우기';g.set(at(76),lab+`제품번호 채우는 중 (${need.length.toLocaleString()}줄)`);
            const r2=await sync({payload:{orderCodes:need}}),asg=(r2&&r2.orderAssigned)||{};const fromShip=need.filter(x=>x.code&&asg[x.k]===x.code).length,nw=Object.keys(asg).length-fromShip;
@@ -977,9 +1010,9 @@ function orderViewRow(o,i,shipped){const sh=shipped.get(o.k),code=o.code||(sh!=n
 function headLabel(h){if(state.view==='subul'){if(h==='출고일자')return '주문일자';if(h==='출고수량')return '수량';if(h==='매칭상태')return '매칭'}if(state.view==='order'){if(h==='출고일자')return '주문일자';if(h==='출고수량')return '수량';if(h==='매칭상태')return '출고 여부'}return h}
 function rebuildView(keep=false){
   /* v69 : 출고 행은 자료가 바뀌었을 때만 다시 만듦 (보기 바꿀 때 65,000줄 다시 만들지 않음) */
-  const shipKey=state.db.rev+'|'+state.db.ship.size+'|'+(state.editSeq||0);let rows=state.shipRows;
-  if(!rows||state.shipKey!==shipKey||!state.viewSwitch){rows=[];let i=0;state.db.ship.forEach(s=>rows.push(viewRow(s,i++)));state.shipRows=rows;state.shipKey=shipKey}state.viewSwitch=false;
-  if(state.view==='subul'){state.rows=window.suViewRows?window.suViewRows():[]}else if(state.view==='order'){const shipped=new Map();const scm=new Map();state.db.ship.forEach(s=>{if(s.mk&&(!shipped.has(s.mk)||s.d<shipped.get(s.mk)))shipped.set(s.mk,s.d||'');if(s.mk&&s.code&&!scm.has(s.mk))scm.set(s.mk,s.code)});state.shipCodeByMk=scm;const orows=[];let j=0;state.db.order.forEach(o=>orows.push(orderViewRow(o,j++,shipped)));state.rows=orows}else state.rows=rows;
+  const shipKey=state.db.rev+'|'+state.db.ship.size+'|'+(state.editSeq||0)+'|'+exclList().set.size;let rows=state.shipRows;
+  if(!rows||state.shipKey!==shipKey||!state.viewSwitch){rows=[];let i=0;state.db.ship.forEach(s=>{if(isExcl(s)){i++;return}rows.push(viewRow(s,i++))});state.shipRows=rows;state.shipKey=shipKey}state.viewSwitch=false;
+  if(state.view==='subul'){state.rows=(window.suViewRows?window.suViewRows():[]).filter(r=>!isExcl({p:r['품번']}))}else if(state.view==='order'){const shipped=new Map();const scm=new Map();state.db.ship.forEach(s=>{if(s.mk&&(!shipped.has(s.mk)||s.d<shipped.get(s.mk)))shipped.set(s.mk,s.d||'');if(s.mk&&s.code&&!scm.has(s.mk))scm.set(s.mk,s.code)});state.shipCodeByMk=scm;const orows=[];let j=0;state.db.order.forEach(o=>{if(isExcl(o)){j++;return}orows.push(orderViewRow(o,j++,shipped))});state.rows=orows}else state.rows=rows;
   /* v49 : 처음 화면 = 주문현황 보기, 마지막 주문일자 하루 */
   if(state.view==='order'&&state.firstView&&state.db.order.size){state.firstView=false;if(!state.filters.from&&!state.filters.to){let l='';state.db.order.forEach(o=>{if(o.od&&o.od>l)l=o.od});state.filters.from=l;state.filters.to=l}}
   if(state.view==='ship'&&state.firstView&&rows.length){state.firstView=false;if(rows.length>1500&&!state.filters.from&&!state.filters.to){const l=rows.reduce((m,r)=>r['출고일자']>m?r['출고일자']:m,'');state.filters.from=l;state.filters.to=l}}
@@ -1086,14 +1119,15 @@ function renderSummary(){
   document.getElementById('matchRate').textContent=total?`${(matched/total*100).toFixed(1)}% 완료`:'0%';
   document.getElementById('orderCount').textContent=state.db.order.size.toLocaleString();
   /* v76 : 제품번호 없음 카드 — 수불 품목 번호 없음(자동부여 안 된 것 포함) + 출고·주문 번호 없음 */
-  {const c=window.suMissCount?window.suMissCount():null;let oN=0;state.db.order.forEach(o=>{if(!o.code&&!extractCode(o.r))oN++});
+  {const c=window.suMissCount?window.suMissCount():null;let oN=0;state.db.order.forEach(o=>{if(!o.code&&!extractCode(o.r)&&!isExcl(o))oN++});
    document.getElementById('noCodeCount').textContent=c==null?'—':c.toLocaleString();
    document.getElementById('noCodeSub').textContent=[c==null?'수불 자료 받기 전 · 누르면 확인':`수불 품목 ${window.suItemCount().toLocaleString()}개 중`,noneN?`출고 번호 없음 ${noneN.toLocaleString()}`:'',oN?`주문 번호 없음 ${oN.toLocaleString()}`:''].filter(Boolean).join(' · ');
    document.getElementById('cardNoCode').classList.toggle('on',state.view==='subul'&&!!state.suMissOnly)}
-  {const mk=new Set();state.db.ship.forEach(s=>{if(s.mk)mk.add(s.mk)});let pend=0,pc=0;state.db.order.forEach(o=>{if(!mk.has(o.k)){pend++;if(o.code)pc++}});
-   document.getElementById('pendCount').textContent=pend.toLocaleString();document.getElementById('pendSub').textContent=state.db.order.size?`주문 ${state.db.order.size.toLocaleString()}줄 중 · 제품번호 있음 ${pc.toLocaleString()}`:'주문 중 아직 출고 안 됨'}
+  {const mk=new Set();state.db.ship.forEach(s=>{if(s.mk)mk.add(s.mk)});let pend=0,pc=0,on=0;state.db.order.forEach(o=>{if(isExcl(o))return;on++;if(!mk.has(o.k)){pend++;if(o.code)pc++}});
+   document.getElementById('pendCount').textContent=pend.toLocaleString();document.getElementById('pendSub').textContent=on?`주문 ${on.toLocaleString()}줄 중 · 제품번호 있음 ${pc.toLocaleString()}`:'주문 중 아직 출고 안 됨'}
   {const f=state.filters;document.getElementById('cardMatched').classList.toggle('on',state.view==='ship'&&f.status==='matched');document.getElementById('cardAuto').classList.toggle('on',state.view==='ship'&&!!f.missingOnly);document.getElementById('cardPend').classList.toggle('on',state.view==='order'&&!!f.pend)}
   document.getElementById('orderFiles').textContent=`올린 파일 ${[...state.db.upload.values()].filter(u=>u.kind==='order').length}개 (누적)`;
+  renderExclBtn();
   {const n=overShip().length,h=chgHistory(),wk=new Date(Date.now()-7*864e5).toISOString(),h7=h.filter(x=>/정리/.test(x.type)&&String(x.at||'')>=wk).length;   /* v95 : 변경·취소 카드 */
    document.getElementById('chgCount').textContent=n.toLocaleString();document.getElementById('chgSub').textContent=n?'확인할 것 · 누르면 정리':(h.length?`최근 7일 정리 ${h7.toLocaleString()}줄 · 기록 보기`:'출고 일자·수량 변경 없음');document.getElementById('cardChg').classList.toggle('bad',n>0)}
   renderPeriod('ship',[...state.db.ship.values()].map(s=>s.d));renderPeriod('order',[...state.db.order.values()].map(o=>o.od));renderFileLists();
@@ -1227,6 +1261,7 @@ function hidOn(){return state.view==='subul'?!!state.suShowHidden:showingHidden(
 /* v79 : 숨긴 항목 카드 (버튼 대신) — 지금 보기의 숨긴 수 · 누르면 숨긴 항목만 / 다시 누르면 원래 목록 */
 window.hidCard=function(){const n=document.getElementById('suHidN'),c=document.getElementById('hidCount');if(!n||!c)return;c.textContent=n.textContent||'0';
   const V={order:'주문현황',ship:'출고현황',subul:'수불현황'}[state.view]||'';document.getElementById('hidSub').textContent=hidOn()?`${V} 숨긴 항목 보는 중 · 누르면 원래 목록`:`${V} 기준 · 누르면 보기`;document.getElementById('cardHid').classList.toggle('on',hidOn())};
+document.getElementById('exclBtn').onclick=()=>openExcl();
 {const c=document.getElementById('cardChg');c.onclick=()=>openChgCard();c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openChgCard()}}}
 {const c=document.getElementById('cardHid'),go=()=>{document.getElementById('suHid').click();window.hidCard()};c.onclick=go;c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}}
 /* v79 : 수불현황 삭제 — 체크한 품목을 수불관리에서 삭제 (관리자) */
