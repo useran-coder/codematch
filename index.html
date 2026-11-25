@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v99">
+  <meta name="sm-ver" content="v100">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -63,6 +63,7 @@
     .toggle{height:35px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#475569;font-size:12px}.toolbar .spacer{flex:1}.result-count{font-size:12px;color:#64748b;min-width:105px;text-align:right;padding-bottom:9px}.price-toggle{height:35px}.price-toggle[aria-pressed=true]{background:#2f6ac6;color:#fff;border-color:#2f6ac6}
     .notice{display:none;margin:8px 0 0;padding:9px 11px;border-radius:6px;background:var(--warnbg);color:#7a4500;border:1px solid #f1d08d;font-size:12px;white-space:pre-line}.notice.show{display:block}
     #exclBtn.on b{color:#fbbf24}.cg-box.ex-box{width:min(1100px,96vw)}.cg-tb tr.ex-g td{background:#fffbeb}.cg-tb .ex-cat{color:#64748b}.ex-tool{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line);font-size:12.5px}.ex-tool .ex-q{flex:1;max-width:320px;height:32px;border:1px solid #cbd5e1;border-radius:7px;padding:0 10px}.ex-tool label{display:flex;align-items:center;gap:5px;color:#475569}.ex-tool .cg-n{margin-left:auto}
+    .cg-box.rv-box{width:min(1250px,96vw)}.rv-intro{padding:12px 18px;font-size:13px;color:#334155;background:#f8fafc;border-bottom:1px solid var(--line);line-height:1.65}.rv-legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:6px;font-size:12px;color:#64748b}.rv-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;background:#cbd5e1;margin-right:5px;vertical-align:-1px}.rv-legend i.del{background:#b42318}.rv-legend i.ok{background:#15803d}.rv-body{padding:6px 18px 14px;background:#f1f5f9}.rv-sec{font-weight:700;font-size:13px;color:#1e293b;margin:12px 2px 8px}.rv-card{background:#fff;border:1px solid #e2e8f0;border-radius:9px;margin-bottom:10px;overflow:hidden}.rv-h{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;padding:10px 14px 2px;font-size:13.5px}.rv-h span{color:#64748b;font-size:12.5px}.rv-h .rv-item{color:#1e293b}.rv-sum{padding:2px 14px 8px;font-size:13px;color:#334155}.rv-over{color:#b42318}.rv-tb{width:100%;border-collapse:collapse;font-size:12.5px}.rv-tb th{background:#f8fafc;color:#64748b;font-weight:700;text-align:left;padding:6px 10px;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;white-space:nowrap}.rv-tb td{padding:7px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}.rv-tb .num{text-align:right}.rv-tb tr.rv-sus td{background:#fff7ed}.rv-r{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#475569}.rv-why{color:#334155;min-width:220px}.rv-keep{color:#94a3b8}.rv-pick{display:inline-flex;border:1px solid #cbd5e1;border-radius:7px;overflow:hidden;white-space:nowrap}.rv-pick button{border:0;background:#fff;padding:5px 11px;font-size:12px;font-weight:700;color:#475569;cursor:pointer}.rv-pick button+button{border-left:1px solid #cbd5e1}.rv-pick button.on{background:#475569;color:#fff}.rv-pick button.on.del{background:#b42318}.rv-pick button.on.ok{background:#15803d}.rv-go:disabled{opacity:.45}
     .cg-ov{position:fixed;inset:0;z-index:200;background:rgba(15,23,42,.42);display:flex;align-items:center;justify-content:center;padding:20px}.cg-box{background:#fff;border-radius:10px;box-shadow:0 12px 40px rgba(15,23,42,.3);width:min(1400px,96vw);max-height:90vh;display:flex;flex-direction:column}.cg-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);font-size:15px}.cg-x{border:0;background:none;font-size:22px;line-height:1;color:#64748b;cursor:pointer}.cg-note{padding:10px 18px;font-size:12.5px;color:#475569;background:#f8fafc;border-bottom:1px solid var(--line);line-height:1.6}.cg-tw{overflow:auto;flex:1;min-height:120px}.cg-tb{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap}.cg-tb th{position:sticky;top:0;background:#59636f;color:#fff;padding:7px 8px;text-align:left;font-weight:700;z-index:1}.cg-tb td{padding:6px 8px;border-bottom:1px solid #e3e7eb}.cg-tb tr:hover td{background:#eef5ff}.cg-tb .num{text-align:right}.cg-tb .cg-c{width:28px;text-align:center}.cg-tb .cg-t{max-width:160px;overflow:hidden;text-overflow:ellipsis}.cg-tb .cg-w{max-width:420px;overflow:hidden;text-overflow:ellipsis;color:#334155}.cg-tb .cg-w small{color:#94a3b8}.cg-empty{text-align:center;color:#94a3b8;padding:30px!important}.cg-f{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}.cg-f .btn{margin:0!important;height:auto}.cg-n{margin-right:auto;font-size:12.5px;color:#475569;font-weight:700}.cg-done{color:var(--ok);font-weight:700;font-size:12px}.metric.click.warn.bad .value{color:var(--bad)}
     .to-top{position:fixed;right:18px;bottom:28px;z-index:60;height:34px;padding:0 14px;border:1px solid #cbd3dc;border-radius:17px;background:#fff;color:#334155;font-size:12.5px;font-weight:700;box-shadow:0 2px 8px rgba(15,23,42,.12);cursor:pointer;opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .15s,transform .15s,visibility .15s}.to-top.show{opacity:1;visibility:visible;transform:none}.to-top:hover{background:#f1f5f9;border-color:#94a3b8}
     .table-wrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;position:relative}.table-wrap::-webkit-scrollbar{display:none}#dataTable thead{visibility:hidden}.head-wrap{position:sticky;top:var(--tb-h,60px);z-index:15;overflow:hidden;background:#59636f}.head-clone{table-layout:fixed;width:auto}.data-table.head-clone th{position:static}.hscroll{position:sticky;bottom:0;z-index:15;overflow-x:auto;overflow-y:hidden;background:#f1f5f9;border-top:1px solid var(--line)}.hscroll>div{height:1px}.data-table{width:100%;border-collapse:separate;border-spacing:0;white-space:nowrap;font-size:12px}.data-table th{position:sticky;top:0;z-index:3;background:#59636f;color:#fff;border-right:1px solid #7a838d;border-bottom:1px solid #414a54;padding:0;text-align:center;height:38px}.data-table th button{width:100%;height:100%;border:0;background:transparent;color:inherit;font-weight:700;padding:0 22px 0 9px;position:relative;white-space:nowrap}.data-table th button:hover{background:#49535f}.sort-icon{position:absolute;right:7px;color:#dbe1e7}.data-table td{height:31px;padding:5px 8px;border-right:1px solid #e1e5ea;border-bottom:1px solid #e3e7eb;background:#fff;max-width:330px;overflow:hidden;text-overflow:ellipsis}.data-table tr:nth-child(even) td{background:#fafbfc}.data-table tr:hover td{background:#eef5ff}.data-table tr.missing td{background:#fff8f7}.data-table tr.missing:hover td{background:#ffefed}.data-table td.remark{max-width:none;overflow:visible}.data-table td.dl .dl-in{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dataTable{table-layout:fixed;width:100%}#dataTable td.remark{overflow:hidden;text-overflow:ellipsis}#dataTable td.remark.ov,#dataTable td.dl.ov,#dataTable td.spec.ov{cursor:pointer}#dataTable td.remark.open,#dataTable td.spec.open,#dataTable td.dl.open,#dataTable td.dl.open .dl-in{white-space:normal;overflow-wrap:anywhere;overflow:visible;text-overflow:clip}#dataTable td.remark.open,#dataTable td.spec.open,#dataTable td.dl.open{background:#fffbeb}#dataTable td{max-width:none}#dataTable .code-input{max-width:100%}.data-table td.code-cell{padding:3px 5px}.code-input{width:84px;height:24px;border:1px solid transparent;border-radius:4px;background:transparent;color:#1f2937;font-weight:700;font-size:12px;text-align:center;padding:0 4px;cursor:text}.code-input:hover{border-color:#cbd5e1}.code-input:focus{outline:none;border-color:#2f6ac6;background:#fff;color:#1f2937;box-shadow:0 0 0 2px #2f6ac633}.code-input.auto{background:#ffe7c2;color:#ad5a00;font-weight:800}.code-text{font-weight:700;color:#1f2937}tr.flash td{animation:flash 1.2s ease-out}@keyframes flash{from{background:#bfdbfe}}.badge.manual{color:#1d4ed8;background:#dbeafe}.num{text-align:right;font-variant-numeric:tabular-nums}.center{text-align:center}.code{color:#b42318;font-weight:800;background:#fff1a8;padding:1px 3px;border-radius:2px}.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700}.badge.ok{color:var(--ok);background:var(--okbg)}.badge.warn{color:var(--warn);background:var(--warnbg)}.badge.bad{color:var(--bad);background:var(--badbg)}
@@ -720,7 +721,7 @@ function shipChanges(recs){const rg=rangeOf(recs,'d');if(!rg)return null;const [
   let inRange=0;const list=[];
   state.db.ship.forEach(s=>{if(!s.d||s.d<lo||s.d>hi)return;inRange++;if(keys.has(s.k))return;
     const c=fresh.get(shipPairKey(s)),nw=c&&c.length?c.shift():null;
-    list.push({t:'ship',k:s.k,rec:s,type:nw?'변경':'취소',why:nw?'ERP에서 바뀜 · '+(diffText(cmpDiff(s,nw,SHIP_CMP))||'내용 바뀜'):'파일 기간 안인데 파일에 없음 (출고 취소·다른 날로 옮김)'})});
+    list.push({t:'ship',k:s.k,rec:s,type:nw?'변경':'취소',hint:nw?'ERP에서 바뀐 옛 줄 · '+(diffText(cmpDiff(s,nw,SHIP_CMP))||'내용 바뀜')+' (새 줄은 저장됨)':'ERP 출고 파일에 없음 → 출고 취소 또는 다른 날로 옮김',why:nw?'ERP에서 바뀜 · '+(diffText(cmpDiff(s,nw,SHIP_CMP))||'내용 바뀜'):'파일 기간 안인데 파일에 없음 (출고 취소·다른 날로 옮김)'})});
   return {kind:'ship',lo,hi,inRange,list}}
 /* 주문현황 파일 ↔ 저장된 주문 : ① 같은 열쇠인데 수량·일자 등이 바뀐 줄(chg) ② 같은 주문번호인데 없어진 줄·주문일자 기간 안인데 없는 줄(list) */
 function orderChanges(recs){const rg=rangeOf(recs,'od');const keys=new Set(recs.map(o=>o.k)),nos=new Set(recs.map(o=>norm(o.o))),fresh=new Map(),chg=[];
@@ -729,7 +730,7 @@ function orderChanges(recs){const rg=rangeOf(recs,'od');const keys=new Set(recs.
   let inRange=0;const list=[];
   state.db.order.forEach(o=>{const inNo=nos.has(norm(o.o)),inR=!!(rg&&o.od&&o.od>=rg[0]&&o.od<=rg[1]);if(!inNo&&!inR)return;inRange++;if(keys.has(o.k))return;
     const c=fresh.get(ordPairKey(o)),nw=c&&c.length?c.shift():null,sh=shipN.get(o.k)||0;
-    list.push({t:'order',k:o.k,rec:o,type:nw?'변경':'취소',shipped:sh,
+    list.push({t:'order',k:o.k,rec:o,type:nw?'변경':'취소',shipped:sh,hint:(nw?'ERP에서 바뀐 옛 줄 · '+(diffText(cmpDiff(o,nw,ORD_CMP))||'내용 바뀜'):inNo?'같은 주문의 이 줄이 ERP에서 없어짐 → 줄 삭제':'ERP 주문 파일에 없음 → 주문 취소')+(sh?` · 이미 출고 ${sh}번 있음 (확인)`:''),
       why:(nw?'ERP에서 바뀜 (옛 줄) · '+(diffText(cmpDiff(o,nw,ORD_CMP))||'내용 바뀜'):inNo?'같은 주문번호에 이 줄 없음 (ERP에서 줄 삭제)':'주문일자 기간 안인데 파일에 없음 (주문 취소)')+(sh?` · 출고 ${sh}줄 연결됨`:'')})});
   return {kind:'order',lo:rg&&rg[0],hi:rg&&rg[1],inRange,list,chg}}
 /* 주문 수량보다 출고가 많은 주문 줄 → 먼저 올라온 출고 줄을 «중복 의심» (날짜만 바꾼 출고가 새 날짜로 다시 들어온 경우) */
@@ -744,7 +745,8 @@ function overShip(ex){const key=state.db.rev+'|'+state.db.ship.size+'|'+state.db
     const sorted=L.slice().sort((a,b)=>String(b.at||'').localeCompare(String(a.at||''))||String(b.d||'').localeCompare(String(a.d||'')));
     let keep=0;sorted.forEach(s=>{const q=num(s.q)||0;if(keep+q<=oq+1e-6){keep+=q;return}if(ok.has(s.k))return;
       const nw=sorted.find(x=>x.k!==s.k&&shipPairKey(x)===shipPairKey(s)&&String(x.at||'')>=String(s.at||''));
-      out.push({t:'ship',k:s.k,rec:s,type:'중복 의심',pre:!!nw,susp:1,
+      out.push({t:'ship',k:s.k,rec:s,type:'중복 의심',pre:!!nw,susp:1,grp:{key:k,o,L,tot,oq},
+        hint:nw?`${rvShort(nw.d)}에 같은 품목 ${rvQ(nw.q)} 다시 출고됨 → ERP에서 날짜·수량 바꾼 옛 줄로 보임 (정리 권장)`:'주문보다 더 나간 출고 → ERP에서 추가 출고인지 확인',
         why:`주문 ${o.o} 수량 ${chgV('q',o.q)} · 출고 합계 ${tot.toLocaleString()} (${L.length}줄)`+(nw?` · 같은 내용 ${dateDisplay(nw.d)} ${chgV('q',nw.q)} 있음`:'')})})});
   if(!ex){overCache=out;overKey=key}return out}
 /* 정리 기록 (서버 upload 기록 kind 'chg', 50줄씩) */
@@ -788,6 +790,43 @@ function chgModal({title,note,items,mode}){return new Promise(res=>{
       if(!confirm(`선택 ${L.length.toLocaleString()}줄을 정리할까요?\n\n· 모든 PC 화면과 수불관리 수주·출고에서 빠짐\n· 붙어 있던 제품번호는 다른 줄에 다시 쓰지 않음\n· «변경·취소» 카드의 정리 기록에서 되살리기 가능 (같은 파일을 다시 올려도 되살아남)`))return;
       t.disabled=true;t.textContent='정리 중…';try{const n=await chgApply(L);done({done:n});showInfo(`변경·취소 ${n.toLocaleString()}줄 정리 · 수불관리에는 1분 안에 반영`)}catch(err){t.disabled=false;upd();alert('정리하지 못함: '+(err.message||err))}}});
   upd()})}
+/* v100 : 변경·취소 확인 창을 쉽게 — 주문 한 건씩 묶어 «주문 수량 · 나간 출고 · 정리할 줄»을 보여 주고, 줄마다 [정리]·[정상]·[나중에] 하나만 고름 */
+function rvShort(d){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(normalizeDate(d)||'');return m?`${+m[2]}/${+m[3]}`:clean(d)}
+function rvQ(v){return chgV('q',v)}
+function chgReviewModal(items,{title,intro}){return new Promise(res=>{
+  document.getElementById('chgModal')?.remove();
+  const groups=new Map(),single=[];
+  items.forEach((x,i)=>{x._i=i;x.pick=x.pick||(x.pre?'del':'later');if(x.grp){let g=groups.get(x.grp.key);if(!g)groups.set(x.grp.key,g=Object.assign({},x.grp,{sus:[]}));g.sus.push(x)}else single.push(x)});
+  const opts=(x)=>{const L=x.susp?[['del','정리'],['ok','정상'],['later','나중에']]:[['del','정리'],['later','그대로']];
+    return `<span class="rv-pick" data-i="${x._i}">${L.map(([v,t])=>`<button type="button" data-v="${v}" class="${x.pick===v?'on '+v:''}">${t}</button>`).join('')}</span>`};
+  const gHtml=g=>{const o=g.o,over=g.tot-g.oq,sk=new Map(g.sus.map(x=>[x.k,x]));
+    const rows=g.L.slice().sort((a,b)=>String(a.d||'').localeCompare(String(b.d||''))).map(s=>{const x=sk.get(s.k);
+      return `<tr class="${x?'rv-sus':''}"><td>${escapeHtml(rvShort(s.d))}</td><td class="num"><b>${escapeHtml(rvQ(s.q))}</b></td><td>${escapeHtml(s.code||'')}</td><td class="rv-r" title="${escapeHtml(s.r||'')}">${escapeHtml(s.r||'')}</td><td class="rv-why">${x?escapeHtml(x.hint):'<span class="rv-keep">맞는 출고로 봄</span>'}</td><td>${x?opts(x):''}</td></tr>`}).join('');
+    return `<div class="rv-card"><div class="rv-h"><b>${escapeHtml(o.c||'')}</b><span>${escapeHtml(o.o||'')}</span><span class="rv-item">${escapeHtml(o.p||'')} · ${escapeHtml(o.n||'')} ${escapeHtml(o.s||'')}</span></div>
+      <div class="rv-sum">주문 <b>${escapeHtml(rvQ(o.q))}</b> 인데 출고 <b>${g.L.length}번 · 합계 ${g.tot.toLocaleString()}</b> → <b class="rv-over">${over.toLocaleString()} 더 많음</b></div>
+      <table class="rv-tb"><thead><tr><th>출고일</th><th class="num">수량</th><th>제품번호</th><th>비고</th><th>판단</th><th>처리</th></tr></thead><tbody>${rows}</tbody></table></div>`};
+  const sHtml=x=>{const r=x.rec||{},isO=x.t==='order';
+    return `<tr><td><span class="badge ${x.type==='취소'?'bad':'manual'}">${isO?'주문':'출고'} ${escapeHtml(x.type)}</span></td><td>${escapeHtml(rvShort(isO?r.od:r.d))}</td><td>${escapeHtml(r.c||'')}</td><td>${escapeHtml(r.o||'')}</td><td>${escapeHtml(r.p||'')} · ${escapeHtml(r.n||'')}</td><td class="num"><b>${escapeHtml(rvQ(r.q))}</b></td><td>${escapeHtml(r.code||'')}</td><td class="rv-why">${escapeHtml(x.hint)}</td><td>${opts(x)}</td></tr>`};
+  const ov=document.createElement('div');ov.id='chgModal';ov.className='cg-ov';
+  ov.innerHTML=`<div class="cg-box rv-box" role="dialog" aria-modal="true"><div class="cg-h"><b>${escapeHtml(title)}</b><button type="button" class="cg-x" aria-label="닫기">×</button></div>
+    <div class="rv-intro">${intro}<div class="rv-legend"><span><i class="del"></i>정리 = 이 화면·수불관리 출고에서 뺌 (기록에서 되살리기 가능)</span><span><i class="ok"></i>정상 = 실제로 더 나간 출고 · 다시 안 물음</span><span><i></i>나중에 = 이번엔 그대로</span></div></div>
+    <div class="cg-tw rv-body">
+      ${single.length?`<div class="rv-sec">ERP 파일과 달라진 줄 (${single.length}줄)</div><div class="rv-card"><table class="rv-tb"><thead><tr><th>구분</th><th>일자</th><th>고객</th><th>주문번호</th><th>품목</th><th class="num">수량</th><th>제품번호</th><th>판단</th><th>처리</th></tr></thead><tbody>${single.map(sHtml).join('')}</tbody></table></div>`:''}
+      ${groups.size?`<div class="rv-sec">주문 수량보다 출고가 많은 주문 (${groups.size}건)</div>${[...groups.values()].map(gHtml).join('')}`:''}
+    </div>
+    <div class="cg-f"><span class="cg-n rv-n"></span><button type="button" class="btn small primary rv-go">적용</button><button type="button" class="btn small cg-close">닫기</button></div></div>`;
+  document.body.appendChild(ov);
+  const cnt=()=>{const d=items.filter(x=>x.pick==='del').length,o=items.filter(x=>x.pick==='ok').length;ov.querySelector('.rv-n').textContent=`정리 ${d}줄 · 정상 ${o}줄 · 나중에 ${items.length-d-o}줄`;ov.querySelector('.rv-go').disabled=!(d||o)};
+  const done=v=>{ov.remove();document.removeEventListener('keydown',esc);res(v)},esc=e=>{if(e.key==='Escape')done(null)};document.addEventListener('keydown',esc);
+  ov.addEventListener('click',async e=>{const t=e.target;if(t===ov||t.closest('.cg-x')||t.closest('.cg-close'))return done(null);
+    const b=t.closest('.rv-pick button');if(b){const sp=b.parentElement,x=items[+sp.dataset.i];x.pick=b.dataset.v;sp.querySelectorAll('button').forEach(q=>q.className=q===b?'on '+b.dataset.v:'');cnt();return}
+    if(t.closest('.rv-go')){const D=items.filter(x=>x.pick==='del'),O=items.filter(x=>x.pick==='ok');if(!D.length&&!O.length)return;
+      if(D.length&&!confirm(`${D.length}줄을 정리할까요?\n\n· 이 화면과 수불관리 수주·출고에서 빠짐\n· «변경·취소» 카드의 정리 기록에서 되살리기 가능`))return;
+      t.disabled=true;t.textContent='적용 중…';
+      try{let n=0;if(D.length)n=await chgApply(D);if(O.length){await chgLog([],{ok:O.map(x=>x.k),name:'정상 표시 '+O.length,rows:0});overCache=null}
+        renderSummary();done({done:n,ok:O.length});showInfo([n?`${n}줄 정리`:'',O.length?`${O.length}줄 정상 표시`:''].filter(Boolean).join(' · ')+(n?' · 수불관리에는 1분 안에 반영':''))}
+      catch(err){t.disabled=false;t.textContent='적용';alert('적용하지 못함: '+(err.message||err))}}});
+  cnt()})}
 /* 올린 뒤 확인 창 : 파일과 비교한 변경·취소 + 주문 수량보다 많은 출고 */
 async function chgReview(found){const items=[],seen=new Set();let note=[];
   found.forEach(f=>{if(!f||!f.list)return;const cancel=f.list.filter(x=>x.type==='취소').length,partial=cancel>Math.max(20,f.inRange*0.3);
@@ -796,10 +835,10 @@ async function chgReview(found){const items=[],seen=new Set();let note=[];
   if(found.some(f=>f&&f.kind==='ship'))overShip(new Set(seen)).forEach(x=>{if(seen.has(x.k))return;seen.add(x.k);items.push(x)});
   if(!items.length)return;
   const rg=found.filter(f=>f&&f.lo).map(f=>`${f.kind==='ship'?'출고일자':'주문일자'} ${dateDisplay(f.lo)} ~ ${dateDisplay(f.hi)}`);
-  await chgModal({title:`ERP 변경·취소 확인 (${items.length.toLocaleString()}줄)`,items,
-    note:[`올린 파일(${rg.join(' · ')})과 저장된 자료를 비교함. 정리하면 이 화면과 수불관리 수주·출고에서 빠짐.`,'· 변경 = ERP에서 일자·수량을 바꿔 새 줄로 다시 들어온 옛 줄 · 취소 = 파일에서 없어진 줄 · 중복 의심 = 주문 수량보다 출고가 많음',...note].map(escapeHtml).join('<br>')})}
+  await chgReviewModal(items,{title:`확인할 출고·주문 ${items.length.toLocaleString()}줄`,
+    intro:[`올린 파일(${rg.join(' · ')})을 저장된 자료와 비교해 확인이 필요한 줄만 모음. 줄마다 처리 하나를 고르고 «적용»을 누르면 됨. 미리 «정리»로 골라 둔 줄은 정리를 권하는 줄임.`,...note].map(escapeHtml).join('<br>')})}
 function openChgCard(){const sus=overShip();const hist=chgHistory();
-  if(sus.length)return chgModal({title:`변경·취소 확인할 것 (${sus.length.toLocaleString()}줄)`,items:sus,note:escapeHtml('주문 수량보다 출고가 많은 주문 줄의 먼저 올라온 출고 줄 · ERP에서 출고일자·수량을 바꾸면 새 줄로 다시 들어와 두 번 잡힘. 확인 뒤 옛 줄은 «정리», 실제 출고면 «정상으로 표시»')+` · <a href="#" class="cg-hist">정리 기록 ${hist.length.toLocaleString()}줄 보기</a>`}).then(()=>renderSummary());
+  if(sus.length)return chgReviewModal(sus.map(x=>Object.assign({},x,{pick:null})),{title:`확인할 출고 ${sus.length.toLocaleString()}줄`,intro:escapeHtml('주문 수량보다 출고가 많은 주문만 모음. ERP에서 출고일자·수량을 바꾸면 새 줄로 다시 들어와 출고가 두 번 잡힘 → 옛 줄은 «정리», 실제로 더 나간 출고면 «정상».')+` <a href="#" class="cg-hist">정리 기록 ${hist.length.toLocaleString()}줄 보기</a>`}).then(()=>renderSummary());
   return chgModal({title:`변경·취소 정리 기록 (${hist.length.toLocaleString()}줄)`,items:hist,mode:'hist',note:escapeHtml('ERP에서 바뀌거나 취소되어 정리한 줄 · 자동 갱신한 주문 줄 · 잘못 정리했으면 «되살리기»')}).then(()=>renderSummary())}
 document.addEventListener('click',e=>{if(e.target.closest('#chgModal .cg-hist')){e.preventDefault();document.getElementById('chgModal')?.remove();const hist=chgHistory();chgModal({title:`변경·취소 정리 기록 (${hist.length.toLocaleString()}줄)`,items:hist,mode:'hist',note:escapeHtml('ERP에서 바뀌거나 취소되어 정리한 줄 · 자동 갱신한 주문 줄 · 잘못 정리했으면 «되살리기»')}).then(()=>renderSummary())}});
 /* v96 : 제외품목 — 운반비_매출시(MAINTRAN1) 같은 품목을 품번으로 골라 주문·출고 목록·건수·제품번호 자동부여·변경 확인에서 뺌
