@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v103">
+  <meta name="sm-ver" content="v104">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -243,7 +243,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <section class="summary">
       <div class="panel metric period"><div class="label">주문현황 기간</div><div class="value" id="orderPeriod">—</div><div class="sub" id="orderPeriodDays">주문일자 기준</div></div>
       <div class="panel metric period"><div class="label">출고현황 기간</div><div class="value" id="shipPeriod">—</div><div class="sub" id="shipPeriodDays">출고일자 기준</div></div>
-      <div class="panel metric"><div class="label">출고 행</div><div class="value" id="totalCount">0</div><div class="sub">저장된 전체 (누적)</div></div>
+      <div class="panel metric click" id="cardShipped" role="button" tabindex="0" title="누르면 출고된 주문 줄만 표시 (주문현황 · 전체 기간) · 한 번 더 누르면 해제"><div class="label">출고 행</div><div class="value" id="totalCount">0</div><div class="sub" id="shippedSub">저장된 전체 (누적)</div></div>
       <div class="panel metric ok click" id="cardMatched" role="button" tabindex="0" title="누르면 매칭 완료 행만 표시 (전체 기간)"><div class="label"><span class="badge ok">매칭 완료</span></div><div class="value" id="matchedCount">0</div><div class="sub" id="matchRate">0%</div></div>
       <div class="panel metric bad click" id="cardAuto" role="button" tabindex="0" title="누르면 자동 부여 행만 표시 (전체 기간)"><div class="label"><span class="badge warn">자동 부여</span></div><div class="value" id="missingCount">0</div><div class="sub" id="manualCount">확인이 필요한 행</div></div>
       <div class="panel metric warn click" id="cardPend" role="button" tabindex="0" title="누르면 아직 출고되지 않은 주문 줄만 표시 (전체 기간)"><div class="label"><span class="badge warn">출고 전</span></div><div class="value" id="pendCount">0</div><div class="sub" id="pendSub">주문 중 아직 출고 안 됨</div></div>
@@ -457,7 +457,9 @@ function pNum(c,P){const m=new RegExp('^'+P+'(\\d{4,6})$').exec(clean(c).toUpper
 function maxPInDb(P){let m=0;const see=c=>{if(c){const n=pNum(c,P);if(n>m)m=n}};state.db.ship.forEach(x=>{see(x.code);see(x.ac)});state.db.order.forEach(o=>{see(o.code);see(o.ac)});state.db.upload.forEach(u=>(u.sCodes||[]).forEach(see));return m}
 function lastPOf(P){const c=Number((state.db.counters||{})[P]||0);return (state.db.manualP||{})[P]?c:Math.max(c,maxPInDb(P))}
 const CHUNK=400;
-function tableHeaders(){return state.showPrice?DISPLAY_HEADERS:DISPLAY_HEADERS.filter(h=>!PRICE_HEADERS.includes(h))}
+function tableHeaders(){const L=state.showPrice?DISPLAY_HEADERS:DISPLAY_HEADERS.filter(h=>!PRICE_HEADERS.includes(h));
+  if(state.view!=='order')return L;   /* v104 : 주문현황 보기 = 주문번호 대신 납기요청일 · 출고 여부를 제품번호 앞에 */
+  return ['출고일자','납기요청일','매칭상태','제품번호',...L.filter(h=>!['출고일자','주문번호','매칭상태','제품번호'].includes(h))]}
 function colIndex(h){return DISPLAY_HEADERS.indexOf(h)+1}
 const ALIASES={
   '출고일자':['출고일자','출하일자','일자'],'주문번호':['주문번호','수주번호'],'고객':['고객','거래처'],'품번':['품번','품목코드'],'품명':['품명'],'규격':['규격'],'비고(내역)':['비고(내역)','비고내역','내역'],'단위':['단위','단위(관리)'],'출고수량':['출고수량','수량'],'단가':['단가'],'공급가':['공급가'],'부가세':['부가세'],'합계액':['합계액'],'납품처':['납품처'],'NO.':['NO.','NO','순번'],'주문일자':['주문일자','수주일자']
@@ -538,7 +540,7 @@ function readFile(file){return new Promise((resolve,reject)=>{const fr=new FileR
 // 출고: d 출고일자, o 주문번호, c 고객, p 품번, n 품명, s 규격, r 비고원본, u 단위, q 출고수량, up 단가, a 공급가, v 부가세, t 합계액, dl 납품처
 //       code 제품번호, st 상태(existing/matched/auto/manual), ac 자동부여 번호, rs 사유, mk 매칭된 주문 key
 function shipRecFromRow(r){return {d:normalizeDate(r['출고일자']),o:clean(r['주문번호']),c:clean(r['고객']),p:clean(r['품번']),n:clean(r['품명']),s:clean(r['규격']),r:clean(r['비고(내역)']),u:clean(r['단위']),q:clean(r['출고수량']),up:clean(r['단가']),a:clean(r['공급가']),v:clean(r['부가세']),t:clean(r['합계액']),dl:clean(r['납품처']),...(clean(r['주문순번'])?{ono:clean(r['주문순번'])}:{})}}
-function orderRecFromRow(r){const rem=clean(r['비고(내역)']);return {od:normalizeDate(r['주문일자']),o:clean(r['주문번호']),no:clean(r['NO.']),c:clean(r['고객']),p:clean(r['품번']),n:clean(r['품명']),s:clean(r['규격']),r:rem,u:clean(r['단위']),q:clean(r['출고수량']??r['수량']),up:clean(r['단가']),a:clean(r['공급가']),t:clean(r['합계액']),dl:clean(r['납품처']),code:extractCode(rem)}}
+function orderRecFromRow(r){const rem=clean(r['비고(내역)']);return {od:normalizeDate(r['주문일자']),o:clean(r['주문번호']),no:clean(r['NO.']),c:clean(r['고객']),p:clean(r['품번']),n:clean(r['품명']),s:clean(r['규격']),r:rem,u:clean(r['단위']),q:clean(r['출고수량']??r['수량']),up:clean(r['단가']),a:clean(r['공급가']),t:clean(r['합계액']),dl:clean(r['납품처']),code:extractCode(rem),...((d=>d?{dd:d}:{})(normalizeDate(r['납기요청일']??r['납기일']??'')))}}
 // 같은 출고 행인지 판단하는 열쇠: 일자·주문번호·품번·규격·비고(제품번호 제외)·수량·단가·납품처 + 같은 파일 안의 순번
 function shipBaseKey(s){return [s.d,s.o,s.p,s.s,stripCode(s.r),num(s.q),num(s.up),s.dl].map(x=>norm(x)).join('|')}
 function orderBaseKey(o){return o.no?`${norm(o.o)}|${norm(o.no)}`:[o.od,o.o,o.p,o.s,stripCode(o.r),num(o.q)].map(x=>norm(x)).join('|')}
@@ -722,11 +724,11 @@ function gauge(kind){const el=document.getElementById(kind+'Gauge'),bar=el.query
    · 주문 줄 열쇠 = 주문번호+NO → 수량·일자가 바뀌어도 «이미 저장된 줄»로 빠져서 옛 수량 그대로 · ERP 에서 지운(취소) 줄도 계속 남음
    → 올릴 때 파일과 비교해 바뀐 주문 줄은 바로 갱신(제품번호 그대로), 파일에 없어진 줄·주문 수량보다 많은 출고는 확인 창에서 골라 정리
    → 정리 = 서버 «삭제» 표시(같은 파일 다시 올리거나 «되살리기»로 복구) · 수불관리는 1분 안에 수주·출고에서 빠짐 */
-const ORD_CMP=[['od','주문일자'],['q','수량',1],['p','품번'],['s','규격'],['up','단가',1],['a','공급가',1],['c','고객'],['n','품명'],['u','단위'],['dl','납품처']],
+const ORD_CMP=[['od','주문일자'],['q','수량',1],['p','품번'],['s','규격'],['up','단가',1],['a','공급가',1],['c','고객'],['n','품명'],['u','단위'],['dl','납품처'],['dd','납기요청일']],
       SHIP_CMP=[['d','출고일자'],['q','수량',1],['up','단가',1],['dl','납품처']];
 function cmpDiff(a,b,L){const out=[];L.forEach(([f,l,isN])=>{if(!(f in a))return;const x=a[f],y=b[f];if(clean(y)==='')return;   /* v102 : 파일에 없는(빈) 칸은 바뀐 것으로 보지 않음 */
   const same=isN?Math.abs((num(x)||0)-(num(y)||0))<1e-6:norm(x)===norm(y);if(!same)out.push({f,l,a:clean(x),b:clean(y)})});return out}
-function chgV(f,v){if(f==='od'||f==='d')return dateDisplay(v)||'(없음)';const n=num(v);return n!=null&&/^[\d.,\-\s]+$/.test(clean(v))?n.toLocaleString():(clean(v)||'(없음)')}
+function chgV(f,v){if(f==='od'||f==='d'||f==='dd')return dateDisplay(v)||'(없음)';const n=num(v);return n!=null&&/^[\d.,\-\s]+$/.test(clean(v))?n.toLocaleString():(clean(v)||'(없음)')}
 function diffText(df){return df.map(d=>`${d.l} ${chgV(d.f,d.a)} → ${chgV(d.f,d.b)}`).join(', ')}
 function shipPairKey(s){return [s.o,s.p,s.s,stripCode(s.r)].map(norm).join('|')}
 function ordPairKey(o){return [o.o,o.p,o.s,stripCode(o.r)].map(norm).join('|')}
@@ -1032,6 +1034,7 @@ async function addFiles(kind,files){
           await chgLog(oc.chg.map(x=>({t:'order',k:x.o.k,type:'자동 갱신',why:diffText(x.df),rec:x.old})));
           msgs.push(`ERP에서 바뀐 주문 ${oc.chg.length.toLocaleString()}줄 갱신 (수량·일자 등 · 제품번호 그대로)`)}
         else msgs.push(`⚠ ERP에서 수량·일자가 바뀐 주문 ${oc.chg.length.toLocaleString()}줄 못 고침 — 서버(shipmatch.gs) sm-v7 이상 필요`)}
+      if(!parsed.cutInfo)try{const nb=await ddBackfill(recs);if(nb)msgs.push(`전에 올린 주문 ${nb.toLocaleString()}줄에 납기요청일 채움`)}catch(e){msgs.push('⚠ 납기요청일 채우기 실패 — '+(e.message||e))}   /* v104 */
       /* 비고에 번호 없는 주문 줄 → 제품번호 채우기 (매칭된 출고 줄 번호, 없으면 서버가 새 S번호) — 서버 sm-v5 부터 */
       {const smap=new Map();state.db.ship.forEach(x=>{if(x.mk&&x.code&&!smap.has(x.mk))smap.set(x.mk,x.code)});
        const sv=srvV();
@@ -1109,27 +1112,28 @@ function renderCatBtns(){renderLastS();const f=state.filters,cnt={};const q=srch
 function setView(v,from,to){if(v!=='order')v='ship';const changed=state.view!==v;state.view=v;document.querySelector('.table-panel').classList.remove('su-view');
   document.querySelectorAll('#viewTabs .vt').forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
   document.querySelector('.table-panel').classList.toggle('order-view',v==='order');
-  if(changed){state.filters.status='';state.filters.missingOnly=false;state.filters.pend=false;const sf=document.getElementById('statusFilter');if(sf)sf.value='';const mo=document.getElementById('missingOnly');if(mo)mo.checked=false;
+  if(changed){state.filters.status='';state.filters.missingOnly=false;state.filters.pend=false;state.filters.done=false;const sf=document.getElementById('statusFilter');if(sf)sf.value='';const mo=document.getElementById('missingOnly');if(mo)mo.checked=false;
     if(state.delMode&&typeof setDelMode==='function')setDelMode(false);
     const dl=document.querySelector('label[for="dateFrom"]');if(dl)dl.textContent=v==='order'?'주문일자 기간':'출고일자 기간';
     if(state.sort.key!=='출고일자')state.sort={key:'출고일자',dir:'asc'}}
   if(from!==undefined){state.filters.from=from||'';state.filters.to=to||''}
   rebuildView()}
 /* v42 : 요약 카드 누르면 관련 행만 표시 (전체 기간). 한 번 더 누르면 해제 */
-function cardOn(){const f=state.filters;return state.view==='order'?(f.pend?'pend':''):(f.status==='matched'?'matched':f.missingOnly?'auto':'')}
+function cardOn(){const f=state.filters;return state.view==='order'?(f.pend?'pend':f.done?'done':''):(f.status==='matched'?'matched':f.missingOnly?'auto':'')}
 function cardFilter(kind){const f=state.filters,cur=cardOn();
   if(cur===kind){   /* 같은 카드를 다시 누름 → 해제하고 누르기 전 화면(보기·기간)으로 되돌림 */
     const pv=state.cardPrev||{view:state.view,from:f.from,to:f.to};state.cardPrev=null;
-    f.pend=false;f.status='';f.missingOnly=false;setView(pv.view,pv.from,pv.to);
+    f.pend=false;f.done=false;f.status='';f.missingOnly=false;setView(pv.view,pv.from,pv.to);
     const sf=document.getElementById('statusFilter');if(sf)sf.value='';const mo=document.getElementById('missingOnly');if(mo)mo.checked=false;
     renderAll();if(document.activeElement)document.activeElement.blur();return}
   if(!cur)state.cardPrev={view:state.view,from:f.from,to:f.to};
-  f.pend=false;f.status='';f.missingOnly=false;
+  f.pend=false;f.done=false;f.status='';f.missingOnly=false;
   if(kind==='pend'){setView('order','','');f.pend=true}
+  else if(kind==='done'){setView('order','','');f.done=true}   /* v104 : 출고 행 카드 = 출고된 주문 줄만 */
   else{setView('ship','','');if(kind==='matched')f.status='matched';else f.missingOnly=true}
   const sf=document.getElementById('statusFilter');if(sf)sf.value=f.status;const mo=document.getElementById('missingOnly');if(mo)mo.checked=f.missingOnly;
   renderAll();document.querySelector('.table-panel').scrollIntoView({behavior:'smooth',block:'start'})}
-[['cardMatched','matched'],['cardAuto','auto'],['cardPend','pend']].forEach(([id,k])=>{const el=document.getElementById(id);el.onclick=()=>cardFilter(k);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();cardFilter(k)}}});
+[['cardMatched','matched'],['cardAuto','auto'],['cardPend','pend'],['cardShipped','done']].forEach(([id,k])=>{const el=document.getElementById(id);el.onclick=()=>cardFilter(k);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();cardFilter(k)}}});
 document.getElementById('viewTabs').addEventListener('click',e=>{const b=e.target.closest('.vt');if(!b)return;state.cardPrev=null;if(b.dataset.view===state.view)return;state.viewSwitch=true;if(b.dataset.view==='subul'){window.suShowView&&window.suShowView();return}
   const go=()=>{if(b.dataset.view==='order'){const ds=[...state.db.order.values()].map(o=>o.od).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('order',l,l)}else{const ds=[...state.db.ship.values()].map(s=>s.d).filter(Boolean).sort(),l=ds[ds.length-1]||'';setView('ship',l,l)}};
   /* v91 : 자료가 많으면 표 만드는 동안 로딩 화면 (한 번 화면에 그린 뒤 표 만들기) */
@@ -1148,9 +1152,17 @@ async function toggleAuto(P){const cat=PRE_ORDER.find(c=>CAT_PRE[c]===P);
   catch(e){showError('자동 부여 스위치를 바꾸지 못함: '+(e.message||e))}}
 document.getElementById('catBtns').addEventListener('click',e=>{const sw=e.target.closest('.sw');if(sw){e.preventDefault();e.stopPropagation();toggleAuto(sw.dataset.pre);return}const b=e.target.closest('.cat-btn');if(!b)return;state.filters.cat=state.filters.cat===b.dataset.cat?'':b.dataset.cat;renderTable()});
 function rowKey(r){return r.__k}
+/* v104 : 납기요청일 — 새 주문 줄은 줄 안(o.dd)에 저장. 전에 올린 주문 줄은 주문 줄을 건드리지 않고 숨은 기록(upload kind 'dd', 600줄씩 {m:{k:날짜}})에 따로 저장 */
+let ddCache=null,ddKey='';
+function ddMap(){const key=state.db.upload.size+'|'+state.db.rev;if(ddCache&&ddKey===key)return ddCache;const M=new Map();
+  [...state.db.upload.values()].filter(u=>u.kind==='dd'&&u.m).sort((a,b)=>(a.t||0)-(b.t||0)).forEach(u=>Object.entries(u.m).forEach(([k,v])=>{if(v)M.set(k,v)}));ddCache=M;ddKey=key;return M}
+async function ddBackfill(recs){const M=ddMap(),L=recs.filter(o=>{if(!o.dd)return false;const e=state.db.order.get(o.k);return e&&!e.del&&!e.dd&&M.get(o.k)!==o.dd});
+  for(let i=0;i<L.length;i+=600){const part=L.slice(i,i+600),u={id:uid(),kind:'dd',name:'납기요청일 '+part.length,rows:0,maxS:0,hidden:true,t:Date.now()+i,m:Object.fromEntries(part.map(o=>[o.k,o.dd]))};
+    await sync({payload:{upload:u}});state.db.upload.set(u.id,Object.assign(state.db.upload.get(u.id)||{},u))}
+  return L.length}
 /* v39 : 주문현황 보기 — 올린 주문 줄을 같은 표에 표시 (주문일자·제품번호·출고 여부) */
 function orderViewRow(o,i,shipped){const sh=shipped.get(o.k),code=o.code||(sh!=null&&state.shipCodeByMk?state.shipCodeByMk.get(o.k)||'':'');
-  return {'출고일자':o.od,'주문번호':o.o,'고객':o.c,'품번':o.p,'품명':o.n,'규격':o.s,'비고(내역)':o.r,'단위':o.u,'출고수량':o.q,'단가':o.up,'공급가':o.a,'부가세':'','합계액':o.t,'납품처':o.dl,
+  return {'출고일자':o.od,'납기요청일':o.dd||ddMap().get(o.k)||'','주문번호':o.o,'고객':o.c,'품번':o.p,'품명':o.n,'규격':o.s,'비고(내역)':o.r,'단위':o.u,'출고수량':o.q,'단가':o.up,'공급가':o.a,'부가세':'','합계액':o.t,'납품처':o.dl,
     __k:o.k,__index:i,__cat:catOfShip(o),__code:code,__status:sh?'shipped':'pending',__statusText:sh?'출고됨':'출고 전',__reason:'',__remark:code?appendCode(o.r,code):o.r,__autoCode:'',
     __who:[sh?`출고 ${dateDisplay(sh)}`:'',o.cs==='new'?'제품번호: 출고 전 미리 부여':o.cs==='ship'?'제품번호: 출고 줄 번호':'',o.by&&`등록 ${o.by} ${fmtDateTime(o.at)}`].filter(Boolean).join(' · ')}}
 function headLabel(h){if(state.view==='subul'){if(h==='출고일자')return '주문일자';if(h==='출고수량')return '수량';if(h==='매칭상태')return '매칭'}if(state.view==='order'){if(h==='출고일자')return '주문일자';if(h==='출고수량')return '수량';if(h==='매칭상태')return '출고 여부'}return h}
@@ -1164,7 +1176,7 @@ function rebuildView(keep=false){
   if(state.view==='ship'&&state.firstView&&rows.length){state.firstView=false;if(rows.length>1500&&!state.filters.from&&!state.filters.to){const l=rows.reduce((m,r)=>r['출고일자']>m?r['출고일자']:m,'');state.filters.from=l;state.filters.to=l}}
   renderAll(keep);
 }
-function getDisplayValue(row,key){if(key==='제품번호')return row.__code||'';if(key==='매칭상태')return row.__statusText||'';if(key==='비고(내역)')return row.__remark??row[key]??'';if(key==='출고일자')return dateDisplay(row[key]);return row[key]??''}
+function getDisplayValue(row,key){if(key==='제품번호')return row.__code||'';if(key==='매칭상태')return row.__statusText||'';if(key==='비고(내역)')return row.__remark??row[key]??'';if(key==='출고일자'||key==='납기요청일')return dateDisplay(row[key]);return row[key]??''}
 /* v98 : 검색 = 주문번호·제품번호·고객·품번·품명·규격·비고(내역)·납품처 글자 포함 · 띄어 쓴 낱말은 모두 들어 있어야 함(순서·칸 상관없음) · 검색어 있으면 기간과 상관없이 전체 */
 const SRCH_KEYS=['주문번호','제품번호','고객','품번','품명','규격','비고(내역)','납품처'];
 function srchToks(v){return String(v||'').trim().split(/\s+/).map(norm).filter(Boolean)}
@@ -1179,13 +1191,14 @@ function visibleRows(){
     if(state.filters.missingOnly&&r.__status!=='auto'&&r.__status!=='none')return false;
     if(state.filters.cat&&r.__cat!==state.filters.cat)return false;
     if(state.filters.pend&&r.__status!=='pending')return false;
+    if(state.filters.done&&state.view==='order'&&r.__status!=='shipped')return false;
     if(q&&!srchHit(r,q))return false;return true;
   });
   const {key,dir}=state.sort;rows=[...rows].sort((a,b)=>{let av=key==='출고일자'?a[key]:getDisplayValue(a,key),bv=key==='출고일자'?b[key]:getDisplayValue(b,key);const an=num(av),bn=num(bv);let c=(an!==null&&bn!==null)?an-bn:String(av).localeCompare(String(bv),'ko',{numeric:true,sensitivity:'base'});if(c===0)c=a.__index-b.__index;return dir==='asc'?c:-c});return rows;
 }
 /* v86 : 열 폭 고정 — 표가 자료를 그릴 때마다 열 폭을 다시 계산해서(자동 배치) 수불현황 열 때·목록 펼칠 때 표가 흔들리던 문제
    · 세 화면(주문·출고·수불) 모두 같은 비율 폭 (table-layout:fixed) · 화면 너비에 맞춰 늘고 줄음 · 넘치는 글자는 … (마우스 올리면 전체) */
-const COL_W={'출고일자':6,'주문번호':7.5,'제품번호':6,'매칭상태':6.5,'고객':9.5,'품번':7.5,'품명':9,'규격':13,'비고(내역)':17.5,'단위':3.2,'출고수량':4.6,'단가':4.4,'공급가':5,'부가세':4.5,'합계액':5,'납품처':10};
+const COL_W={'출고일자':6,'납기요청일':6,'주문번호':7.5,'제품번호':6,'매칭상태':6.5,'고객':9.5,'품번':7.5,'품명':9,'규격':13,'비고(내역)':17.5,'단위':3.2,'출고수량':4.6,'단가':4.4,'공급가':5,'부가세':4.5,'합계액':5,'납품처':10};
 function colWidths(tr){const ths=[...tr.children];const chk=ths.find(t=>t.classList.contains('chk-col'));const keys=ths.map(t=>{const b=t.querySelector('button[data-key]');return b?b.dataset.key:null});
   const tot=keys.reduce((a,k)=>a+(k?COL_W[k]||6:0),0),room=chk?97.6:100;ths.forEach((t,i)=>{if(t===chk){t.style.width='2.4%';return}const k=keys[i];if(k)t.style.width=(room*(COL_W[k]||6)/tot).toFixed(3)+'%'})}
 function renderHeader(){const tr=document.getElementById('headerRow');tr.innerHTML='';if(state.delMode){const th=document.createElement('th');th.className='chk-col';th.innerHTML='<input type="checkbox" class="chk-all" title="보이는 행 모두 선택·해제">';tr.appendChild(th)}tableHeaders().forEach(h=>{const th=document.createElement('th');const active=state.sort.key===h;th.setAttribute('aria-sort',active?(state.sort.dir==='asc'?'ascending':'descending'):'none');th.innerHTML=`<button type="button" data-key="${escapeHtml(h)}">${escapeHtml(headLabel(h))}<span class="sort-icon">${active?(state.sort.dir==='asc'?'▲':'▼'):'↕'}</span></button>`;tr.appendChild(th)});colWidths(tr);const cloneRow=document.getElementById('headCloneRow');cloneRow.innerHTML=tr.innerHTML;tr.querySelectorAll('button').forEach(b=>b.tabIndex=-1);cloneRow.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const key=b.dataset.key;if(state.sort.key===key)state.sort.dir=state.sort.dir==='asc'?'desc':'asc';else state.sort={key,dir:'asc'};renderTable()}));const ca=cloneRow.querySelector('.chk-all');if(ca){ca.checked=allVisibleSelected();ca.onchange=()=>{selectVisible(ca.checked)}}}
@@ -1206,7 +1219,7 @@ function syncHead(){
 function buildRow(row){
   const tr=document.createElement('tr');tr.dataset.key=rowKey(row);if((row.__status==='auto'||row.__status==='none')&&!row.__suId)tr.className='missing';
   if(state.delMode){const td=document.createElement('td');td.className='chk-col';const on=state.sel.has(rowKey(row));td.innerHTML=`<input type="checkbox" class="row-chk" data-key="${escapeHtml(rowKey(row))}"${on?' checked':''}>`;if(on)tr.classList.add('sel');tr.appendChild(td)}
-  tableHeaders().forEach(h=>{const td=document.createElement('td');const v=getDisplayValue(row,h);td.title=clean(v);if(['출고수량','단가','공급가','부가세','합계액'].includes(h))td.className='num';if(['출고일자','단위','제품번호','매칭상태'].includes(h))td.classList.add('center');if(h==='규격')td.classList.add('spec');
+  tableHeaders().forEach(h=>{const td=document.createElement('td');const v=getDisplayValue(row,h);td.title=clean(v);if(['출고수량','단가','공급가','부가세','합계액'].includes(h))td.className='num';if(['출고일자','납기요청일','단위','제품번호','매칭상태'].includes(h))td.classList.add('center');if(h==='규격')td.classList.add('spec');
     if(h==='비고(내역)'){td.classList.add('remark');td.innerHTML=remarkHtml(row)}
     else if(h==='제품번호'&&row.__suEdit){td.classList.add('code-cell');td.innerHTML=`<input class="code-input su-ci${row.__code?' has':''}${row.__codeOld?' old':''}" data-su="${escapeHtml(row.__suId)}" value="${escapeHtml(row.__code||'')}" placeholder="${fmtP(CAT_PRE[row.__cat]||'A',0)}" spellcheck="false" title="제품번호 입력·수정 (${fmtP(CAT_PRE[row.__cat]||'A',0)} · 숫자만 넣으면 ${CAT_PRE[row.__cat]||'A'}가 붙음) · 수불관리 품목에 저장 · 비우면 지움${row.__who?'\n'+escapeHtml(row.__who):''}">`}
     else if(h==='제품번호'){td.classList.add('code-cell');td.innerHTML=((row.__status==='auto'||row.__status==='manual')&&row.__autoCode)?`<input class="code-input ${row.__status}" data-key="${escapeHtml(rowKey(row))}" value="${escapeHtml(row.__code||'')}" placeholder="입력" spellcheck="false" title="눌러서 제품번호 수정 · 비우거나 ${escapeHtml(row.__autoCode)}로 되돌리면 자동 부여로 표시 · Ctrl+Z 되돌리기">`:`<span class="code-text">${escapeHtml(row.__code||'—')}</span>`}
@@ -1288,8 +1301,8 @@ function renderSummary(){
    document.getElementById('noCodeSub').textContent=[c==null?'수불 자료 받기 전 · 누르면 확인':`수불 품목 ${window.suItemCount().toLocaleString()}개 중`,noneN?`출고 번호 없음 ${noneN.toLocaleString()}`:'',oN?`주문 번호 없음 ${oN.toLocaleString()}`:''].filter(Boolean).join(' · ');
    document.getElementById('cardNoCode').classList.toggle('on',state.view==='subul'&&!!state.suMissOnly)}
   {const mk=new Set();state.db.ship.forEach(s=>{if(s.mk)mk.add(s.mk)});let pend=0,pc=0,on=0;state.db.order.forEach(o=>{if(isExcl(o))return;on++;if(!mk.has(o.k)){pend++;if(o.code)pc++}});
-   document.getElementById('pendCount').textContent=pend.toLocaleString();document.getElementById('pendSub').textContent=on?`주문 ${on.toLocaleString()}줄 중 · 제품번호 있음 ${pc.toLocaleString()}`:'주문 중 아직 출고 안 됨'}
-  {const f=state.filters;document.getElementById('cardMatched').classList.toggle('on',state.view==='ship'&&f.status==='matched');document.getElementById('cardAuto').classList.toggle('on',state.view==='ship'&&!!f.missingOnly);document.getElementById('cardPend').classList.toggle('on',state.view==='order'&&!!f.pend)}
+   document.getElementById('pendCount').textContent=pend.toLocaleString();document.getElementById('shippedSub').textContent=on?`누적 · 출고된 주문 ${(on-pend).toLocaleString()}줄`:'저장된 전체 (누적)';document.getElementById('pendSub').textContent=on?`주문 ${on.toLocaleString()}줄 중 · 제품번호 있음 ${pc.toLocaleString()}`:'주문 중 아직 출고 안 됨'}
+  {const f=state.filters;document.getElementById('cardMatched').classList.toggle('on',state.view==='ship'&&f.status==='matched');document.getElementById('cardAuto').classList.toggle('on',state.view==='ship'&&!!f.missingOnly);document.getElementById('cardPend').classList.toggle('on',state.view==='order'&&!!f.pend);document.getElementById('cardShipped').classList.toggle('on',state.view==='order'&&!!f.done)}
   document.getElementById('orderFiles').textContent=`올린 파일 ${[...state.db.upload.values()].filter(u=>u.kind==='order').length}개 (누적)`;
   renderExclBtn();
   {const n=overShip().length,h=chgHistory(),wk=new Date(Date.now()-7*864e5).toISOString(),h7=h.filter(x=>/정리/.test(x.type)&&String(x.at||'')>=wk).length;   /* v95 : 변경·취소 카드 */
@@ -2375,7 +2388,7 @@ if (typeof module !== 'undefined') module.exports = SU;
   async function showView(){state.view='subul';state.suShowHidden=false;state.suMissOnly=false;{const b=document.getElementById('suMiss');if(b){b.classList.remove('on');b.setAttribute('aria-pressed','false')}}{const b=document.getElementById('suHid');if(b){b.classList.remove('on');b.setAttribute('aria-pressed','false')}}
     document.querySelectorAll('#viewTabs .vt').forEach(b=>{const on=b.dataset.view==='subul';b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on))});
     const tp=document.querySelector('.table-panel');tp.classList.remove('order-view');tp.classList.add('su-view');if(state.delMode&&typeof setDelMode==='function')setDelMode(false);
-    state.filters.from='';state.filters.to='';state.filters.status='';state.filters.missingOnly=false;state.filters.pend=false;state.sort={key:'출고일자',dir:'asc'};
+    state.filters.from='';state.filters.to='';state.filters.status='';state.filters.missingOnly=false;state.filters.pend=false;state.filters.done=false;state.sort={key:'출고일자',dir:'asc'};
     const dl=document.querySelector('label[for="dateFrom"]');if(dl)dl.textContent='주문일자 기간';
     if(!state.subul){const C=await suCacheLoad();if(C){state.subul={store:C.st,label:'이 PC 저장본',at:new Date(0)}}}const need=!(state.subul&&Date.now()-new Date(state.subul.at).getTime()<60000);if(need)ldStart();rebuildView();if(need){try{try{await loadSubul(true)}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e))}await new Promise(r=>setTimeout(r,20));if(state.view==='subul')rebuildView()}finally{ldEnd()}if(state.view==='subul'&&!state.viewRows.length)rebuildView(true)}if(suAutoOn()&&state.subul)await autoAssign(false);await registerMissing()}
   window.suShowView=showView;
