@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v98">
+  <meta name="sm-ver" content="v99">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -217,8 +217,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="file-list" id="orderList"><span class="file-empty">불러오는 중</span></div>
       </div>
       <div class="panel upload-card" id="shipDrop">
-        <h2><span class="step">2</span>출고현황<span class="step-hint">주문현황 다음에 올리기</span></h2><p>올린 날부터 계속 누적 저장 · 이미 저장된 행은 자동 제외</p><div class="up-range" id="shipRange"></div>
-        <div class="file-actions"><button class="btn small" id="shipBtn">출고현황 추가</button><button class="btn small" id="deleteShipSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearShipBtn">목록 비우기</button><div class="up-gauge" id="shipGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div><div class="up-msg" id="shipMsg" hidden></div><input type="file" id="shipInput" accept=".xls,.xlsx" multiple>
+        <h2><span class="step">2</span>출고현황<span class="step-hint">주문현황 다음에 올리기</span></h2><p>올린 날부터 계속 누적 저장 · 이미 저장된 행은 자동 제외 · 자동 엑셀변환 켜면 비고에 제품번호 넣어 다운로드</p><div class="up-range" id="shipRange"></div>
+        <div class="file-actions"><button class="btn small" id="shipBtn">출고현황 추가</button><button type="button" class="conv-sw" id="convSwShip" role="switch" aria-checked="false" title="켜면 출고현황을 올릴 때 비고(내역)에 제품번호 넣은 원시파일(엑셀)을 바로 다운로드 · 이 PC에만 적용"><span class="sw"><i></i></span>자동 엑셀변환</button><button class="btn small" id="deleteShipSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearShipBtn">목록 비우기</button><div class="up-gauge" id="shipGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div><div class="up-msg" id="shipMsg" hidden></div><input type="file" id="shipInput" accept=".xls,.xlsx" multiple>
         <div class="file-list" id="shipList"><span class="file-empty">불러오는 중</span></div>
       </div>
       <div class="panel rule-card">
@@ -863,7 +863,7 @@ async function addFiles(kind,files){
     const up={id:uid(),kind,name:file.name,maxS:parsed.maxS,sCodes:parsed.sCodes};
     if(kind==='ship'){
       if(!parsed.headers.includes('주문번호')||!parsed.headers.includes('품번'))throw new Error(`${file.name}: 출고현황 헤더에서 주문번호 또는 품번을 찾지 못함`);
-      const recs=parsed.rows.filter(r=>clean(r['주문번호'])).map(shipRecFromRow);withOccurrence(recs,shipBaseKey);
+      const srcRows=parsed.rows.filter(r=>clean(r['주문번호'])),recs=srcRows.map(shipRecFromRow);withOccurrence(recs,shipBaseKey);
       if(!parsed.cutInfo){const sc=shipChanges(recs);if(sc)found.push(sc)}   /* v95 : 파일에 없어진 출고 줄 (저장 전 상태로 비교) */
       const fresh=recs.filter(s=>!state.db.ship.has(s.k)),ctx=matchContext();
       fresh.forEach(s=>{const m=matchRec(s,ctx);s.st=m.st;s.code=m.code||'';s.rs=m.rs||'';if(m.mk)s.mk=m.mk});
@@ -883,6 +883,10 @@ async function addFiles(kind,files){
           catch(e){if(++tries>2)throw e;g.set(at(20+75*ci/nc),lab+`다시 시도 ${tries}/2 …`);await new Promise(r=>setTimeout(r,3000))}}
         added+=res?res.added.ship:0}msgs.push(`${file.name}: 신규 ${added.toLocaleString()}건 저장`+(recs.length-added?` · 이미 저장된 ${(recs.length-added).toLocaleString()}건 제외`:''));
       recs.forEach(s=>{if(s.d>latest)latest=s.d});
+      /* v99 : 출고 자동 엑셀변환 (저장·번호 부여 끝난 뒤) */
+      if(autoConvShipOn()){phase='원시파일 변환';g.set(at(97),lab+'원시파일 변환 중 (비고에 제품번호)');await new Promise(r=>setTimeout(r,60));
+        try{const rc=shipRawConvert(buf,file.name,recs.map((s,i)=>({row:srcRows[i].__row,k:s.k})));dls.push(rc);msgs.push(`${rc.name}: 다운로드 (제품번호 넣음 ${rc.put.toLocaleString()}행${rc.none?` · 번호 없음 ${rc.none.toLocaleString()}`:''})`)}
+        catch(e){dls.push({file:file.name,err:e.message||String(e)});msgs.push(`${file.name}: 원시파일 변환 실패 — ${e.message||e}`)}}
     }else{
       if(!parsed.headers.includes('주문번호'))throw new Error(`${file.name}: 주문번호 헤더를 찾지 못함`);
       const recs=parsed.rows.filter(r=>clean(r['주문번호'])).map(orderRecFromRow);withOccurrence(recs,orderBaseKey);
@@ -1354,6 +1358,7 @@ function autoConvOn(){try{return localStorage.getItem('sm_auto_conv')==='1'}catc
 function renderConvSw(){const b=document.getElementById('convSw');if(!b)return;const on=autoConvOn();b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on))}
 document.getElementById('convSw').onclick=()=>{const on=!autoConvOn();try{localStorage.setItem('sm_auto_conv',on?'1':'0')}catch(_){}renderConvSw();showInfo(on?'자동 엑셀변환 켬 · 주문현황 올리면 원시파일 바로 다운로드':'자동 엑셀변환 끔 · 필요하면 «엑셀 내보내기»로 저장')};
 renderConvSw();
+{const b=document.getElementById('convSwShip'),rd=()=>{const on=autoConvShipOn();b.classList.toggle('on',on);b.setAttribute('aria-checked',String(on))};b.onclick=()=>{const on=!autoConvShipOn();try{localStorage.setItem('sm_auto_conv_ship',on?'1':'0')}catch(_){}rd();showInfo(on?'출고 자동 엑셀변환 켬 · 출고현황 올리면 비고에 제품번호 넣은 원시파일 바로 다운로드':'출고 자동 엑셀변환 끔')};rd()}
 function ymdCompact(d){return /^\d{4}-\d{2}-\d{2}$/.test(d||'')?d.replace(/-/g,''):clean(d)}
 async function exportRaw(){if(state.view==='subul'){alert('수불현황 보기에서는 엑셀 내보내기 없음 (주문현황·출고현황 보기에서 사용)');return}
   const list=state.viewRows;if(!list.length){alert('표에 보이는 행이 없음');return}
@@ -1418,6 +1423,21 @@ function rawConvert(buf,fileName,keep,noDl){
   const aEl=document.createElement('a');aEl.href=URL.createObjectURL(new Blob([out],{type:'application/vnd.ms-excel'}));aEl.download=name;document.body.appendChild(aEl);aEl.click();aEl.remove();setTimeout(()=>URL.revokeObjectURL(aEl.href),5000);
   return {name,tot,had,put,none,src,miss:keep?Math.max(0,keep.size-found.size):0};
 }
+/* v99 : 출고현황 «자동 엑셀변환» — 올린 출고 원시파일 그대로, 비고(내역)에 그 출고 줄의 제품번호(주문 줄 번호·자동 번호)를 넣어 «이름_제품번호.xls» 다운로드 */
+function autoConvShipOn(){try{return localStorage.getItem('sm_auto_conv_ship')==='1'}catch(_){return false}}
+function shipRawConvert(buf,fileName,pairs){
+  let wb=null;for(const opt of [{type:'array'},{type:'array',cellStyles:false,cellFormula:false,cellHTML:false}]){try{wb=XLSX.read(buf,opt);if(wb&&wb.SheetNames.length)break}catch(err){wb=null}}
+  if(!wb){const sv=salvageXls(buf);if(sv)wb=sv.wb}
+  if(!wb)throw new Error('엑셀 파일을 읽지 못함');
+  const ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
+  const hi=findHeaderIndex(rows),hs=rows[hi].map(canonicalHeader),cR=hs.indexOf('비고(내역)');if(cR<0)throw new Error('비고(내역) 열을 찾지 못함');
+  const rg=XLSX.utils.decode_range(ws['!ref']);let tot=0,had=0,put=0,none=0;
+  pairs.forEach(({row,k})=>{const r=row-1;if(r<=hi||!rows[r])return;tot++;const rem=clean(rows[r][cR]);if(extractCode(rem)){had++;return}
+    const s=state.db.ship.get(k),code=(s&&s.code)||'';if(!code){none++;return}
+    ws[XLSX.utils.encode_cell({r:r+rg.s.r-0,c:cR+rg.s.c})]={t:'s',v:appendCode(rem,code)};put++});
+  const out=xlsOut(wb),name=String(fileName||'출고현황').replace(/\.(xlsx?|xls)$/i,'')+'_제품번호.xls';
+  const aEl=document.createElement('a');aEl.href=URL.createObjectURL(new Blob([out],{type:'application/vnd.ms-excel'}));aEl.download=name;document.body.appendChild(aEl);aEl.click();aEl.remove();setTimeout(()=>URL.revokeObjectURL(aEl.href),5000);
+  return {name,tot,had,put,none}}
 /* 다운로드 알림 (오른쪽 아래, 10초 뒤 자동으로 닫힘) */
 let dlTimer=null;
 function showDlToast(list){let el=document.getElementById('dlToast');if(!el){el=document.createElement('div');el.id='dlToast';el.setAttribute('role','status');document.body.appendChild(el)}
