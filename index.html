@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v116">
+  <meta name="sm-ver" content="v117">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -161,10 +161,12 @@
 #cardMatched{display:flex;flex-direction:column}#cardMatched .ono-sw{margin-top:auto;padding-top:8px}
 .dv-card{align-items:stretch}.dv-card .dv-main{display:flex;flex-direction:column}.dv-card .dv-per{margin-top:auto;padding-top:6px}
 /* v116 : 간트차트 */
-.gt-view #headWrap,.gt-view #tableWrap,.gt-view #moreRows,.gt-view #hScroll,.gt-view #delBar,.gt-view .footer-note,.gt-view .toolbar>*:not(.view-field):not(.search){display:none!important}
+.gt-view #headWrap,.gt-view #tableWrap,.gt-view #moreRows,.gt-view #hScroll,.gt-view #delBar,.gt-view .footer-note,.gt-view .toolbar>*:not(.view-field):not(.search):not(.gt-fs-f){display:none!important}
+.gt-fs-f{display:none}.gt-view .gt-fs-f{display:flex}#gtFull{height:35px;min-width:84px;padding:0 14px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:none}#gtFull:hover{border-color:#1d4ed8;color:#1d4ed8}body.gt-full #gtFull{background:#1e3a8a;color:#fff;border-color:#1e3a8a}
+body.gt-full .table-panel.gt-view{position:fixed;inset:0;z-index:380;margin:0;border-radius:0;overflow:auto;background:#fff;max-width:none;width:auto}body.gt-full{overflow:hidden}body.gt-full .gt-view .gt-scroll{max-height:calc(100vh - 228px)}body.gt-full .table-panel.gt-view .toolbar{padding-left:66px}
 .gantt-panel{padding:4px 0 0}.gantt-panel[hidden]{display:none}
 .gt-top{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:6px 0 8px}
-.gt-cats{display:flex;gap:4px;flex-wrap:wrap}
+.gt-cats{display:flex;gap:4px;flex-wrap:wrap}.gt-cats-f .gt-cat{height:35px}
 .gt-cat{height:32px;padding:0 12px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:12.5px;font-weight:700;cursor:pointer}
 .gt-cat small{margin-left:6px;font-size:11px;color:#94a3b8;font-weight:700}.gt-cat.on{background:#1d4ed8;border-color:#1d4ed8;color:#fff}.gt-cat.on small{color:#c7d7fe}
 .gt-ctl{display:flex;flex:1;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:#475569}
@@ -173,7 +175,7 @@
 .gt-ctl select,.gt-cap-in input{height:30px;border:1px solid #cbd5e1;border-radius:6px;padding:0 6px;font-size:12px;background:#fff}
 .gt-cap-in{display:inline-flex;gap:4px;align-items:center}.gt-cap-in input{width:64px;text-align:right}
 .gt-sp{flex:1}.gt-pn{color:#7c3aed;font-weight:700}
-.gt-sum{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:12.5px;color:#475569}
+.gt-sum{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:5px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:12.5px;color:#475569}
 .gt-sum b{color:#0f172a}.gt-sum .late b{color:#dc2626}.gt-sum .soon b{color:#d97706}.gt-sum .urg b{color:#b45309}.gt-sum .adj b{color:#7c3aed}.gt-sum .none b{color:#64748b}.gt-sum .mut{color:#94a3b8;font-size:11.5px}
 .gt-chip{border:1px solid #93c5fd;background:#eff6ff;color:#1d4ed8;border-radius:99px;padding:2px 10px;font-size:12px;cursor:pointer}
 .gt-legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 2px;font-size:11.5px;color:#64748b}.gt-legend span{display:inline-flex;align-items:center;gap:5px}
@@ -347,6 +349,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field"><label for="statusFilter">매칭상태</label><select id="statusFilter"><option value="">전체 상태</option><option value="matched">매칭 완료·기존 입력</option><option value="auto">자동 부여</option><option value="manual">직접 입력</option></select></div>
         <div class="field" style="display:none"><label for="suPart">파트</label><select id="suPart"><option value="">전체 파트</option><option value="p1">생산1파트 (A동)</option><option value="p2">생산2파트 (B동)</option><option value="p3">생산3파트 (레이저)</option></select></div><span class="su-cnt" id="suCount" hidden></span>
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="주문번호·제품번호·고객·품번·품명·규격·비고·납품처" title="주문번호·제품번호·고객·품번·품명·규격·비고(내역)·납품처에 들어 있는 글자 검색 · 띄어 쓰면 낱말 모두 포함 · 검색하면 기간과 상관없이 전체에서 찾음"></div>
+        <div class="field gt-fs-f gt-cats-f"><label>구분</label><div id="gtCatsSlot"></div></div>
+        <div class="field gt-fs-f"><label>&nbsp;</label><button type="button" class="btn" id="gtFull" title="간트차트를 화면 가득 크게 보기 · Esc 로 닫기">전체보기</button></div>
         <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="cat-btn su-only su-auto" id="suAuto" role="switch" aria-checked="false"><span class="sw"><i></i></span>수불엑셀 자동부여</button><button type="button" class="btn small su-del su-miss" id="suMiss" style="display:none" aria-pressed="false" title="수불관리에서 «번호 없음·번호 대기»로 보이는 품목만 보기 (초기화·숨김과 관계없이 전체)">제품번호 없음&nbsp;<b id="suMissN">0</b></button><button type="button" class="btn small su-only su-del" id="suFillNow" hidden title="지금 보이는 제품번호 없는 품목에 번호 넣기 (B동 순번·비고 번호 먼저, 없으면 구분별 다음 번호) · 수불관리에도 저장">모두 자동입력</button><button type="button" class="btn small del-toggle su-del" id="suDel" aria-pressed="false" title="체크박스로 행을 골라 목록에서만 숨김 (자료는 그대로 · 모든 PC 같음)">숨기기</button><button type="button" class="btn small su-del" id="suHid" aria-pressed="false" style="display:none">숨긴 항목&nbsp;<b id="suHidN">0</b></button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
         <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제 (개별 선택 · 머리글 체크 = 전체 선택)">삭제</button><button type="button" class="btn small su-only su-del del-toggle" id="suRealDel" aria-pressed="false" title="체크박스로 수불 품목을 골라 수불관리에서 삭제 (관리자 · 모든 PC 같음)">삭제</button>
       </div>
@@ -1330,7 +1334,7 @@ function wkOf(iso){return WK[new Date(iso+'T00:00:00Z').getUTCDay()]}
 function md(iso){return iso?`${+iso.slice(5,7)}/${+iso.slice(8,10)}`:''}
 const GT=(()=>{let s={};try{s=JSON.parse(localStorage.getItem('sm_gantt')||'{}')||{}}catch(e){}return Object.assign({cat:'내부보강',zoom:'d',ship:false,sort:'due',cap:{},unit:'line'},s,{day:''})})();
 function gtSaveUi(){try{const {cat,zoom,ship,sort,cap,unit}=GT;localStorage.setItem('sm_gantt',JSON.stringify({cat,zoom,ship,sort,cap,unit}))}catch(e){}}
-const GT_EDIT=new Set(['내부보강']),gtPend=new Map(),gtOpen=new Set();let gtDrag=null,gtLast=null;
+const GT_EDIT=new Set(['내부보강']),gtPend=new Map(),gtOpen=new Set();let gtDrag=null,gtLast=null,gtFz=null;/* gtFz: 끌어서 바꾼 뒤 줄 순서 고정 (화면 안 움직이게) */
 function gtData(){const today=dvIso(new Date()),T=srchToks(state.filters.search),mk=new Map(),U=urgDays();
   state.db.ship.forEach(s=>{if(s.del||!s.mk)return;const L=mk.get(s.mk);if(L)L.push(s);else mk.set(s.mk,[s])});
   const G=new Map();
@@ -1354,10 +1358,11 @@ function gtData(){const today=dvIso(new Date()),T=srchToks(state.filters.search)
 function gtRange(rows,today){let lo=isoAdd(today,-7),hi=isoAdd(today,28);rows.forEach(g=>{if(g.od&&g.od<lo)lo=g.od;const e=g.due||g.od;if(e&&e>hi)hi=e});
   const min=isoAdd(today,-90),max=isoAdd(today,180);if(lo<min)lo=min;hi=isoAdd(hi,7);if(hi>max)hi=max;return [lo,hi]}
 function gtRender(keep){const P=document.getElementById('ganttPanel');if(!P||P.hidden||gtDrag)return;
-  const sc=P.querySelector('.gt-scroll'),sx=sc?sc.scrollLeft:null,sy=sc?sc.scrollTop:null;
+  const sc=P.querySelector('.gt-scroll'),sx=sc?sc.scrollLeft:null,sy=sc?sc.scrollTop:null,wy=scrollY;
   const {all,today}=gtData(),inCat=all.filter(g=>g.cat===GT.cat),cnt={};PRE_ORDER.forEach(c=>cnt[c]=0);all.forEach(g=>{if(g.st!=='done')cnt[g.cat]++});
   let rows=inCat.filter(g=>GT.ship||g.st!=='done');const dayAll=rows;if(GT.day)rows=rows.filter(g=>g.due===GT.day);
   const S=GT.sort;rows.sort((a,b)=>S==='od'?String(a.od).localeCompare(String(b.od))||String(a.due||'9').localeCompare(String(b.due||'9')):S==='cust'?String(a.c).localeCompare(String(b.c),'ko')||String(a.due||'9').localeCompare(String(b.due||'9')):(!a.due-!b.due)||String(a.due).localeCompare(String(b.due))||String(a.od).localeCompare(String(b.od)));
+  if(gtFz){const fi=new Map(gtFz.map((k,i)=>[k,i])),N=gtFz.length;rows=rows.map((g,i)=>({g,i,f:fi.has(g.key)?fi.get(g.key):N+i})).sort((a,b)=>a.f-b.f).map(x=>x.g)}
   const [lo,hi]=gtRange(dayAll,today),days=[];for(let d=lo;d<=hi;d=isoAdd(d,1))days.push(d);const dw=GT.zoom==='w'?12:34,LW=340,W=days.length*dw,X=iso=>dDiff(iso,lo)*dw;
   const edit=GT_EDIT.has(GT.cat),cap=+(GT.cap[GT.cat+'|'+GT.unit]||0);
   /* 하루 부하 */
@@ -1366,7 +1371,7 @@ function gtRender(keep){const P=document.getElementById('ganttPanel');if(!P||P.h
   const open=dayAll.filter(g=>g.st!=='done'),sum={n:open.length,lines:open.reduce((a,g)=>a+g.openN,0),qty:open.reduce((a,g)=>a+g.openQty,0),late:open.filter(g=>g.cls==='late').length,soon:open.filter(g=>g.cls==='soon').length,none:open.filter(g=>!g.due).length,urg:open.filter(g=>g.urg).length,adj:inCat.filter(g=>g.adj).length,wk:open.filter(g=>g.due&&g.due>=today&&g.due<=isoAdd(today,6)).length};
   const fmt=v=>Math.round(v).toLocaleString();
   const months=[];days.forEach((d,i)=>{const m=d.slice(0,7);if(!months.length||months[months.length-1].m!==m)months.push({m,i,n:0});months[months.length-1].n++});
-  const head=`<div class="gt-head" style="width:${LW+W}px"><div class="gt-hl" style="width:${LW}px"><b>${escapeHtml(GT.cat)}</b> 주문 ${rows.length.toLocaleString()}건${GT.day?` · ${md(GT.day)} 납기만`:''}<small>${edit?'막대를 끌어 납기 조정 (오른쪽 끝·몸통 모두)':'보기 전용 · 납기 조정은 내부보강만'}</small><span class="gt-ll">하루 납기 부하 (${GT.unit==='qty'?'수량':'줄 수'})</span></div>
+  const head=`<div class="gt-head" style="width:${LW+W}px"><div class="gt-hl" style="width:${LW}px"><b>${escapeHtml(GT.cat)}</b> 주문 ${rows.length.toLocaleString()}건${GT.day?` · ${md(GT.day)} 납기만`:''}<small>${edit?'막대를 옆으로 끌어 납기 조정 · 누르기만 하면 변경 없음 · 바꾼 줄은 제자리 유지':'보기 전용 · 납기 조정은 내부보강만'}</small><span class="gt-ll">하루 납기 부하 (${GT.unit==='qty'?'수량':'줄 수'})</span></div>
     <div class="gt-hr" style="width:${W}px"><div class="gt-mon">${months.map(m=>`<span style="left:${m.i*dw}px;width:${m.n*dw}px">${+m.m.slice(5)}월</span>`).join('')}</div>
     <div class="gt-days">${days.map(d=>{const off=bizOff(d),hol=KR_HOLI.has(d);return `<span class="${off?'off':''}${d===today?' td':''}${hol?' hol':''}" style="left:${X(d)}px;width:${dw}px" title="${d} (${wkOf(d)})${hol?' 공휴일':''}">${GT.zoom==='w'?(wkOf(d)==='월'?md(d):''):`${+d.slice(8)}<i>${wkOf(d)}</i>`}</span>`}).join('')}</div>
     <div class="gt-load">${cap>0?`<i class="gt-cap" style="bottom:${Math.round(cap/lmax*44)+2}px" title="하루 처리 가능 ${fmt(cap)}"></i>`:''}${[...load].map(([d,v])=>{if(d<lo||d>hi)return '';const h=Math.max(2,Math.round(v/lmax*44)),ov=cap>0&&v>cap;return `<span class="gt-lb${ov?' ov':''}${GT.day===d?' sel':''}" data-day="${d}" style="left:${X(d)+1}px;width:${dw-2}px;height:${h}px" title="${d} (${wkOf(d)}) 납기 ${fmt(v)}${GT.unit==='qty'?'':'줄'}${cap>0?` · 처리 가능 ${fmt(cap)}${ov?` → ${fmt(v-cap)} 넘침`:''}`:''} · 누르면 이날 납기만">${GT.zoom==='d'&&v?`<em>${v>=10000?(v/10000).toFixed(1)+'만':fmt(v)}</em>`:''}</span>`}).join('')}</div></div></div>`;
@@ -1385,27 +1390,32 @@ function gtRender(keep){const P=document.getElementById('ganttPanel');if(!P||P.h
         ${g.shipDates.filter(d=>d>=lo&&d<=hi).map(d=>`<i class="gt-ship" style="left:${X(d)+dw/2-4}px" title="출고 ${dateDisplay(d)}"></i>`).join('')}</div></div>
       ${op?`<div class="gt-det"><table><thead><tr><th>품번</th><th>품명</th><th>규격</th><th class="num">수량</th><th>제품번호</th><th>요청 납기</th><th>조정 납기</th><th>출고</th><th>비고</th></tr></thead><tbody>${g.lines.map(l=>{const a=adjOf(l.o.k);return `<tr${l.sh.length?' class="sh"':''}><td>${hlHtml(l.o.p||'')}</td><td>${hlHtml(l.o.n||'')}</td><td>${hlHtml(l.o.s||'')}</td><td class="num">${fmt(num(l.o.q)||0)}</td><td>${escapeHtml(l.o.code||'')}</td><td>${md(reqDue(l.o))||'-'}</td><td>${g.pend?`<b class="gt-adj">${md(gtPend.get(g.key).d||reqDue(l.o))} (저장 전)</b>`:a?`<b class="gt-adj" title="${escapeHtml(a.by+' '+fmtDateTime(a.at))}">${md(a.d)}</b>`:'-'}</td><td>${l.sh.length?l.sh.map(s=>`${md(s.d)} ${fmt(num(s.q)||0)}`).join(', '):'출고 전'}</td><td class="gt-rm">${hlHtml(l.o.r||'')}</td></tr>`}).join('')}</tbody></table></div>`:''}`};
   const noRows=!rows.length?`<div class="gt-empty">${inCat.length?'조건에 맞는 주문 없음 (출고된 주문도 보기·검색어 확인)':'이 구분의 주문 없음'}</div>`:'';
-  P.innerHTML=`<div class="gt-top"><div class="gt-cats" role="group" aria-label="구분">${PRE_ORDER.map(c=>`<button type="button" class="gt-cat${c===GT.cat?' on':''}" data-cat="${c}">${c}<small>${cnt[c].toLocaleString()}</small></button>`).join('')}</div>
-    <div class="gt-ctl"><span class="gt-seg" role="group" aria-label="막대 폭"><button type="button" data-zoom="d" class="${GT.zoom==='d'?'on':''}">일</button><button type="button" data-zoom="w" class="${GT.zoom==='w'?'on':''}">주</button></span>
+  const catsH=`<div class="gt-cats" role="group" aria-label="구분">${PRE_ORDER.map(c=>`<button type="button" class="gt-cat${c===GT.cat?' on':''}" data-cat="${c}">${c}<small>${cnt[c].toLocaleString()}</small></button>`).join('')}</div>`;const slot=document.getElementById('gtCatsSlot');if(slot)slot.innerHTML=catsH;
+  P.innerHTML=`<div class="gt-top"><div class="gt-ctl"><span class="gt-seg" role="group" aria-label="막대 폭"><button type="button" data-zoom="d" class="${GT.zoom==='d'?'on':''}">일</button><button type="button" data-zoom="w" class="${GT.zoom==='w'?'on':''}">주</button></span>
       <label class="gt-ck"><input type="checkbox" id="gtShip"${GT.ship?' checked':''}> 출고된 주문도 보기</label>
       <select id="gtSort" title="정렬"><option value="due"${S==='due'?' selected':''}>납기 빠른 순</option><option value="od"${S==='od'?' selected':''}>주문일 순</option><option value="cust"${S==='cust'?' selected':''}>고객 순</option></select>
-      <label class="gt-cap-in" title="하루에 처리할 수 있는 양 · 넘는 날은 부하 막대 빨강 (이 PC에 기억)">하루 처리 가능 <input type="number" id="gtCap" min="0" step="1" value="${cap||''}" placeholder="—"><select id="gtUnit"><option value="line"${GT.unit==='line'?' selected':''}>줄</option><option value="qty"${GT.unit==='qty'?' selected':''}>수량</option></select></label>
-      <button type="button" class="btn small" id="gtToday">오늘로</button>
+      <label class="gt-cap-in" title="하루에 처리할 수 있는 양 · 넣으면 넘는 날 부하 막대 빨강·과부하 날 표시 (이 PC에 기억)">하루 처리 가능 <input type="number" id="gtCap" min="0" step="1" value="${cap||''}" placeholder="—"><select id="gtUnit"><option value="line"${GT.unit==='line'?' selected':''}>줄</option><option value="qty"${GT.unit==='qty'?' selected':''}>수량</option></select></label>
+      <button type="button" class="btn small" id="gtToday">오늘로</button><div class="gt-sum"><span>출고 전 주문 <b>${sum.n.toLocaleString()}</b>건 · ${sum.lines.toLocaleString()}줄 · 수량 ${fmt(sum.qty)}</span><span class="late">지연 <b>${sum.late}</b></span><span class="soon">임박(2영업일) <b>${sum.soon}</b></span><span>이번 7일 납기 <b>${sum.wk}</b></span><span class="urg">긴급 <b>${sum.urg}</b></span><span class="adj">납기 조정 <b>${sum.adj}</b></span><span class="none">납기 없음 <b>${sum.none}</b></span>
+      ${cap>0?`<span class="${over.length?'late':''}" title="${over.map(([d,v])=>`${md(d)} ${fmt(v)}`).join(' · ')}">과부하 <b>${over.length}</b>일${over.length?` (${over.slice(0,4).map(([d])=>md(d)).join(', ')}${over.length>4?' …':''})`:''}</span>`:''}
+      ${GT.day?`<button type="button" class="gt-chip" id="gtDayX">${md(GT.day)} 납기만 보는 중 ×</button>`:''}</div>${gtFz?'<button type="button" class="btn small" id="gtResort" title="끌어서 바꾼 줄은 제자리에 둠 · 누르면 정렬 기준대로 다시 줄 세움">다시 정렬</button>':''}
       <span class="gt-sp"></span>${gtPend.size?`<span class="gt-pn">저장 안 한 조정 ${gtPend.size}건</span><button type="button" class="btn small" id="gtUndo">조정 취소</button>`:''}<button type="button" class="btn small primary" id="gtSave"${gtPend.size?'':' disabled'}>저장</button></div></div>
-    <div class="gt-sum"><span>출고 전 주문 <b>${sum.n.toLocaleString()}</b>건 · ${sum.lines.toLocaleString()}줄 · 수량 ${fmt(sum.qty)}</span><span class="late">지연 <b>${sum.late}</b></span><span class="soon">임박(2영업일) <b>${sum.soon}</b></span><span>이번 7일 납기 <b>${sum.wk}</b></span><span class="urg">긴급 <b>${sum.urg}</b></span><span class="adj">납기 조정 <b>${sum.adj}</b></span><span class="none">납기 없음 <b>${sum.none}</b></span>
-      ${cap>0?`<span class="${over.length?'late':''}" title="${over.map(([d,v])=>`${md(d)} ${fmt(v)}`).join(' · ')}">과부하 <b>${over.length}</b>일${over.length?` (${over.slice(0,4).map(([d])=>md(d)).join(', ')}${over.length>4?' …':''})`:''}</span>`:'<span class="mut">하루 처리 가능 넣으면 과부하 날 표시</span>'}
-      ${GT.day?`<button type="button" class="gt-chip" id="gtDayX">${md(GT.day)} 납기만 보는 중 ×</button>`:''}</div>
     <div class="gt-legend"><span><i class="lg ok"></i>여유</span><span><i class="lg soon"></i>임박 (2영업일 이내)</span><span><i class="lg late"></i>지연</span><span><i class="lg adj"></i>납기 조정</span><span><i class="lg pend"></i>저장 전</span><span><i class="lg done"></i>출고 완료</span><span><i class="lg req"></i>요청 납기</span><span><i class="lg ship"></i>출고일</span><span><i class="lg off"></i>토·일·공휴일</span></div>
     <div class="gt-scroll"><div class="gt-inner" style="width:${LW+W}px">${head}<div class="gt-body">${grid}${rows.map(rowHtml).join('')}${noRows}</div></div></div>
     <div class="gt-foot">막대 = 주문일자 → 납기일 (조정했으면 조정일) · 주문번호 단위 (같은 주문의 ${escapeHtml(GT.cat)} 줄 묶음, 줄마다 납기가 다르면 가장 늦은 날) · 부하 = 그날 납기인 출고 전 ${GT.unit==='qty'?'수량':'줄 수'} · 부하 막대 누르면 그날 납기 주문만 · 저장한 납기조정일은 모든 PC에 같이 보임 (주문현황 표 납기요청일 칸에 «조정»)</div>`;
   gtLast={rows,lo,dw,LW,today};const nsc=P.querySelector('.gt-scroll');
-  if(keep&&sx!=null){nsc.scrollLeft=sx;nsc.scrollTop=sy}else nsc.scrollLeft=Math.max(0,X(today)-dw*5)}
+  if(keep&&sx!=null){nsc.scrollLeft=sx;nsc.scrollTop=sy;if(scrollY!==wy)scrollTo(scrollX,wy)}else{const st0=rows.slice(0,30).filter(g=>g.st!=='done').map(g=>g.od||g.due).filter(Boolean).sort()[0],f=st0&&st0<isoAdd(today,-5)?(st0<isoAdd(today,-30)?isoAdd(today,-30):st0):isoAdd(today,-5);nsc.scrollLeft=Math.max(0,X(f)-dw)}}/* 처음 열 때 위쪽 주문 막대가 보이게 (최대 30일 전까지) */
 function gtShowTab(on){document.querySelectorAll('#viewTabs .vt').forEach(b=>{const v=on?b.dataset.view==='gantt':b.dataset.view===state.view;b.classList.toggle('on',v);b.setAttribute('aria-selected',String(v))})}
-function ganttOpen(){state.gantt=true;if(state.delMode&&typeof setDelMode==='function')setDelMode(false);document.querySelector('.table-panel').classList.add('gt-view');document.getElementById('ganttPanel').hidden=false;gtShowTab(true);gtRender()}
-function ganttClose(){if(!state.gantt)return;state.gantt=false;document.querySelector('.table-panel').classList.remove('gt-view');document.getElementById('ganttPanel').hidden=true;gtShowTab(false)}
+function ganttOpen(){state.gantt=true;gtFz=null;if(state.delMode&&typeof setDelMode==='function')setDelMode(false);document.querySelector('.table-panel').classList.add('gt-view');document.getElementById('ganttPanel').hidden=false;gtShowTab(true);gtRender()}
+function gtFull(on){on=!!on&&state.gantt;document.body.classList.toggle('gt-full',on);const b=document.getElementById('gtFull');if(b){b.textContent=on?'전체보기 닫기':'전체보기';b.setAttribute('aria-pressed',String(on))}
+  try{if(on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}}
+document.addEventListener('click',e=>{if(e.target.closest('#gtFull'))gtFull(!document.body.classList.contains('gt-full'));const cb=e.target.closest('#gtCatsSlot .gt-cat');if(cb&&state.gantt){GT.cat=cb.dataset.cat;GT.day='';gtFz=null;gtSaveUi();gtRender()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('gt-full')&&!document.querySelector('#chgModal')&&!gtDrag)gtFull(false)});
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&document.body.classList.contains('gt-full'))gtFull(false)});
+function ganttClose(){if(!state.gantt)return;gtFull(false);state.gantt=false;document.querySelector('.table-panel').classList.remove('gt-view');document.getElementById('ganttPanel').hidden=true;gtShowTab(false)}
 {const P=document.getElementById('ganttPanel');
   P.addEventListener('click',e=>{const t=e.target;
-    const cb=t.closest('.gt-cat');if(cb){GT.cat=cb.dataset.cat;GT.day='';gtSaveUi();gtRender();return}
+    if(t.closest('#gtResort')){gtFz=null;gtRender(true);return}
+    const cb=t.closest('.gt-cat');if(cb){GT.cat=cb.dataset.cat;GT.day='';gtFz=null;gtSaveUi();gtRender();return}
     const zb=t.closest('[data-zoom]');if(zb){GT.zoom=zb.dataset.zoom;gtSaveUi();gtRender();return}
     if(t.closest('#gtToday')){const sc=P.querySelector('.gt-scroll');if(gtLast)sc.scrollTo({left:Math.max(0,dDiff(gtLast.today,gtLast.lo)*gtLast.dw-gtLast.dw*5),behavior:'smooth'});return}
     if(t.closest('#gtSave'))return gtSaveAll();
@@ -1416,18 +1426,22 @@ function ganttClose(){if(!state.gantt)return;state.gantt=false;document.querySel
     if(t.closest('.gt-exp')||t.closest('.gt-lt')){if(gtOpen.has(key))gtOpen.delete(key);else gtOpen.add(key);gtRender(true);return}
     if(t.closest('.gt-rs')){const g=gtLast&&gtLast.rows.find(x=>x.key===key);if(!g)return;
       if(gtPend.has(key))gtPend.delete(key);else if(g.lines.some(l=>adjOf(l.o.k)))gtPend.set(key,{d:'',keys:g.lines.map(l=>l.o.k),base:Object.fromEntries(g.lines.map(l=>[l.o.k,(adjOf(l.o.k)||{}).d||'']))});gtRender(true)}});
-  P.addEventListener('change',e=>{const t=e.target;if(t.id==='gtShip'){GT.ship=t.checked;gtSaveUi();gtRender(true)}else if(t.id==='gtSort'){GT.sort=t.value;gtSaveUi();gtRender(true)}
+  P.addEventListener('change',e=>{const t=e.target;if(t.id==='gtShip'){GT.ship=t.checked;gtSaveUi();gtRender(true)}else if(t.id==='gtSort'){GT.sort=t.value;gtFz=null;gtSaveUi();gtRender(true)}
     else if(t.id==='gtCap'){const v=Math.max(0,Math.round(+t.value||0));if(v)GT.cap[GT.cat+'|'+GT.unit]=v;else delete GT.cap[GT.cat+'|'+GT.unit];gtSaveUi();gtRender(true)}else if(t.id==='gtUnit'){GT.unit=t.value;gtSaveUi();gtRender(true)}});
   P.addEventListener('keydown',e=>{if(e.target.id==='gtCap'&&e.key==='Enter'){e.preventDefault();e.target.blur()}});
   /* 끌기 */
   let tip=null;const tipShow=(x,y,html)=>{if(!tip){tip=document.createElement('div');tip.className='gt-tip';document.body.appendChild(tip)}tip.innerHTML=html;tip.style.left=Math.min(innerWidth-240,x+14)+'px';tip.style.top=(y+16)+'px';tip.hidden=false};
   P.addEventListener('pointerdown',e=>{const bar=e.target.closest('.gt-bar.ed');if(!bar||e.button!==0||!gtLast)return;const row=bar.closest('.gt-row'),g=gtLast.rows.find(x=>x.key===row.dataset.k);if(!g)return;
-    e.preventDefault();bar.setPointerCapture(e.pointerId);const s=g.od||g.due;gtDrag={g,bar,x0:e.clientX,due0:g.due||g.od,s,w0:bar.offsetWidth,nd:g.due||g.od};bar.classList.add('drag')});
-  P.addEventListener('pointermove',e=>{if(!gtDrag)return;const {g,bar,x0,due0,s,w0}=gtDrag,dw=gtLast.dw,dd=Math.round((e.clientX-x0)/dw);let nd=isoAdd(due0,dd);if(nd<s)nd=s;
+    e.preventDefault();bar.setPointerCapture(e.pointerId);const s=g.od||g.due;gtDrag={g,bar,x0:e.clientX,due0:g.due||g.od,s,w0:bar.offsetWidth,nd:g.due||g.od,mv:false}});
+  P.addEventListener('pointermove',e=>{if(!gtDrag)return;const {g,bar,x0,due0,s,w0}=gtDrag,dw=gtLast.dw;
+    if(!gtDrag.mv){if(Math.abs(e.clientX-x0)<6)return;gtDrag.mv=true;bar.classList.add('drag')}/* 6px 넘게 끌어야 끌기 시작 · 누르기만 하면 변경 없음 */
+    const dd=Math.round((e.clientX-x0)/dw);if(!dd){bar.style.width=w0+'px';gtDrag.nd=null;if(tip)tip.hidden=true;return}
+    let nd=isoAdd(due0,dd);if(nd<s)nd=s;
     bar.style.width=Math.max(dw-2,(dDiff(nd,s)+1)*dw-2)+'px';const sn=bizNext(nd);gtDrag.nd=sn;const ld=g.od?bizDays(g.od,sn):null;
     tipShow(e.clientX,e.clientY,`<b>납기조정 ${dateDisplay(sn)} (${wkOf(sn)})</b>${sn!==nd?`<br><small>${md(nd)}은 휴일 → 다음 영업일</small>`:''}<br>요청 납기 ${g.req?dateDisplay(g.req):'없음'}${ld!=null?`<br>주문 후 영업일 ${ld}일`:''}`)});
-  const end=e=>{if(!gtDrag)return;const {g,nd}=gtDrag;gtDrag=null;if(tip)tip.hidden=true;
-    const cur=g.due||'';if(nd&&nd!==cur){const tgt=g.lines.every(l=>reqDue(l.o)===nd)?'':nd,same=g.lines.every(l=>((adjOf(l.o.k)||{}).d||'')===tgt);
+  const end=e=>{if(!gtDrag)return;const {g,nd,mv,bar}=gtDrag;gtDrag=null;if(tip)tip.hidden=true;
+    if(!mv||!nd||e.type==='pointercancel'){bar.classList.remove('drag');if(mv)gtRender(true);return}/* 누르기만·제자리로 되돌림 = 변경 없음 */
+    const cur=g.due||'';if(nd!==cur){if(!gtFz&&gtLast)gtFz=gtLast.rows.map(x=>x.key);const tgt=g.lines.every(l=>reqDue(l.o)===nd)?'':nd,same=g.lines.every(l=>((adjOf(l.o.k)||{}).d||'')===tgt);
       if(same)gtPend.delete(g.key);else gtPend.set(g.key,{d:tgt,keys:g.lines.map(l=>l.o.k),base:(gtPend.get(g.key)||{}).base||Object.fromEntries(g.lines.map(l=>[l.o.k,(adjOf(l.o.k)||{}).d||'']))})}
     gtRender(true)};
   P.addEventListener('pointerup',end);P.addEventListener('pointercancel',end);
