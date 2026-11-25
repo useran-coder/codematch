@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v117">
+  <meta name="sm-ver" content="v118">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -42,7 +42,8 @@
     .btn:hover{background:#f8fafc}.btn.primary{background:#2f6ac6;color:#fff;border-color:#2f6ac6}.btn.primary:hover{background:#2558a6}.btn.dark{background:#fff;color:#17243b;border-color:#fff}.btn.ghost{background:transparent;color:#dbeafe;border-color:#6b7a92}.btn.small{padding:6px 10px;font-size:12px}
     main{padding:20px 28px 36px;max-width:1900px;margin:auto}.panel{background:#fff;border:1px solid #e0e5ed;border-radius:10px;box-shadow:0 2px 8px #0f172a0c}
     .workspace{display:grid;grid-template-columns:minmax(300px,1fr) minmax(300px,1fr) 1.35fr;gap:12px;margin-bottom:14px}.upload-card{padding:15px 16px;min-height:154px;position:relative;overflow:hidden}
-    .upload-card h2{font-size:14px;margin:0 0 7px;color:#26354d;display:flex;align-items:center;gap:7px}.upload-card .step{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#2f6ac6;color:#fff;font-size:12px;font-weight:800}.upload-card .step-hint{font-size:11.5px;font-weight:600;color:#2f6ac6;background:#eaf2ff;border-radius:999px;padding:2px 8px}.upload-card p{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5}.upload-card.drag{outline:3px solid #86b7ff;background:#f3f8ff}.file-actions{display:flex;gap:6px;flex-wrap:wrap}.file-actions .btn:disabled{opacity:.45;cursor:not-allowed}
+    .upload-card h2{font-size:14px;margin:0 0 7px;color:#26354d;display:flex;align-items:center;gap:7px}.upload-card .step{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#2f6ac6;color:#fff;font-size:12px;font-weight:800}.upload-card .upload-card h2{flex-wrap:wrap;row-gap:3px}.upload-card h2 .step-hint{white-space:nowrap}.up-last{margin-left:auto;font-size:11.5px;font-weight:500;color:#64748b;white-space:nowrap}.up-last b{color:#334155;font-weight:700}.up-last.today b{color:#15803d}
+.step-hint{font-size:11.5px;font-weight:600;color:#2f6ac6;background:#eaf2ff;border-radius:999px;padding:2px 8px}.upload-card p{margin:0 0 10px;color:var(--muted);font-size:12px;line-height:1.5}.upload-card.drag{outline:3px solid #86b7ff;background:#f3f8ff}.file-actions{display:flex;gap:6px;flex-wrap:wrap}.file-actions .btn:disabled{opacity:.45;cursor:not-allowed}
     .up-range{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:12.5px;color:#334155;background:#f1f6ff;border:1px solid #cfe0fb;border-radius:8px;padding:6px 10px;margin:0 0 10px}.up-range b{color:#1d4ed8}.up-range span{color:#64748b}.up-range .miss{color:#ad5a00;font-weight:700}.up-range.warn{background:#fffaf0;border-color:#f6d28b}.up-range.nodata{background:#f8fafc;border-color:#e2e8f0}.up-range.nodata b{color:#94a3b8}
     .file-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;min-height:28px;max-height:82px;overflow:auto}.file-empty{font-size:12px;color:#94a3b8;padding:6px 0}.file-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-height:29px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;color:#334155;padding:4px 5px 4px 8px;font-size:11px;cursor:pointer;user-select:none}.file-chip:hover{border-color:#8aa9d2;background:#f1f6fd}.file-chip.selected{border-color:#2f6ac6;background:#eaf2ff;box-shadow:inset 0 0 0 1px #2f6ac6}.file-icon{width:13px;height:16px;border:1.5px solid #5277a8;border-radius:2px;position:relative;flex:0 0 auto;background:#fff}.file-icon:after{content:"";position:absolute;right:-1.5px;top:-1.5px;width:5px;height:5px;background:#dbeafe;border-left:1.5px solid #5277a8;border-bottom:1.5px solid #5277a8}.file-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}.file-count{color:#7b8798;white-space:nowrap}.file-delete{width:20px;height:20px;border:0;border-radius:4px;background:transparent;color:#7b8798;line-height:18px;padding:0;font-size:15px;font-weight:700}.file-delete:hover{background:#fee2e2;color:#b42318}.rule-card{padding:15px 18px;background:#f8fbff;border-color:#cfdcf0}
     .rule-card h2{font-size:14px;margin:0 0 8px;color:#254a80}.rule-list{margin:0;padding-left:18px;color:#4b5d75;font-size:12px;line-height:1.7}
@@ -312,13 +313,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   <main>
     <section class="workspace">
       <div class="panel upload-card" id="orderDrop">
-        <h2><span class="step">1</span>주문현황<span class="step-hint">먼저 올리기</span></h2><p>여러 일자 계속 추가 가능 · 자동 엑셀변환 켜면 원시파일 바로 다운로드</p><div class="up-range" id="orderRange"></div>
+        <h2><span class="step">1</span>주문현황<span class="step-hint">먼저 올리기</span><span class="up-last" id="orderLast"></span></h2><p>여러 일자 계속 추가 가능 · 자동 엑셀변환 켜면 원시파일 바로 다운로드</p><div class="up-range" id="orderRange"></div>
         <div class="file-actions"><button class="btn small" id="orderBtn">주문현황 추가</button><button type="button" class="conv-sw" id="convSw" role="switch" aria-checked="false" title="켜면 주문현황을 올릴 때 비고에 제품번호 넣은 원시파일(엑셀)을 바로 다운로드 · 이 PC에만 적용"><span class="sw"><i></i></span>자동 엑셀변환</button><button class="btn small" id="deleteOrderSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearOrderBtn">목록 비우기</button><div class="up-gauge" id="orderGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div><div class="up-msg" id="orderMsg" hidden></div>
         <input type="file" id="orderInput" accept=".xls,.xlsx" multiple>
         <div class="file-list" id="orderList"><span class="file-empty">불러오는 중</span></div>
       </div>
       <div class="panel upload-card" id="shipDrop">
-        <h2><span class="step">2</span>출고현황<span class="step-hint">주문현황 다음에 올리기</span></h2><p>올린 날부터 계속 누적 저장 · 이미 저장된 행은 자동 제외</p><div class="up-range" id="shipRange"></div>
+        <h2><span class="step">2</span>출고현황<span class="step-hint">주문현황 다음에 올리기</span><span class="up-last" id="shipLast"></span></h2><p>올린 날부터 계속 누적 저장 · 이미 저장된 행은 자동 제외</p><div class="up-range" id="shipRange"></div>
         <div class="file-actions"><button class="btn small" id="shipBtn">출고현황 추가</button><button type="button" class="conv-sw" id="convSwShip" role="switch" aria-checked="false" title="켜면 출고현황을 올릴 때 비고(내역)에 제품번호 넣은 원시파일(엑셀)을 바로 다운로드 · 이 PC에만 적용"><span class="sw"><i></i></span>자동 엑셀변환</button><button class="btn small" id="deleteShipSelectedBtn" disabled>선택 삭제</button><button class="btn small" id="clearShipBtn">목록 비우기</button><div class="up-gauge" id="shipGauge" hidden><div class="ug-bar"><i></i></div><b class="ug-pct">0%</b><span class="ug-txt"></span></div></div><div class="up-msg" id="shipMsg" hidden></div><input type="file" id="shipInput" accept=".xls,.xlsx" multiple>
         <div class="file-list" id="shipList"><span class="file-empty">불러오는 중</span></div>
       </div>
@@ -1624,7 +1625,10 @@ function renderSummary(){
   renderPeriod('ship',[...state.db.ship.values()].map(s=>s.d));renderPeriod('order',[...state.db.order.values()].map(o=>o.od));renderFileLists();
 }
 /* v20 : 올리기 카드에 저장된 기간·일수·행 수·빠진 평일 표시 */
-function renderUpRange(kind,list){const el=document.getElementById(kind+'Range');if(!el)return;const all=list.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||''));const dates=[...new Set(all)].sort();
+/* v118 : 제목 오른쪽 마지막 추가 일시 (올린 파일 기록 기준, 모든 PC 같음) */
+function renderUpLast(kind){const el=document.getElementById(kind+'Last');if(!el)return;let u0=null;state.db.upload.forEach(u=>{if((u.kind||'ship')!==kind||u.hidden||!u.at)return;if(!u0||String(u.at)>String(u0.at))u0=u});
+  if(!u0){el.hidden=true;return}const td=localYmd(u0.at)===localYmd(new Date());el.hidden=false;el.className='up-last'+(td?' today':'');el.innerHTML=`마지막 추가 <b>${fmtDateTime(u0.at).slice(5)}</b>${u0.by?` · ${escapeHtml(u0.by)}`:''}`;el.title=`마지막 추가 ${fmtDateTime(u0.at)}\n${u0.name||''}${u0.rows?` · ${(+u0.rows).toLocaleString()}행`:''}${u0.by?`\n올린 사람 ${u0.by}`:''}`}
+function renderUpRange(kind,list){renderUpLast(kind);const el=document.getElementById(kind+'Range');if(!el)return;const all=list.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||''));const dates=[...new Set(all)].sort();
   if(!dates.length){el.className='up-range nodata';el.innerHTML='저장된 기간 <b>없음</b>';el.title='';const gg=document.getElementById(kind+'Gauge');if(gg&&(gg.classList.contains('done')||gg.classList.contains('err')))gg.hidden=true;return}   /* 자료가 없으면 지난 업로드 막대 숨김 (올리는 중에는 그대로) */
   const a=dates[0],b=dates[dates.length-1],have=new Set(dates),miss=[];let x=new Date(a+'T00:00:00');const end=new Date(b+'T00:00:00');
   while(x<=end){const w=x.getDay(),k=ymd(x);if(w&&w!==6&&!have.has(k))miss.push(k);x.setDate(x.getDate()+1)}
