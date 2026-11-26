@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v135">
+  <meta name="sm-ver" content="v136">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -57,6 +57,7 @@
     .gs-b:hover{border-color:#93c5fd;background:#eff6ff}.gs-b.on{border-color:#2563eb;background:#dbeafe}
     .gs-sz .gs-b em{display:block;font-style:normal;font-size:11px;color:#64748b;font-weight:600}.gs-sz .gs-b b{display:block;font-size:17px;line-height:1.25;color:#0f172a}.gs-sz .gs-b small{font-size:10px;color:#94a3b8}
     .gs-sz .gs-b.zero b{color:#cbd5e1}
+    .gs-sz{max-height:132px;overflow:auto;align-content:start}.gs-sz.txt{display:flex;flex-wrap:wrap;align-content:flex-start;gap:5px}.gs-sz.txt .gs-b{display:inline-flex;align-items:baseline;gap:4px;padding:3px 8px;border-radius:6px;font-size:11.5px;max-width:100%}.gs-sz.txt .gs-b em{display:inline;font-size:11.5px;color:#334155;font-weight:500}.gs-sz.txt .gs-b b{display:inline;font-size:13px}.gs-sz.txt .gs-b small{display:none}.gs-sz .gs-b em{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gs-sz .gs-b b{font-size:16px}
     .gs-ty{display:flex;flex-wrap:wrap;align-content:flex-start;gap:5px;max-height:132px;overflow:auto}
     .gs-ty .gs-b{display:inline-flex;align-items:baseline;gap:4px;padding:3px 8px;border-radius:6px;font-size:11.5px}.gs-ty .gs-b b{font-size:13px;color:#0f172a}
     .gs-more{font-size:11px;color:#64748b;padding:3px 4px}
@@ -1422,24 +1423,30 @@ const GT_EDIT=new Set(['내부보강']),gtPend=new Map(),gtOpen=new Set();let gt
 let GS_SEL=null;
 const GS_SIZES=['1.2x38.5','1.6x33','1.6x38.5','1.6x43.5','2.3x38.5'];
 function gsParse(s){s=String(s||'');const m=s.match(/(\d+(?:\.\d+)?)\s*[x×X*]\s*(\d+(?:\.\d+)?)/);const sz=m?`${+m[1]}x${+m[2]}`:'';let ty=s.replace(/[(（][^)）]*[)）]/g,'').trim().split(/\s+/)[0]||'';if(m&&!ty.replace(m[0],'').trim())ty='';return {sz,ty:ty.toUpperCase()}}
-function gtSpecCard(){const on=state.gantt&&GT.cat==='내부보강';document.body.classList.toggle('gt-inner',on);if(!on)return;
+/* v136 : 구분마다 (부자재·내부보강·문틀·레이저·유통/OEM) — 내부보강은 규격(두께x폭)·타입(괄호 앞), 다른 구분은 규격(두께x폭 있으면 그것, 없으면 규격 글자)·품명 */
+function gsKeys(o,cat){if(cat==='내부보강')return gsParse(o.s);const s=clean(o.s),m=s.match(/(\d+(?:\.\d+)?)\s*[x×X*]\s*(\d+(?:\.\d+)?)/);return {sz:m?`${+m[1]}x${+m[2]}`:s,ty:clean(o.n)}}
+function gtSpecCard(){const on=!!state.gantt;document.body.classList.toggle('gt-inner',on);if(!on)return;
+  const cat=GT.cat,inner=cat==='내부보강',TYL=inner?'타입':'품명';if(GS_SEL&&GS_SEL.cat!==cat)GS_SEL=null;
   const shipped=new Set();state.db.ship.forEach(s=>{if(!s.del&&s.mk)shipped.add(s.mk)});
   const SZ=new Map(),TY=new Map();let tq=0,tn=0;const add=(m,k,q)=>{let x=m.get(k);if(!x)m.set(k,x={q:0,n:0});x.q+=q;x.n++};
-  state.db.order.forEach(o=>{if(o.del||isExcl(o)||shipped.has(o.k)||catOfShip(o)!=='내부보강')return;const q=num(o.q)||0;if(q<=0)return;const {sz,ty}=gsParse(o.s);add(SZ,sz||'기타',q);add(TY,ty||'(타입 없음)',q);tq+=q;tn++});
-  const f=v=>Math.round(v).toLocaleString(),selOn=(kd,k)=>!!GS_SEL&&GS_SEL.k===kd&&GS_SEL.v===k;
-  const sizes=GS_SIZES.concat([...SZ.keys()].filter(k=>!GS_SIZES.includes(k)&&k!=='기타').sort()).concat(SZ.has('기타')?['기타']:[]);
-  document.getElementById('gsTot').textContent=`합계 ${f(tq)} · ${tn.toLocaleString()}줄`;document.getElementById('gsTotT').textContent=`${TY.size.toLocaleString()}종`;document.querySelector('#gtSpecS .gs-hint').textContent=GS_SEL?`차트: ${GS_SEL.v||(GS_SEL.k==='sz'?'기타 규격':'타입 없음')}만 보는 중 · 한 번 더 누르면 해제`:'누르면 그 규격·타입만 차트에 보기';
-  const g=document.getElementById('gsSize');
-  g.innerHTML=sizes.map(k=>{const x=SZ.get(k)||{q:0,n:0};return `<button type="button" class="gs-b${x.q?'':' zero'}${selOn('sz',k==='기타'?'':k)?' on':''}" data-kd="sz" data-q="${escapeHtml(k==='기타'?'':k)}" title="${escapeHtml(k)} 출고 전 ${x.n}줄 · 수량 ${f(x.q)}"><em>${escapeHtml(k)}</em><b>${f(x.q)}</b><small>${x.n}줄</small></button>`}).join('');
+  state.db.order.forEach(o=>{if(o.del||isExcl(o)||shipped.has(o.k)||catOfShip(o)!==cat)return;const q=num(o.q)||0;if(q<=0)return;const {sz,ty}=gsKeys(o,cat);add(SZ,sz||'',q);add(TY,ty||'',q);tq+=q;tn++});
+  const f=v=>Math.round(v).toLocaleString(),selOn=(kd,k)=>!!GS_SEL&&GS_SEL.k===kd&&GS_SEL.v===k,LB=(kd,k)=>k||(kd==='sz'?(inner?'기타':'(규격 없음)'):`(${TYL} 없음)`);
+  const byQ=(a,b)=>(SZ.get(b)||{q:0}).q-(SZ.get(a)||{q:0}).q||a.localeCompare(b);
+  const sizes=inner?GS_SIZES.concat([...SZ.keys()].filter(k=>k&&!GS_SIZES.includes(k)).sort(byQ)).concat(SZ.has('')?['']:[]):[...SZ.keys()].sort(byQ);
+  document.querySelector('#gtSpecS .label').textContent=`${cat} 규격별 출고 전 수량`;document.querySelector('#gtSpecT .label').textContent=`${TYL}별 출고 전 수량`;
+  document.getElementById('gsTot').textContent=`합계 ${f(tq)} · ${tn.toLocaleString()}줄${inner?'':` · ${SZ.size.toLocaleString()}종`}`;document.getElementById('gsTotT').textContent=`${TY.size.toLocaleString()}종`;
+  document.querySelector('#gtSpecS .gs-hint').textContent=GS_SEL?`차트: ${LB(GS_SEL.k,GS_SEL.v)}만 보는 중 · 한 번 더 누르면 해제`:`누르면 그 규격·${TYL}만 차트에 보기`;
+  const g=document.getElementById('gsSize');g.classList.toggle('txt',!inner);
+  g.innerHTML=sizes.slice(0,300).map(k=>{const x=SZ.get(k)||{q:0,n:0},l=LB('sz',k);return `<button type="button" class="gs-b${x.q?'':' zero'}${selOn('sz',k)?' on':''}" data-kd="sz" data-q="${escapeHtml(k)}" title="${escapeHtml(l)} 출고 전 ${x.n}줄 · 수량 ${f(x.q)}"><em>${escapeHtml(l)}</em><b>${f(x.q)}</b><small>${x.n}줄</small></button>`}).join('')+(sizes.length>300?`<span class="gs-more">외 ${sizes.length-300}종</span>`:'')||`<span class="gs-more">출고 전 ${escapeHtml(cat)} 주문 없음</span>`;
   const T=[...TY].sort((a,b)=>b[1].q-a[1].q||a[0].localeCompare(b[0]));
-  document.getElementById('gsType').innerHTML=T.map(([k,x])=>`<button type="button" class="gs-b${selOn('ty',k.startsWith('(')?'':k)?' on':''}" data-kd="ty" data-q="${escapeHtml(k.startsWith('(')?'':k)}" title="${escapeHtml(k)} 출고 전 ${x.n}줄 · 수량 ${f(x.q)}">${escapeHtml(k)} <b>${f(x.q)}</b></button>`).join('')||'<span class="gs-more">출고 전 내부보강 주문 없음</span>'}
-document.addEventListener('click',e=>{const b=e.target.closest('.gt-spec .gs-b');if(!b)return;const kd=b.dataset.kd,v=b.dataset.q||'';GS_SEL=GS_SEL&&GS_SEL.k===kd&&GS_SEL.v===v?null:{k:kd,v};gtFz=null;gtRender()});
+  document.getElementById('gsType').innerHTML=T.slice(0,300).map(([k,x])=>`<button type="button" class="gs-b${selOn('ty',k)?' on':''}" data-kd="ty" data-q="${escapeHtml(k)}" title="${escapeHtml(LB('ty',k))} 출고 전 ${x.n}줄 · 수량 ${f(x.q)}">${escapeHtml(LB('ty',k))} <b>${f(x.q)}</b></button>`).join('')+(T.length>300?`<span class="gs-more">외 ${T.length-300}종</span>`:'')||`<span class="gs-more">출고 전 ${escapeHtml(cat)} 주문 없음</span>`}
+document.addEventListener('click',e=>{const b=e.target.closest('.gt-spec .gs-b');if(!b)return;const kd=b.dataset.kd,v=b.dataset.q||'';GS_SEL=GS_SEL&&GS_SEL.k===kd&&GS_SEL.v===v?null:{k:kd,v,cat:GT.cat};gtFz=null;gtRender()});
 function gtData(){const today=dvIso(new Date()),T=srchToks(state.filters.search),mk=new Map(),U=urgDays();
   state.db.ship.forEach(s=>{if(s.del||!s.mk)return;const L=mk.get(s.mk);if(L)L.push(s);else mk.set(s.mk,[s])});
   const G=new Map();
   state.db.order.forEach(o=>{if(o.del||isExcl(o))return;
     if(T.length){const t=[o.o,o.code,o.c,o.p,o.n,o.s,o.r,o.dl].map(norm);if(!T.every(q=>t.some(x=>x.includes(q))))return}
-    const c=catOfShip(o);if(GS_SEL&&c==='내부보강'&&gsParse(o.s)[GS_SEL.k]!==GS_SEL.v)return;
+    const c=catOfShip(o);if(GS_SEL&&c===GS_SEL.cat&&(gsKeys(o,c)[GS_SEL.k]||'')!==GS_SEL.v)return;
     const key=c+'|'+norm(o.o);let g=G.get(key);if(!g)G.set(key,g={key,cat:c,o:o.o,c:o.c,od:o.od||'',lines:[]});
     if(o.od&&(!g.od||o.od<g.od))g.od=o.od;g.lines.push({o,sh:mk.get(o.k)||[]})});
   const all=[];G.forEach(g=>{const n=g.lines.length,ns=g.lines.filter(l=>l.sh.length).length,pd=gtPend.get(g.key);
