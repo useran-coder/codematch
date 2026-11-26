@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v138">
+  <meta name="sm-ver" content="v139">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -1580,15 +1580,24 @@ function headLabel(h){if(state.view==='subul'){if(h==='출고일자')return '주
    그 주문이 «출고 전»으로 남던 문제. 같은 제품번호(같은 주문번호)인 주문 줄, 없으면 주문순번이 같은 줄(품번 같을 때)에 이 PC 화면에서만 연결 (서버 자료 안 바꿈) */
 let dmkKey='';
 function deriveMk(){if(!state.db)return;const key=state.db.rev+'|'+state.db.ship.size+'|'+state.db.order.size;if(dmkKey===key)return;dmkKey=key;
-  const byCode=new Map();state.db.order.forEach(o=>{if(o.del||!o.code)return;const L=byCode.get(o.code);if(L)L.push(o);else byCode.set(o.code,[o])});
-  state.db.ship.forEach(s=>{if(s._dmk){delete s.mk;delete s._dmk}});
-  let n=0;const rest=[];state.db.ship.forEach(s=>{if(s.del||s.mk)return;
-    const c=s.code||extractCode(s.r);let o=null;
-    if(c){const L=byCode.get(c)||[];o=L.find(x=>!s.o||norm(x.o)===norm(s.o))||null}
-    if(!o&&s.ono){const x=state.db.order.get(norm(s.o)+'|'+norm(s.ono));if(x&&!x.del&&(!norm(x.p)||norm(x.p)===norm(s.p)))o=x}
-    if(o){s.mk=o.k;s._dmk=1;n++}else rest.push(s)});
-  /* v127 : 그래도 연결 안 된 출고 줄(올릴 때 주문현황이 아직 없었거나 주문에 제품번호가 없던 줄) → 화면 매칭 규칙(matchRec: 주문번호 → 품번·품명·규격·고객·수량)으로 주문 줄 찾아 연결 */
-  if(rest.length){const ctx=matchContext();rest.forEach(s=>{if(isExcl(s))return;let m=null;try{m=matchRec(s,ctx)}catch(e){}if(m&&m.mk&&state.db.order.has(m.mk)){s.mk=m.mk;s._dmk=1;n++}})}
+  /* v139 : 출고됐는데 «출고 전»으로 남던 줄 다시 점검 — ① 주문 제품번호는 o.code 뿐 아니라 주문 비고의 번호로도 찾음 ② 출고 줄 mk 가 지워진·없는 주문을 가리키면 다시 찾음
+     ③ 출고 비고에 번호가 있는데 주문과 안 맞으면(matchRec «existing») 비고 번호 빼고 주문번호·품번으로 다시 ④ 그래도 없으면 같은 주문번호·품번 줄이 하나뿐이거나 규격·수량까지 같은 줄이 하나일 때 연결 */
+  const live=o=>!!o&&!o.del;
+  const byCode=new Map(),addC=(c,o)=>{c=clean(c).toUpperCase();if(!c)return;const L=byCode.get(c);if(L){if(!L.includes(o))L.push(o)}else byCode.set(c,[o])};
+  state.db.order.forEach(o=>{if(o.del)return;addC(o.code,o);addC(extractCode(o.r),o)});
+  state.db.ship.forEach(s=>{if(s._dmk){if(s._mk0){s.mk=s._mk0;delete s._mk0}else delete s.mk;delete s._dmk}});
+  const setMk=(s,o)=>{if(s.mk&&s.mk!==o.k)s._mk0=s.mk;s.mk=o.k;s._dmk=1;n++};
+  let n=0;const rest=[];state.db.ship.forEach(s=>{if(s.del)return;if(s.mk&&live(state.db.order.get(s.mk)))return;
+    const c=clean(s.code||extractCode(s.r)).toUpperCase();let o=null;
+    if(c){const L=(byCode.get(c)||[]).filter(live);o=L.find(x=>!s.o||norm(x.o)===norm(s.o))||null}
+    if(!o&&s.ono){const x=state.db.order.get(norm(s.o)+'|'+norm(s.ono));if(live(x)&&(!norm(x.p)||norm(x.p)===norm(s.p)))o=x}
+    if(o)setMk(s,o);else rest.push(s)});
+  if(rest.length){const byOrder=new Map();state.db.order.forEach(o=>{if(o.del)return;const k=norm(o.o);if(!k)return;const L=byOrder.get(k);if(L)L.push(o);else byOrder.set(k,[o])});
+    const used=new Set();state.db.ship.forEach(s=>{if(s.mk&&!s.del)used.add(s.mk)});const ctx={byOrder,used};
+    rest.forEach(s=>{if(isExcl(s))return;let m=null;try{m=matchRec(s,ctx);if(m&&m.st==='existing')m=matchRec(Object.assign({},s,{r:''}),ctx)}catch(e){}
+      let o=m&&m.mk?state.db.order.get(m.mk):null;
+      if(!live(o)){const L=(byOrder.get(norm(s.o))||[]).filter(x=>norm(x.p)===norm(s.p));const E=L.filter(x=>norm(x.s)===norm(s.s)&&num(x.q)===num(s.q)),S=L.filter(x=>norm(x.s)===norm(s.s));o=L.length===1?L[0]:E.length===1?E[0]:S.length===1?S[0]:null}
+      if(live(o))setMk(s,o)})}
   state.dmkN=n;overCache=null;scmCache=null;csCache=null}
 function rebuildView(keep=false){deriveMk();
   /* v69 : 출고 행은 자료가 바뀌었을 때만 다시 만듦 (보기 바꿀 때 65,000줄 다시 만들지 않음) */
