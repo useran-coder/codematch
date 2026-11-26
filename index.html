@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v130">
+  <meta name="sm-ver" content="v131">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -358,7 +358,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="field search"><label for="searchInput">검색</label><input id="searchInput" type="search" placeholder="주문번호·제품번호·고객·품번·품명·규격·비고·납품처" title="주문번호·제품번호·고객·품번·품명·규격·비고(내역)·납품처에 들어 있는 글자 검색 · 띄어 쓰면 낱말 모두 포함 · 검색하면 기간과 상관없이 전체에서 찾음"></div>
         <div class="field gt-fs-f gt-cats-f"><label>구분</label><div id="gtCatsSlot"></div></div>
         <div class="field gt-fs-f"><label>&nbsp;</label><button type="button" class="btn" id="gtFull" title="간트차트를 화면 가득 크게 보기 · Esc 로 닫기">전체보기</button></div>
-        <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="cat-btn su-only su-auto" id="suAuto" role="switch" aria-checked="false"><span class="sw"><i></i></span>수불엑셀 자동부여</button><button type="button" class="btn small su-del su-miss" id="suMiss" style="display:none" aria-pressed="false" title="수불관리에서 «번호 없음·번호 대기»로 보이는 품목만 보기 (초기화·숨김과 관계없이 전체)">제품번호 없음&nbsp;<b id="suMissN">0</b></button><button type="button" class="btn small su-only su-del" id="suFillNow" hidden title="지금 보이는 제품번호 없는 품목에 번호 넣기 (B동 순번·비고 번호 먼저, 없으면 구분별 다음 번호) · 수불관리에도 저장">모두 자동입력</button><button type="button" class="btn small del-toggle su-del" id="suDel" aria-pressed="false" title="체크박스로 행을 골라 목록에서만 숨김 (자료는 그대로 · 모든 PC 같음)">숨기기</button><button type="button" class="btn small su-del" id="suHid" aria-pressed="false" style="display:none">숨긴 항목&nbsp;<b id="suHidN">0</b></button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
+        <label class="toggle" id="missingLbl"><input type="checkbox" id="missingOnly"> 자동 부여 행만<small class="tg-n" id="autoN">0</small></label><div class="cat-btns" id="catBtns" role="group" aria-label="품목 구분"><button type="button" class="cat-btn" data-cat="부자재">부자재</button><button type="button" class="cat-btn" data-cat="내부보강">내부보강</button><button type="button" class="cat-btn" data-cat="문틀">문틀</button><button type="button" class="cat-btn" data-cat="레이저">레이저</button><button type="button" class="cat-btn" data-cat="유통/OEM">유통/OEM</button></div><button type="button" class="btn small su-del su-miss" id="suMiss" style="display:none" aria-pressed="false" title="수불관리에서 «번호 없음·번호 대기»로 보이는 품목만 보기 (초기화·숨김과 관계없이 전체)">제품번호 없음&nbsp;<b id="suMissN">0</b></button><button type="button" class="btn small su-only su-del" id="suFillNow" hidden title="지금 보이는 제품번호 없는 품목에 번호 넣기 (B동 순번·비고 번호 먼저, 없으면 구분별 다음 번호) · 수불관리에도 저장">모두 자동입력</button><button type="button" class="btn small del-toggle su-del" id="suDel" aria-pressed="false" title="체크박스로 행을 골라 목록에서만 숨김 (자료는 그대로 · 모든 PC 같음)">숨기기</button><button type="button" class="btn small su-del" id="suHid" aria-pressed="false" style="display:none">숨긴 항목&nbsp;<b id="suHidN">0</b></button><button type="button" class="last-s" id="lastS">마지막 자동번호 <b>—</b><span class="ls-edit">✎</span></button>
         <div class="spacer"></div><div class="result-count" id="resultCount">0건 표시</div><button type="button" class="btn small del-toggle" id="delToggle" aria-pressed="false" title="체크박스로 행을 골라 삭제 (개별 선택 · 머리글 체크 = 전체 선택)">삭제</button><button type="button" class="btn small su-only su-del del-toggle" id="suRealDel" aria-pressed="false" title="체크박스로 수불 품목을 골라 수불관리에서 삭제 (관리자 · 모든 PC 같음)">삭제</button>
       </div>
       <div class="gantt-panel" id="ganttPanel" hidden></div>
@@ -2720,7 +2720,7 @@ if (typeof module !== 'undefined') module.exports = SU;
      · 수불관리에서 품목을 새로 넣으면(번호 없음) 수불현황을 열 때 자동으로 채움
      · 생산2파트(B동)는 순번 = B번호, 비고에 번호가 있거나 ERP 주문 번호와 일치하면 그 번호 */
   const AUTO_LS='sm_su_auto';
-  function suAutoOn(){try{return localStorage.getItem(AUTO_LS)==='1'}catch(_){return false}}
+  function suAutoOn(){return false}   /* v131 : 사용자 요청으로 «수불엑셀 자동부여» 스위치 없앰 → 자동부여 항상 끔 (필요하면 «제품번호 없음 → 모두 자동입력») */
   function renderSuAuto(){const b=document.getElementById('suAuto');if(!b)return;const on=suAutoOn();b.querySelector('.sw').classList.toggle('on',on);b.setAttribute('aria-checked',String(on));
     b.title=on?'수불엑셀 자동부여 켬 · 수불 엑셀을 올리거나 수불현황을 열 때 번호 없는 품목에 제품번호 자동으로 붙임 (수불관리에도 저장) · 눌러서 끄기':'수불엑셀 자동부여 끔 · 눌러서 켜면 수불 엑셀을 올릴 때 번호 없는 품목에 제품번호 자동으로 붙임'}
   let autoBusy=false,autoDone=0;
@@ -2741,7 +2741,7 @@ if (typeof module !== 'undefined') module.exports = SU;
       const r=await saveCodes(todo,`수불 제품번호 자동부여 ${SU.today()}`);rebuildView(true);
       say(`수불 품목 ${r.saved.toLocaleString()}개 제품번호 자동부여 (새 번호 ${fresh.toLocaleString()}) · 수불관리에도 반영${r.conf?` · 그사이 다른 사람이 고친 ${r.conf}개는 건너뜀`:''}`);autoDone+=r.saved}
     catch(e){showError('제품번호 자동부여 실패: '+(e.message||e))}finally{autoBusy=false}}
-  document.getElementById('suAuto').onclick=async()=>{const on=!suAutoOn();try{localStorage.setItem(AUTO_LS,on?'1':'0')}catch(_){}renderSuAuto();if(on){if(!state.subul)try{await loadSubul()}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e));return}await autoAssign(true)}};
+  if(document.getElementById('suAuto'))document.getElementById('suAuto').onclick=async()=>{const on=!suAutoOn();try{localStorage.setItem(AUTO_LS,on?'1':'0')}catch(_){}renderSuAuto();if(on){if(!state.subul)try{await loadSubul()}catch(e){showError('수불 자료를 받지 못함: '+(e.message||e));return}await autoAssign(true)}};
   renderSuAuto();
   document.getElementById('suMiss').onclick=()=>{state.suMissOnly=!state.suMissOnly;const b=document.getElementById('suMiss');b.classList.toggle('on',state.suMissOnly);b.setAttribute('aria-pressed',String(state.suMissOnly));document.getElementById('cardNoCode').classList.toggle('on',state.suMissOnly);rebuildView(true)};
   /* v78 : 수불 엑셀 올린 뒤 (스위치 켬일 때만) — 먼저 돌고 있는 자동부여 끝나길 기다렸다가 다시 한 번 */
