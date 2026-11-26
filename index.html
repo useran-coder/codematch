@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v132">
+  <meta name="sm-ver" content="v133">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -1481,7 +1481,7 @@ function gtFull(on){on=!!on&&state.gantt;document.body.classList.toggle('gt-full
 document.addEventListener('click',e=>{if(e.target.closest('#gtFull'))gtFull(!document.body.classList.contains('gt-full'));const cb=e.target.closest('#gtCatsSlot .gt-cat');if(cb&&state.gantt){GT.cat=cb.dataset.cat;GT.day='';gtFz=null;gtSaveUi();gtRender()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('gt-full')&&!document.querySelector('#chgModal')&&!gtDrag)gtFull(false)});
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&document.body.classList.contains('gt-full'))gtFull(false)});
-function ganttClose(){if(!state.gantt)return;gtFull(false);state.gantt=false;document.querySelector('.table-panel').classList.remove('gt-view');document.getElementById('ganttPanel').hidden=true;gtShowTab(false)}
+function ganttClose(){if(!state.gantt)return;gtFull(false);state.gantt=false;document.querySelector('.table-panel').classList.remove('gt-view');document.getElementById('ganttPanel').hidden=true;gtShowTab(false);requestAnimationFrame(syncHead)}
 {const P=document.getElementById('ganttPanel');
   P.addEventListener('click',e=>{const t=e.target;
     if(t.closest('#gtDdFill')){const bt=t.closest('#gtDdFill');bt.disabled=true;bt.textContent='찾는 중…';ddFromRaw(true).catch(e=>showError(String(e.message||e))).finally(()=>gtRender(true));return}
@@ -1604,6 +1604,7 @@ function syncHead(){
   document.documentElement.style.setProperty('--tb-h',tb.offsetHeight+'px');
   const visible=table.style.display!=='none';headWrap.style.display=visible?'':'none';
   if(!visible){wrap.style.marginTop='';hs.style.display='none';return}
+  if(!table.offsetWidth||!table.tHead.offsetHeight)return;   /* v133 : 간트차트를 보는 동안처럼 표가 숨겨져 있으면 폭이 0 → 재지 않음 (재면 머리글이 전부 왼쪽으로 겹쳐 깨짐) · 다시 보이면 아래 ResizeObserver 가 맞춤 */
   const ths=[...document.getElementById('headerRow').children],clones=[...document.getElementById('headCloneRow').children];
   ths.forEach((th,i)=>{const w=th.getBoundingClientRect().width+'px',c=clones[i];if(c){c.style.width=w;c.style.minWidth=w;c.style.maxWidth=w}});
   document.getElementById('headClone').style.width=table.getBoundingClientRect().width+'px';
@@ -2018,7 +2019,7 @@ function showDlToast(list){let el=document.getElementById('dlToast');if(!el){el=
   el.innerHTML='<button type="button" class="dl-x" aria-label="닫기">×</button><b>원시파일 다운로드 완료</b>'+list.map(x=>x.err?`<div class="dl-l err">${escapeHtml(x.file)} · 변환 실패: ${escapeHtml(x.err)}</div>`:`<div class="dl-l"><span class="dl-n">${escapeHtml(x.name)}</span><span>${x.tot.toLocaleString()}행 · 제품번호 넣음 ${x.put.toLocaleString()} · 원래 번호 있음 ${x.had.toLocaleString()} · 번호 없음 ${x.none.toLocaleString()}${x.fb?` · 주요 열만 ${x.fb.toLocaleString()}`:''}</span></div>`).join('')+'<div class="dl-h">다운로드 폴더 확인 · 번호 없음 = 자동 부여 꺼진 구분이거나 아직 번호 없는 줄</div>';
   el.classList.toggle('bad',list.every(x=>x.err));el.classList.add('on');el.querySelector('.dl-x').onclick=()=>el.classList.remove('on');clearTimeout(dlTimer);dlTimer=setTimeout(()=>el.classList.remove('on'),10000)}
 document.getElementById('syncBtn').onclick=()=>{if(auValid())sync();else auShowGate()};
-{const wrap=document.getElementById('tableWrap'),hs=document.getElementById('hScroll'),hw=document.getElementById('headWrap');wrap.addEventListener('scroll',()=>{hw.scrollLeft=wrap.scrollLeft;if(hs.scrollLeft!==wrap.scrollLeft)hs.scrollLeft=wrap.scrollLeft});hs.addEventListener('scroll',()=>{if(wrap.scrollLeft!==hs.scrollLeft)wrap.scrollLeft=hs.scrollLeft});hw.addEventListener('wheel',e=>{if(e.deltaX){wrap.scrollLeft+=e.deltaX}},{passive:true});window.addEventListener('resize',()=>requestAnimationFrame(syncHead));if(document.fonts)document.fonts.ready.then(syncHead)}
+{const wrap=document.getElementById('tableWrap'),hs=document.getElementById('hScroll'),hw=document.getElementById('headWrap');wrap.addEventListener('scroll',()=>{hw.scrollLeft=wrap.scrollLeft;if(hs.scrollLeft!==wrap.scrollLeft)hs.scrollLeft=wrap.scrollLeft});hs.addEventListener('scroll',()=>{if(wrap.scrollLeft!==hs.scrollLeft)wrap.scrollLeft=hs.scrollLeft});hw.addEventListener('wheel',e=>{if(e.deltaX){wrap.scrollLeft+=e.deltaX}},{passive:true});window.addEventListener('resize',()=>requestAnimationFrame(syncHead));if(window.ResizeObserver){let q=0;new ResizeObserver(()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;syncHead()})}).observe(document.getElementById('headerRow'))}if(document.fonts)document.fonts.ready.then(syncHead)}
 /* v89 : 비고·납품처가 … 로 잘린 칸을 누르면 글자 전부 보이게 (한 번 더 누르면 접힘) · 글자를 끌어서 고른 때는 그대로 */
 tableBodyEl.addEventListener('mouseover',e=>{const td=e.target.closest('td.remark,td.dl,td.spec');if(!td||td.classList.contains('open'))return;const el=td.classList.contains('dl')?td.querySelector('.dl-in')||td:td;td.classList.toggle('ov',el.scrollWidth>el.clientWidth+1)});
 tableBodyEl.addEventListener('click',e=>{const td=e.target.closest('td.remark,td.dl,td.spec');if(!td||e.target.closest('input,button,a'))return;if(String(getSelection&&getSelection())!=='')return;if(!td.classList.contains('open')&&!td.classList.contains('ov'))return;td.classList.toggle('open');requestAnimationFrame(syncHead)});
@@ -2669,13 +2670,16 @@ if (typeof module !== 'undefined') module.exports = SU;
     state.db.order.forEach(o=>{const c=o.code||extractCode(o.r);if(c&&!byCode.has(c))byCode.set(c,o);add(byPS,nk(o.p)+'|'+nk(o.s),clean(o.c));add(byP,nk(o.p),clean(o.c));addQ(qPS,nk(o.p)+'|'+nk(o.s),o);addQ(qP,nk(o.p),o)});
     erpIx={byCode,byPS,byP,shippedMk,shipByCode,qPS,qP};erpIxKey=key;return erpIx}
   function nk(v){return clean(v).replace(/\s+/g,'').toUpperCase()}
-  function analyze(it,code){const X=erpIndex(),codes=[code,extractCode(it.memo)].filter(Boolean);
+  /* v133 : 수불현황이 느리던 원인 — 품목 8천여 개마다 매번 고객 이력 정렬·숫자 글자 만들기(toLocaleString)를 다시 함 → 같은 ERP 자료면 결과를 기억해서 다시 씀 */
+  const fmtN=v=>{const n=Number(v);if(!Number.isFinite(n))return String(v??'');if(!Number.isInteger(n))return n.toLocaleString();return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')};
+  function analyze(it,code){const X=erpIndex(),C=X.cache||(X.cache=new Map()),ck=(code||'')+'\u0001'+(it.memo||'')+'\u0001'+(it.p||'')+'\u0001'+(it.s||'');let r=C.get(ck);if(!r){r=analyze0(it,code,X);C.set(ck,r)}return r}
+  function analyze0(it,code,X){const codes=[code,extractCode(it.memo)].filter(Boolean);
     for(const c of codes){const o=X.byCode.get(c);if(o)return {how:'code',label:'제품번호',cust:clean(o.c),ord:o.o,od:o.od,q:o.q,u:o.u,sh:X.shippedMk.get(o.k)||(X.shipByCode.get(c)?X.shipByCode.get(c).d:''),tip:`제품번호 ${c} = 주문 ${o.o} (${o.od||''})`};
       const s=X.shipByCode.get(c);if(s)return {how:'code',label:'제품번호',cust:clean(s.c),ord:s.o,od:'',q:s.q,u:s.u,sh:s.d,tip:`제품번호 ${c} = 출고 ${s.o} (${s.d||''})`}}
     const m=X.byPS.get(nk(it.p)+'|'+nk(it.s))||X.byP.get(nk(it.p));
     if(m&&m.size){const arr=[...m.entries()].sort((a,b)=>b[1]-a[1]),tot=arr.reduce((t,x)=>t+x[1],0),[c0,n0]=arr[0];
-      const tip=(X.byPS.has(nk(it.p)+'|'+nk(it.s))?'품번+규격':'품번')+` 이력 ${tot.toLocaleString()}건\n`+arr.slice(0,6).map(([c,n])=>`${c} ${n}건 (${Math.round(n/tot*100)}%)`).join('\n')+(arr.length>6?`\n외 ${arr.length-6}곳`:'');
-      const Q=X.qPS.get(nk(it.p)+'|'+nk(it.s))||X.qP.get(nk(it.p)),qu=Q&&Q.n?{q:Q.q.toLocaleString(),u:[...Q.u.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0])[0]||'',qtip:`\n수량 = ERP 주문 ${Q.n.toLocaleString()}줄 수량 합계`}:{};
+      const tip=(X.byPS.has(nk(it.p)+'|'+nk(it.s))?'품번+규격':'품번')+` 이력 ${fmtN(tot)}건\n`+arr.slice(0,6).map(([c,n])=>`${c} ${n}건 (${Math.round(n/tot*100)}%)`).join('\n')+(arr.length>6?`\n외 ${arr.length-6}곳`:'');
+      const Q=X.qPS.get(nk(it.p)+'|'+nk(it.s))||X.qP.get(nk(it.p)),qu=Q&&Q.n?{q:fmtN(Q.q),u:[...Q.u.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0])[0]||'',qtip:`\n수량 = ERP 주문 ${fmtN(Q.n)}줄 수량 합계`}:{};
       return arr.length===1?Object.assign({how:'one',label:'품번 단독',cust:c0,tip:tip+(qu.qtip||'')},qu):Object.assign({how:'main',label:`기본 고객 ${Math.round(n0/tot*100)}%`,cust:c0,more:arr.length-1,tip:tip+(qu.qtip||'')},qu)}
     return {how:'none',label:'이력 없음',cust:'',tip:'ERP 주문·출고에 같은 제품번호·품번 없음 (반제품·부속·재고 품목 등)'}}
   /* v58 : 수불현황 = 주문현황·출고현황과 같은 표 (같은 열·검색·구분 버튼·정렬). 공정별 재고 열 없음 */
