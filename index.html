@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v123">
+  <meta name="sm-ver" content="v124">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -1037,9 +1037,13 @@ function chgSets(){const key=state.db.rev+'|'+state.db.ship.size+'|'+state.db.or
   if(cm){cm.M.forEach((c,k)=>{if(state.db.ship.has(k))S.add(k)});cm.old.forEach((c,k)=>{if(state.db.ship.has(k))S.add(k)})}
   S.forEach(k=>{const sh=state.db.ship.get(k);if(sh&&sh.mk&&state.db.order.has(sh.mk)&&!O.has(sh.mk))O.set(sh.mk,{why:'출고 줄이 ERP에서 바뀜',ship:1})});
   chgHistory().forEach(x=>{const c=histCat(x.type);   /* 최근 기록부터 */
-    if(c==='upd'&&x.t==='order'&&state.db.order.has(x.k)&&!(O.get(x.k)||{}).at)O.set(x.k,{why:x.why,at:x.at,by:x.by});
+    if(c==='upd'&&x.t==='order'&&state.db.order.has(x.k)){const sg=ordChgSegs(x.why);if(sg.length){let e=O.get(x.k);if(!e||e.ship)O.set(x.k,e={why:x.why,at:x.at,by:x.by,segs:[],log:[],ship:e&&e.ship});if(!e.at){e.at=x.at;e.by=x.by;e.why=x.why}e.log.push(x);sg.forEach(g=>{if(!e.segs.some(y=>y.l===g.l))e.segs.push(g)})}}
     if(c==='del'&&/취소/.test(x.type||'')&&x.rec){const isO=x.t==='order',M=isO?CX.order:CX.ship;if((isO?state.db.order:state.db.ship).has(x.k)||M.has(x.k))return;M.set(x.k,x)}});
   csCache={S,O,CX};csKey=key;return csCache}
+/* v124 : 자동 갱신 내용 «라벨 전 → 후» 나누기 · 빈칸이 채워진 것(전 = 없음)·빈칸 되살림은 «변경»으로 안 셈 (원시파일 다시 올려 납기요청일이 채워진 줄 등) */
+function ordChgSegs(why){why=String(why||'');if(/^빈칸 되살림/.test(why))return [];const LB=ORD_CMP.map(c=>c[1]).concat(['비고(내역)','비고']).map(x=>x.replace(/[()]/g,'\\$&')).join('|'),out=[];
+  why.split(' · ').forEach(part=>part.split(new RegExp(`,\\s*(?=(?:${LB}) )`)).forEach(seg=>{const m=new RegExp(`^(${LB})\\s(.*?)\\s→\\s(.*)$`).exec(seg.trim());if(!m)return;const a=m[2].trim(),b=m[3].trim();if(a==='(없음)'||a===b)return;out.push({l:m[1],a,b})}));return out}
+const ORD_LB_COL={'주문일자':'출고일자','수량':'출고수량','품번':'품번','규격':'규격','단가':'단가','공급가':'공급가','고객':'고객','품명':'품명','단위':'단위','납품처':'납품처','납기요청일':'납기요청일','비고(내역)':'비고(내역)','비고':'비고(내역)'};
 function chgCounts(){const c=chgSets(),o=state.view==='order';return {chg:o?c.O.size:c.S.size,cxl:o?c.CX.order.size:c.CX.ship.size}}
 function chgVirtRows(){const c=chgSets(),o=state.view==='order',M=o?c.CX.order:c.CX.ship,out=[];let i=900000;
   M.forEach(x=>{try{const r=o?orderViewRow(Object.assign({},x.rec),i++,new Map()):viewRow(Object.assign({},x.rec),i++);r.__k=x.k;r.__cxl=x;r.__autoCode='';out.push(r)}catch(e){}});return out}
@@ -1596,7 +1600,15 @@ tr.appendChild(td)});
 /* v123 : 취소 정리한 줄(표에 다시 보여 줌) · 주문 자동 갱신 줄 표시 */
 function firstCellTag(tr,cls,txt){const td=tr.children[state.delMode?1:0];if(!td||td.querySelector('.cv-sub'))return;const d=document.createElement('div');d.className='cv-sub';d.innerHTML=`<span class="cv-tag ${cls}">${escapeHtml(txt)}</span>`;td.appendChild(d)}
 function markCxl(tr,row){const x=row.__cxl;tr.classList.add('cxl-row');tr.title=`ERP에서 취소 → 정리한 줄 · ${fmtDateTime(x.at)}${x.by?' '+x.by:''}\n${x.why||''}\n잘못 정리했으면 «변경·취소» 기록에서 되살리기`;firstCellTag(tr,'cx','취소');if(state.delMode){const c=tr.querySelector('.row-chk');if(c)c.disabled=true}}
-function markOrderChg(tr,row){let c;try{c=chgSets().O.get(row.__k)}catch(e){return}if(!c)return;tr.classList.add('chg-new');tr.title=`ERP에서 바뀐 주문 · ${c.why||''}${c.at?` (${fmtDateTime(c.at)}${c.by?' '+c.by:''})`:''}`;firstCellTag(tr,'','변경')}
+function markOrderChg(tr,row){let c;try{c=chgSets().O.get(row.__k)}catch(e){return}if(!c)return;tr.classList.add('chg-new');
+  const hs=tableHeaders(),off=state.delMode?1:0,hidden=[];
+  (c.segs||[]).forEach(g=>{const col=ORD_LB_COL[g.l],i=col?hs.indexOf(col):-1;if(i<0){hidden.push(`${g.l} ${g.a}→${g.b}`);return}const td=tr.children[i+off];if(!td)return;td.classList.add('cv');
+    const old=document.createElement('s');old.className='cv-old';old.textContent=/^\d{4}\/\d{2}\/\d{2}$/.test(g.a)?rvShort(g.a.replace(/\//g,'-')):g.a;old.title='바뀌기 전 '+g.a;td.appendChild(old)});
+  let shipTxt='';if(c.ship){try{const cm=shipChgMap();state.db.ship.forEach(s=>{if(s.mk===row.__k){const x=cm.M.get(s.k);if(x&&!shipTxt)shipTxt=x.t}})}catch(e){}
+    const i=hs.indexOf('매칭상태'),td=i<0?null:tr.children[i+off];if(td&&!td.querySelector('.cv-sub')){const d=document.createElement('div');d.className='cv-sub';d.innerHTML='<span class="cv-tag">출고 변경</span>';td.appendChild(d);td.classList.add('cv')}}
+  const lines=(c.log||[]).slice(0,5).map(x=>`· ${fmtDateTime(x.at)}${x.by?' '+x.by:''} : ${ordChgSegs(x.why).map(g=>`${g.l} ${g.a} → ${g.b}`).join(', ')}`);
+  tr.title=`ERP에서 바뀐 주문 (노랑 칸 = 바뀐 칸, 취소선 = 바뀌기 전 값)\n`+lines.join('\n')+(shipTxt?`\n· 출고 줄 바뀜 : ${shipTxt}`:c.ship?'\n· 이 주문의 출고 줄이 ERP에서 바뀜':'')+(hidden.length?`\n· 표에 없는 칸 : ${hidden.join(', ')}`:'');
+  firstCellTag(tr,'',hidden.length&&!(c.segs||[]).some(g=>hs.includes(ORD_LB_COL[g.l]))&&!c.ship?'변경 · '+[...new Set((c.segs||[]).map(g=>g.l))].join('·'):'변경')}
 /* v103 : ERP에서 출고일자·수량·단가가 바뀐 줄 → 바뀐 칸 노랑 + 바뀌기 전 값(취소선) · 옛 줄은 «옛 줄» 표시 */
 function markShipChg(tr,row){let cm;try{cm=shipChgMap()}catch(e){return}const c=cm.M.get(row.__k),o=cm.old.get(row.__k),s=state.db.ship.get(row.__k);if(!s||(!c&&!o))return;
   const hs=tableHeaders(),cell=h=>{const i=hs.indexOf(h);return i<0?null:tr.children[i+(state.delMode?1:0)]};
