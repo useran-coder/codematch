@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v121">
+  <meta name="sm-ver" content="v122">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -1258,6 +1258,18 @@ async function ddBackfill(recs){const M=ddMap(),L=recs.filter(o=>{if(!o.dd)retur
   for(let i=0;i<L.length;i+=600){const part=L.slice(i,i+600),u={id:uid(),kind:'dd',name:'납기요청일 '+part.length,rows:0,maxS:0,hidden:true,t:Date.now()+i,m:Object.fromEntries(part.map(o=>[o.k,o.dd]))};
     await sync({payload:{upload:u}});state.db.upload.set(u.id,Object.assign(state.db.upload.get(u.id)||{},u))}
   return L.length}
+/* v122 : 전에 올린 주문 중 납기요청일 없는 줄 → 이 PC에 보관된 ERP 원시 줄(shipMatchRaw)의 «출하예정일» 열에서 찾아 채움 (숨은 dd 기록으로 서버에 저장 → 모든 PC 같이 보임) */
+let ddRawRun=null;
+function ddMissKeys(){const M=ddMap();return [...state.db.order.values()].filter(o=>o&&!o.del&&!o.dd&&!M.get(o.k)).map(o=>o.k)}
+function ddFromRawVal(v){if(typeof v==='number'&&v>20000&&v<80000){const d=new Date(Date.UTC(1899,11,30)+Math.round(v)*864e5);return d.toISOString().slice(0,10)}const d=normalizeDate(v);return /^\d{4}-\d{2}-\d{2}$/.test(d)?d:''}
+async function ddFromRaw(manual){if(ddRawRun)return ddRawRun;ddRawRun=(async()=>{const miss=ddMissKeys();if(!miss.length){if(manual)showInfo('납기요청일 없는 주문 줄 없음');return 0}
+  let got;try{got=await rawStore.getMany(miss)}catch(e){if(manual)showError('이 PC 원시 줄을 읽지 못함');return 0}
+  const H=(got.hdr&&got.hdr.length?got.hdr:ORDER_RAW_HDR.split('|')).map(x=>clean(x)),ci=H.indexOf('출하예정일');
+  const recs=[];if(ci>=0)got.rows.forEach((a,k)=>{const d=ddFromRawVal(a&&a[ci]);if(d)recs.push({k,dd:d})});
+  const n=recs.length?await ddBackfill(recs):0,left=miss.length-n;
+  if(n){showInfo(`납기요청일 ${n.toLocaleString()}줄 채움 (이 PC에 보관된 주문현황 원시 줄의 출하예정일)${left?` · 아직 없는 ${left.toLocaleString()}줄은 그 주문현황 원시파일을 다시 올리면 채워짐`:''}`);renderTable(true)}
+  else if(manual)showInfo(`납기요청일 없는 주문 ${miss.length.toLocaleString()}줄 · 이 PC에 보관된 원시 줄 ${got.rows.size.toLocaleString()}줄${got.rows.size?'에도 출하예정일 없음':' (다른 PC에서 올렸거나 예전 업로드)'} → 그 주문현황 원시파일을 다시 올리면 채워짐`);
+  return n})().finally(()=>{setTimeout(()=>{ddRawRun=null},0)});return ddRawRun}
 /* v108 : 주문 대비 납품율 카드 (예전 «주문 대비 납품율 분석» 화면과 같은 셈)
    납품율 = 주문 줄에 매칭된 출고 수량 합 ÷ 주문 수량 합 · 제품비중(건수) = 주문 줄 수 기준
    구분(v109): 부자재·내부보강·문틀·레이저·유통/OEM(catOfShip, 구분 버튼과 같음) + 기타(exclGuess: 운반비·기타매출·임대료·에누리·기성·금형 등) */
@@ -1396,7 +1408,7 @@ function gtRender(keep){const P=document.getElementById('ganttPanel');if(!P||P.h
       <label class="gt-ck"><input type="checkbox" id="gtShip"${GT.ship?' checked':''}> 출고된 주문도 보기</label>
       <select id="gtSort" title="정렬"><option value="due"${S==='due'?' selected':''}>납기 빠른 순</option><option value="od"${S==='od'?' selected':''}>주문일 순</option><option value="cust"${S==='cust'?' selected':''}>고객 순</option></select>
       <label class="gt-cap-in" title="하루에 처리할 수 있는 양 · 넣으면 넘는 날 부하 막대 빨강·과부하 날 표시 (이 PC에 기억)">하루 처리 가능 <input type="number" id="gtCap" min="0" step="1" value="${cap||''}" placeholder="—"><select id="gtUnit"><option value="line"${GT.unit==='line'?' selected':''}>줄</option><option value="qty"${GT.unit==='qty'?' selected':''}>수량</option></select></label>
-      <button type="button" class="btn small" id="gtToday">오늘로</button><div class="gt-sum"><span>출고 전 주문 <b>${sum.n.toLocaleString()}</b>건 · ${sum.lines.toLocaleString()}줄 · 수량 ${fmt(sum.qty)}</span><span class="late">지연 <b>${sum.late}</b></span><span class="soon">임박(2영업일) <b>${sum.soon}</b></span><span>이번 7일 납기 <b>${sum.wk}</b></span><span class="urg">긴급 <b>${sum.urg}</b></span><span class="adj">납기 조정 <b>${sum.adj}</b></span><span class="none">납기 없음 <b>${sum.none}</b></span>
+      <button type="button" class="btn small" id="gtToday">오늘로</button><div class="gt-sum"><span>출고 전 주문 <b>${sum.n.toLocaleString()}</b>건 · ${sum.lines.toLocaleString()}줄 · 수량 ${fmt(sum.qty)}</span><span class="late">지연 <b>${sum.late}</b></span><span class="soon">임박(2영업일) <b>${sum.soon}</b></span><span>이번 7일 납기 <b>${sum.wk}</b></span><span class="urg">긴급 <b>${sum.urg}</b></span><span class="adj">납기 조정 <b>${sum.adj}</b></span><span class="none">납기 없음 <b>${sum.none}</b>${sum.none?' <button type="button" class="gt-chip" id="gtDdFill" title="이 PC에 보관된 주문현황 원시 줄의 출하예정일로 납기요청일 채움 · 없으면 그 원시파일 다시 올리기">출하예정일 다시 찾기</button>':''}</span>
       ${cap>0?`<span class="${over.length?'late':''}" title="${over.map(([d,v])=>`${md(d)} ${fmt(v)}`).join(' · ')}">과부하 <b>${over.length}</b>일${over.length?` (${over.slice(0,4).map(([d])=>md(d)).join(', ')}${over.length>4?' …':''})`:''}</span>`:''}
       ${GT.day?`<button type="button" class="gt-chip" id="gtDayX">${md(GT.day)} 납기만 보는 중 ×</button>`:''}</div>${gtFz?'<button type="button" class="btn small" id="gtResort" title="끌어서 바꾼 줄은 제자리에 둠 · 누르면 정렬 기준대로 다시 줄 세움">다시 정렬</button>':''}
       <span class="gt-sp"></span>${gtPend.size?`<span class="gt-pn">저장 안 한 조정 ${gtPend.size}건</span><button type="button" class="btn small" id="gtUndo">조정 취소</button>`:''}<button type="button" class="btn small primary" id="gtSave"${gtPend.size?'':' disabled'}>저장</button></div></div>
@@ -1415,6 +1427,7 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
 function ganttClose(){if(!state.gantt)return;gtFull(false);state.gantt=false;document.querySelector('.table-panel').classList.remove('gt-view');document.getElementById('ganttPanel').hidden=true;gtShowTab(false)}
 {const P=document.getElementById('ganttPanel');
   P.addEventListener('click',e=>{const t=e.target;
+    if(t.closest('#gtDdFill')){const bt=t.closest('#gtDdFill');bt.disabled=true;bt.textContent='찾는 중…';ddFromRaw(true).catch(e=>showError(String(e.message||e))).finally(()=>gtRender(true));return}
     if(t.closest('#gtResort')){gtFz=null;gtRender(true);return}
     const cb=t.closest('.gt-cat');if(cb){GT.cat=cb.dataset.cat;GT.day='';gtFz=null;gtSaveUi();gtRender();return}
     const zb=t.closest('[data-zoom]');if(zb){GT.zoom=zb.dataset.zoom;gtSaveUi();gtRender();return}
@@ -1953,7 +1966,7 @@ function mlRender(){const L=state.mainLoading,el=document.getElementById('mainLo
 async function startData(){renderSyncBtn();state.db=emptyDb();state.firstView=true;mlStart('order',0);await loadCache();
   const had=state.db.order.size+state.db.ship.size>0;if(had){mlPhase(2);await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,20)))}
   try{rebuildView()}finally{if(had)mlEnd()}
-  if(!had&&state.mainLoading){mlPhase(1);const t1=Date.now();try{await sync()}finally{try{localStorage.setItem(ML_MS,String(Math.max(1500,Date.now()-t1)))}catch(_){}mlEnd();rebuildView(true)}}else await sync();setTimeout(()=>{if(window.suSeedFromServer)window.suSeedFromServer()},3000)}
+  if(!had&&state.mainLoading){mlPhase(1);const t1=Date.now();try{await sync()}finally{try{localStorage.setItem(ML_MS,String(Math.max(1500,Date.now()-t1)))}catch(_){}mlEnd();rebuildView(true)}}else await sync();setTimeout(()=>{if(window.suSeedFromServer)window.suSeedFromServer()},3000);setTimeout(()=>{ddFromRaw().catch(e=>console.warn('납기요청일 채우기 실패',e))},5000)}
 function appStart(){if(dataStarted){sync({quiet:true});return}dataStarted=true;startData().then(startPoll)}
 document.getElementById('verTag').textContent=SM_VER;document.getElementById('verTag').title='화면 버전 · 눌러서 서버 점검';document.getElementById('verTag').onclick=runDiag;
 auBoot();
