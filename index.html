@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v137">
+  <meta name="sm-ver" content="v138">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -157,6 +157,8 @@ tr.cxl-row td{color:#9ca3af;text-decoration:line-through;text-decoration-color:#
 .dv-share{border-left:1px dashed #e2e8f0;padding-left:10px;min-width:0}
 .dv-title{font-size:10.5px;color:#94a3b8;font-weight:800;margin-bottom:4px}
 .dv-item{display:grid;grid-template-columns:54px 1fr 38px;gap:5px;align-items:center;font-size:10.5px;color:#475569;line-height:1.25}
+    .dv-item.dim{opacity:.38}.dv-item.on{color:#0f172a;font-weight:800;background:#eff6ff;border-radius:4px;box-shadow:0 0 0 2px #eff6ff}
+    .dv-sel{display:inline-block;margin-left:4px;padding:0 6px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:800}.dv-all{color:#94a3b8}
 .dv-name{font-weight:700;white-space:nowrap}.dv-pct{text-align:right;font-weight:800;color:#334155}
 .dv-track{height:5px;background:#f1f5f9;border-radius:99px;overflow:hidden}.dv-track i{display:block;height:100%;border-radius:99px}
 .dv-f0{background:#60a5fa}.dv-f1{background:#a78bfa}.dv-f2{background:#4ade80}.dv-f3{background:#fb923c}.dv-f4{background:#f472b6}.dv-f5{background:#94a3b8}
@@ -1318,7 +1320,7 @@ async function toggleAuto(P){const cat=PRE_ORDER.find(c=>CAT_PRE[c]===P);
     const r=await queue(()=>backendCall({action:'setAuto',auto}));state.db.auto=r.auto||auto;saveCache();renderCatBtns();renderLastS();
     showInfo(`${cat} 자동 부여 ${on?'켬':'끔'}`);if(on&&none)sync().catch(e=>showError('동기화 오류: '+(e.message||e)))}
   catch(e){showError('자동 부여 스위치를 바꾸지 못함: '+(e.message||e))}}
-document.getElementById('catBtns').addEventListener('click',e=>{const sw=e.target.closest('.sw');if(sw){e.preventDefault();e.stopPropagation();toggleAuto(sw.dataset.pre);return}const b=e.target.closest('.cat-btn');if(!b)return;state.filters.cat=state.filters.cat===b.dataset.cat?'':b.dataset.cat;renderTable()});
+document.getElementById('catBtns').addEventListener('click',e=>{const sw=e.target.closest('.sw');if(sw){e.preventDefault();e.stopPropagation();toggleAuto(sw.dataset.pre);return}const b=e.target.closest('.cat-btn');if(!b)return;state.filters.cat=state.filters.cat===b.dataset.cat?'':b.dataset.cat;renderTable();renderDeliv()});
 function rowKey(r){return r.__k}
 /* v104 : 납기요청일(v105부터 ERP «출하예정일» 열) — 새 주문 줄은 줄 안(o.dd)에 저장. 전에 올린 주문 줄은 주문 줄을 건드리지 않고 숨은 기록(upload kind 'dd', 600줄씩 {m:{k:날짜}})에 따로 저장 */
 let ddCache=null,ddKey='';
@@ -1382,13 +1384,16 @@ function dvSave(){try{localStorage.setItem('sm_dv_range',JSON.stringify(dvR))}ca
   document.getElementById('dvNo').onclick=()=>{pop.hidden=true;label()};
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pop.hidden){pop.hidden=true;label()}});
   label()}
-function renderDeliv(){const el=document.getElementById('delivRate');if(!el)return;const rg=dvRange(),key=state.db.rev+'|'+state.db.order.size+'|'+state.db.ship.size+'|'+exclList().set.size+'|'+(rg||'');if(key===dvKey)return;dvKey=key;
+/* v138 : 구분(간트 구분 탭 또는 표 구분 버튼)을 고르면 그 구분 납품율 표시 + 제품비중에서 그 줄 강조 */
+function dvSelCat(){const c=state.gantt?GT.cat:(state.filters.cat||'');return DV_CLS.includes(c)?c:''}
+function renderDeliv(){const el=document.getElementById('delivRate');if(!el)return;const rg=dvRange(),sel=dvSelCat(),key=state.db.rev+'|'+state.db.order.size+'|'+state.db.ship.size+'|'+exclList().set.size+'|'+(rg||'')+'|'+sel;if(key===dvKey)return;dvKey=key;
   const L=[];state.db.order.forEach(o=>{if(o.del||isExcl(o))return;if(rg&&!(o.od&&o.od>=rg[0]&&o.od<=rg[1]))return;L.push(o)});const sq=new Map();state.db.ship.forEach(x=>{if(x.del||!x.mk||isExcl(x))return;sq.set(x.mk,(sq.get(x.mk)||0)+(num(x.q)||0))});
-  let oq=0,shq=0;L.forEach(o=>{oq+=num(o.q)||0;shq+=sq.get(o.k)||0});const rate=oq?shq/oq:0;
+  let oq=0,shq=0,aq=0,ash=0;L.forEach(o=>{const a=num(o.q)||0,b=sq.get(o.k)||0;aq+=a;ash+=b;if(sel&&dvClassOf(o)!==sel)return;oq+=a;shq+=b});const rate=oq?shq/oq:0;
   el.textContent=oq?(rate*100).toFixed(1)+'%':'—';el.className='value '+(rate>=.9?'dv-good':rate>=.7?'dv-warn':'dv-bad');
-  document.getElementById('delivSub').innerHTML=`주문 ${Math.round(oq).toLocaleString()}<br>출고 ${Math.round(shq).toLocaleString()}`;
+  {const lb=document.querySelector('#cardDeliv .dv-main .label');if(lb)lb.innerHTML=sel?`주문 대비 납품율 <b class="dv-sel">${escapeHtml(sel)}</b>`:'주문 대비 납품율'}
+  document.getElementById('delivSub').innerHTML=`주문 ${Math.round(oq).toLocaleString()}<br>출고 ${Math.round(shq).toLocaleString()}`+(sel&&aq?`<br><span class="dv-all">전체 ${(ash/aq*100).toFixed(1)}%</span>`:'');
   const cnt=new Map(DV_CLS.map(c=>[c,0]));L.forEach(o=>{const c=dvClassOf(o);cnt.set(c,(cnt.get(c)||0)+1)});const tot=L.length;
-  document.getElementById('delivShare').innerHTML=tot?DV_CLS.map((c,i)=>{const v=cnt.get(c),pc=v/tot;return `<div class="dv-item" title="${c} ${v.toLocaleString()}줄 / ${tot.toLocaleString()}줄"><span class="dv-name">${c}</span><span class="dv-track"><i class="dv-f${i}" style="width:${Math.max(2,pc*100).toFixed(1)}%"></i></span><span class="dv-pct">${(pc*100).toFixed(1)}%</span></div>`}).join(''):'<div class="dv-item"><span class="dv-name">자료 없음</span></div>'}
+  document.getElementById('delivShare').innerHTML=tot?DV_CLS.map((c,i)=>{const v=cnt.get(c),pc=v/tot;return `<div class="dv-item${sel?(c===sel?' on':' dim'):''}" title="${c} ${v.toLocaleString()}줄 / ${tot.toLocaleString()}줄"><span class="dv-name">${c}</span><span class="dv-track"><i class="dv-f${i}" style="width:${Math.max(2,pc*100).toFixed(1)}%"></i></span><span class="dv-pct">${(pc*100).toFixed(1)}%</span></div>`}).join(''):'<div class="dv-item"><span class="dv-name">자료 없음</span></div>'}
 /* v114 : 출고 줄 → 주문 줄 · 영업일 셈 (토·일·공휴일 뺌) */
 function shipOrderOf(k){const s=state.db.ship.get(k);if(!s)return null;return (s.mk&&state.db.order.get(s.mk))||(s.ono&&state.db.order.get(norm(s.o)+'|'+norm(s.ono)))||null}
 const KR_HOLI=new Set(['2025-01-01','2025-01-27','2025-01-28','2025-01-29','2025-01-30','2025-03-01','2025-03-03','2025-05-05','2025-05-06','2025-06-03','2025-06-06','2025-08-15','2025-10-03','2025-10-05','2025-10-06','2025-10-07','2025-10-08','2025-10-09','2025-12-25',
@@ -1425,7 +1430,7 @@ const GS_SIZES=['1.2x38.5','1.6x33','1.6x38.5','1.6x43.5','2.3x38.5'];
 function gsParse(s){s=String(s||'');const m=s.match(/(\d+(?:\.\d+)?)\s*[x×X*]\s*(\d+(?:\.\d+)?)/);const sz=m?`${+m[1]}x${+m[2]}`:'';let ty=s.replace(/[(（][^)）]*[)）]/g,'').trim().split(/\s+/)[0]||'';if(m&&!ty.replace(m[0],'').trim())ty='';return {sz,ty:ty.toUpperCase()}}
 /* v136 : 구분마다 (부자재·내부보강·문틀·레이저·유통/OEM) — 내부보강은 규격(두께x폭)·타입(괄호 앞), 다른 구분은 규격(두께x폭 있으면 그것, 없으면 규격 글자)·품명 */
 function gsKeys(o,cat){if(cat==='내부보강')return gsParse(o.s);const s=clean(o.s),m=s.match(/(\d+(?:\.\d+)?)\s*[x×X*]\s*(\d+(?:\.\d+)?)/);return {sz:m?`${+m[1]}x${+m[2]}`:s,ty:clean(o.n)}}
-function gtSpecCard(){const on=!!state.gantt;document.body.classList.toggle('gt-inner',on);if(!on)return;
+function gtSpecCard(){const on=!!state.gantt;document.body.classList.toggle('gt-inner',on);renderDeliv();if(!on)return;
   const cat=GT.cat,inner=cat==='내부보강',TYL=inner?'타입':'품명';if(GS_SEL&&GS_SEL.cat!==cat)GS_SEL=null;
   const shipped=new Set();state.db.ship.forEach(s=>{if(!s.del&&s.mk)shipped.add(s.mk)});
   const SZ=new Map(),TY=new Map();let tq=0,tn=0;const add=(m,k,q)=>{let x=m.get(k);if(!x)m.set(k,x={q:0,n:0});x.q+=q;x.n++};
@@ -1518,7 +1523,7 @@ function gtFull(on){on=!!on&&state.gantt;document.body.classList.toggle('gt-full
 document.addEventListener('click',e=>{if(e.target.closest('#gtFull'))gtFull(!document.body.classList.contains('gt-full'));const cb=e.target.closest('#gtCatsSlot .gt-cat');if(cb&&state.gantt){GT.cat=cb.dataset.cat;GT.day='';gtFz=null;gtSaveUi();gtRender()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('gt-full')&&!document.querySelector('#chgModal')&&!gtDrag)gtFull(false)});
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&document.body.classList.contains('gt-full'))gtFull(false)});
-function ganttClose(){if(!state.gantt)return;gtFull(false);state.gantt=false;document.body.classList.remove('gt-inner');document.querySelector('.table-panel').classList.remove('gt-view');document.getElementById('ganttPanel').hidden=true;gtShowTab(false);requestAnimationFrame(syncHead)}
+function ganttClose(){if(!state.gantt)return;gtFull(false);state.gantt=false;document.body.classList.remove('gt-inner');renderDeliv();document.querySelector('.table-panel').classList.remove('gt-view');document.getElementById('ganttPanel').hidden=true;gtShowTab(false);requestAnimationFrame(syncHead)}
 {const P=document.getElementById('ganttPanel');
   P.addEventListener('click',e=>{const t=e.target;
     if(t.closest('#gtDdFill')){const bt=t.closest('#gtDdFill');bt.disabled=true;bt.textContent='찾는 중…';ddFromRaw(true).catch(e=>showError(String(e.message||e))).finally(()=>gtRender(true));return}
