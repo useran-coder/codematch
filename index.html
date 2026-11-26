@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v131">
+  <meta name="sm-ver" content="v132">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -196,7 +196,8 @@ body.gt-full .table-panel.gt-view{position:fixed;inset:0;z-index:380;margin:0;bo
 .gt-hr{position:relative;flex:none;height:120px}
 .gt-mon{position:relative;height:20px;border-bottom:1px solid #eef1f4}.gt-mon span{position:absolute;top:0;height:20px;line-height:20px;padding-left:6px;font-size:11.5px;font-weight:800;color:#334155;border-left:1px solid #cbd5e1;box-sizing:border-box;overflow:hidden;white-space:nowrap}
 .gt-days{position:relative;height:34px;border-bottom:1px solid #e2e8f0}.gt-days span{position:absolute;top:0;height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#334155;line-height:1.1;box-sizing:border-box;overflow:hidden;white-space:nowrap}
-.gt-days span i{font-style:normal;font-size:9.5px;font-weight:500;color:#94a3b8}.gt-days span.off{background:#f1f3f6;color:#94a3b8}.gt-days span.hol{color:#dc2626}.gt-days span.td{background:#fee2e2;color:#b91c1c}.gt-days span.td i{color:#b91c1c}
+.gt-days span i{font-style:normal;font-size:9.5px;font-weight:500;color:#94a3b8}.gt-days span.off{background:#f1f3f6;color:#94a3b8}
+.gt-days span:has(.gt-wkl){overflow:visible;z-index:1;align-items:flex-start}.gt-days .gt-wkl{font-style:normal;padding-left:3px;color:#334155}.gt-days span.hol{color:#dc2626}.gt-days span.td{background:#fee2e2;color:#b91c1c}.gt-days span.td i{color:#b91c1c}
 .gt-load{position:relative;height:66px}
 .gt-lb{position:absolute;bottom:2px;background:#93c5fd;border-radius:3px 3px 0 0;cursor:pointer;box-sizing:border-box}.gt-lb:hover{background:#60a5fa}.gt-lb.ov{background:#f87171}.gt-lb.ov:hover{background:#ef4444}.gt-lb.sel{outline:2px solid #1d4ed8;outline-offset:1px}
 .gt-lb em{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-style:normal;font-size:9.5px;font-weight:700;color:#334155;white-space:nowrap}.gt-lb.ov em{color:#b91c1c}
@@ -1432,7 +1433,7 @@ function gtRender(keep){const P=document.getElementById('ganttPanel');if(!P||P.h
   let rows=inCat.filter(g=>GT.ship||g.st!=='done');const dayAll=rows;if(GT.day)rows=rows.filter(g=>g.due===GT.day);
   const S=GT.sort;rows.sort((a,b)=>S==='od'?String(a.od).localeCompare(String(b.od))||String(a.due||'9').localeCompare(String(b.due||'9')):S==='cust'?String(a.c).localeCompare(String(b.c),'ko')||String(a.due||'9').localeCompare(String(b.due||'9')):(!a.due-!b.due)||String(a.due).localeCompare(String(b.due))||String(a.od).localeCompare(String(b.od)));
   if(gtFz){const fi=new Map(gtFz.map((k,i)=>[k,i])),N=gtFz.length;rows=rows.map((g,i)=>({g,i,f:fi.has(g.key)?fi.get(g.key):N+i})).sort((a,b)=>a.f-b.f).map(x=>x.g)}
-  const [lo,hi]=gtRange(dayAll,today),days=[];for(let d=lo;d<=hi;d=isoAdd(d,1))days.push(d);const dw=GT.zoom==='w'?12:34,LW=340,W=days.length*dw,X=iso=>dDiff(iso,lo)*dw;
+  const [lo,hi]=gtRange(dayAll,today),days=[];for(let d=lo;d<=hi;d=isoAdd(d,1))days.push(d);const LW=340,dw=GT.zoom==='w'?Math.max(12,Math.floor(((P.querySelector('.gt-scroll')||P).clientWidth-LW-4)/Math.max(1,days.length))):34,W=days.length*dw,X=iso=>dDiff(iso,lo)*dw;
   const edit=GT_EDIT.has(GT.cat),cap=+(GT.cap[GT.cat+'|'+GT.unit]||0);
   /* 하루 부하 */
   const load=new Map();dayAll.forEach(g=>{if(!g.due||g.st==='done')return;load.set(g.due,(load.get(g.due)||0)+(GT.unit==='qty'?g.openQty:g.openN))});
@@ -1442,7 +1443,7 @@ function gtRender(keep){const P=document.getElementById('ganttPanel');if(!P||P.h
   const months=[];days.forEach((d,i)=>{const m=d.slice(0,7);if(!months.length||months[months.length-1].m!==m)months.push({m,i,n:0});months[months.length-1].n++});
   const head=`<div class="gt-head" style="width:${LW+W}px"><div class="gt-hl" style="width:${LW}px"><b>${escapeHtml(GT.cat)}</b> 주문 ${rows.length.toLocaleString()}건${GT.day?` · ${md(GT.day)} 납기만`:''}<small>${edit?'막대를 옆으로 끌어 납기 조정 · 누르기만 하면 변경 없음 · 바꾼 줄은 제자리 유지':'보기 전용 · 납기 조정은 내부보강만'}</small><span class="gt-ll">하루 납기 부하 (${GT.unit==='qty'?'수량':'줄 수'})</span></div>
     <div class="gt-hr" style="width:${W}px"><div class="gt-mon">${months.map(m=>`<span style="left:${m.i*dw}px;width:${m.n*dw}px">${+m.m.slice(5)}월</span>`).join('')}</div>
-    <div class="gt-days">${days.map(d=>{const off=bizOff(d),hol=KR_HOLI.has(d);return `<span class="${off?'off':''}${d===today?' td':''}${hol?' hol':''}" style="left:${X(d)}px;width:${dw}px" title="${d} (${wkOf(d)})${hol?' 공휴일':''}">${GT.zoom==='w'?(wkOf(d)==='월'?md(d):''):`${+d.slice(8)}<i>${wkOf(d)}</i>`}</span>`}).join('')}</div>
+    <div class="gt-days">${days.map(d=>{const off=bizOff(d),hol=KR_HOLI.has(d);return `<span class="${off?'off':''}${d===today?' td':''}${hol?' hol':''}" style="left:${X(d)}px;width:${dw}px" title="${d} (${wkOf(d)})${hol?' 공휴일':''}">${GT.zoom==='w'?(wkOf(d)==='월'?`<em class="gt-wkl">${md(d)}</em>`:''):`${+d.slice(8)}<i>${wkOf(d)}</i>`}</span>`}).join('')}</div>
     <div class="gt-load">${cap>0?`<i class="gt-cap" style="bottom:${Math.round(cap/lmax*44)+2}px" title="하루 처리 가능 ${fmt(cap)}"></i>`:''}${[...load].map(([d,v])=>{if(d<lo||d>hi)return '';const h=Math.max(2,Math.round(v/lmax*44)),ov=cap>0&&v>cap;return `<span class="gt-lb${ov?' ov':''}${GT.day===d?' sel':''}" data-day="${d}" style="left:${X(d)+1}px;width:${dw-2}px;height:${h}px" title="${d} (${wkOf(d)}) 납기 ${fmt(v)}${GT.unit==='qty'?'':'줄'}${cap>0?` · 처리 가능 ${fmt(cap)}${ov?` → ${fmt(v-cap)} 넘침`:''}`:''} · 누르면 이날 납기만">${GT.zoom==='d'&&v?`<em>${v>=10000?(v/10000).toFixed(1)+'만':fmt(v)}</em>`:''}</span>`}).join('')}</div></div></div>`;
   const grid=`<div class="gt-grid" style="left:${LW}px;width:${W}px">${days.map(d=>bizOff(d)?`<i class="off" style="left:${X(d)}px;width:${dw}px"></i>`:'').join('')}${today>=lo&&today<=hi?`<i class="today" style="left:${X(today)+dw/2}px"></i>`:''}</div>`;
   const ddTxt=g=>g.st==='done'?'<span class="gt-dd done">출고 완료</span>':!g.due?'<span class="gt-dd none">납기 없음</span>':g.left<0?`<span class="gt-dd late">${g.left}일</span>`:g.left===0?'<span class="gt-dd soon">오늘</span>':`<span class="gt-dd ${g.cls}">D-${g.left}</span>`;
@@ -2818,6 +2819,39 @@ if (typeof module !== 'undefined') module.exports = SU;
   function openFromHash(){const h=location.hash;if(!/^#subul/.test(h))return;let n=0;const t=setInterval(async()=>{n++;if(n>240){clearInterval(t);return}
       if(!(typeof auValid==='function'&&auValid())||!state.db)return;clearInterval(t);await showView();if(h==='#subul-missing'&&!state.suMissOnly)document.getElementById('suMiss').click()},500)}
   window.addEventListener('hashchange',openFromHash);openFromHash();
+  /* v132 : 브라우저 뒤로가기·앞으로가기 — 보기(주문·출고·수불·간트)·카드 필터·기간·확인창
+     · 사람이 누른 뒤 바뀐 화면만 기록(pushState), 저절로 바뀐 것은 덮어쓰기(replaceState) · 검색어는 기록 안 함
+     · 확인창이 열려 있으면 뒤로가기 = 창 닫기(×) */
+  {const NAV={busy:false,skip:0,uAt:0,ready:false};
+    const snap=()=>{const f=state.filters||{};return {v:state.gantt?'gantt':state.view,b:state.view,from:f.from||'',to:f.to||'',st:f.status||'',mo:!!f.missingOnly,pe:!!f.pend,dn:!!f.done,cg:f.chg||'',pd:f.pdays==null?null:f.pdays,sm:!!state.suMissOnly,sh:!!state.suShowHidden,cp:state.cardPrev||null}};
+    const key=o=>JSON.stringify(Object.assign({},o||{},{cp:0}));
+    const cur=()=>history.state&&history.state.smNav?history.state:null;
+    ['pointerdown','keydown','change'].forEach(t=>document.addEventListener(t,()=>{NAV.uAt=Date.now()},true));
+    const tick=()=>{if(NAV.busy||!state.db||!document.getElementById('viewTabs'))return;if(typeof auValid==='function'&&!auValid())return;
+      const h=cur();if(h&&h.m)return;const s=snap();if(h&&key(h.s)===key(s))return;const st={smNav:1,s};
+      try{if(h&&NAV.ready&&Date.now()-NAV.uAt<5000)history.pushState(st,'');else history.replaceState(st,'')}catch(e){}NAV.ready=true};
+    setInterval(tick,300);
+    new MutationObserver(()=>{const m=document.getElementById('chgModal'),h=cur();
+      if(m&&!m.__nav){m.__nav=1;const st={smNav:1,s:snap(),m:1};try{if(h&&h.m)history.replaceState(st,'');else history.pushState(st,'')}catch(e){}}
+      else if(!m&&h&&h.m){NAV.skip++;history.back()}}).observe(document.body,{childList:true});
+    async function restore(s){
+      if(s.b==='subul'){if(state.gantt)ganttClose();if(state.view!=='subul'&&window.suShowView)await window.suShowView();
+        if(!!state.suMissOnly!==s.sm)document.getElementById('suMiss')?.click();if(!!state.suShowHidden!==s.sh)document.getElementById('suHid')?.click()}
+      else{if(state.gantt)ganttClose();setView(s.b,s.from,s.to);const f=state.filters;f.status=s.st;f.missingOnly=s.mo;f.pend=s.pe;f.done=s.dn;f.chg=s.cg;f.pdays=s.pd;state.cardPrev=s.cp||null;
+        const sf=document.getElementById('statusFilter');if(sf)sf.value=s.st;const mo=document.getElementById('missingOnly');if(mo)mo.checked=s.mo;rebuildView();renderAll()}
+      if(s.v==='gantt'&&!state.gantt)ganttOpen()}
+    window.addEventListener('popstate',async e=>{
+      if(NAV.skip){NAV.skip--;return}
+      const m=document.getElementById('chgModal');
+      if(m){const x=m.querySelector('.cg-x,.cg-close');if(x)x.click();else m.remove();return}
+      const st=e.state&&e.state.smNav?e.state:null;if(!st)return;
+      if(st.m){try{history.replaceState({smNav:1,s:st.s},'')}catch(_){}}   // 앞으로가기로 확인창 자리에 오면 창은 다시 열지 않고 그 화면만
+      if(key(snap())===key(st.s))return;
+      NAV.busy=true;try{await restore(st.s)}catch(err){console.warn('뒤로가기 복원',err)}finally{NAV.busy=false}});
+  }
+  /* v132 : 간트 주 단위는 화면 폭에 맞춰 그리므로 창 크기가 바뀌면 다시 그림 */
+  {let rt=0;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(state.gantt&&GT.zoom==='w'&&typeof gtRender==='function')gtRender(true)},200)})}
+
   /* v76 : 로그인 뒤 이 PC 수불 저장본을 미리 읽어 «제품번호 없음» 카드 숫자 표시 (서버 요청 없음) */
   {let n=0;const t=setInterval(async()=>{n++;if(n>240){clearInterval(t);return}if(!(typeof auValid==='function'&&auValid())||!state.db)return;clearInterval(t);
     if(!state.subul){const C=await suCacheLoad();if(C&&!state.subul){state.subul={store:C.st,label:'이 PC 저장본',at:new Date(0)}}}try{renderSummary()}catch(_){}},500)}
