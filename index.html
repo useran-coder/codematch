@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v141">
+  <meta name="sm-ver" content="v142">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -188,7 +188,7 @@ tr.cxl-row td{color:#9ca3af;text-decoration:line-through;text-decoration-color:#
 body.gt-full .table-panel.gt-view{position:fixed;inset:0;z-index:380;margin:0;border-radius:0;overflow:auto;background:#fff;max-width:none;width:auto}body.gt-full{overflow:hidden}body.gt-full .gt-view .gt-scroll{max-height:calc(100vh - 228px)}body.gt-full .dbfm-btn{display:none!important}
 .gantt-panel{padding:4px 14px 0 15px}.gantt-panel .gt-top{margin-left:-1px}.gantt-panel[hidden]{display:none}
 .gt-top{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:6px 0 8px}
-    /* v141 : 조정 취소는 저장 버튼 아래 줄 */ .gt-svb{display:flex;flex-direction:column;align-items:flex-end;gap:5px}.gt-svr{display:flex;align-items:center;gap:10px;white-space:nowrap}
+    /* v142 : 출고 전 요약은 범례(토·일·공휴일) 오른쪽 */ .gt-legend{align-items:center}.gt-legend .gt-sum{margin-left:4px;font-size:12px;padding:3px 10px}.gt-legend .gt-sum span{display:inline;gap:0}
 .gt-cats{display:flex;gap:4px;flex-wrap:wrap}.gt-cats-f .gt-cat{height:35px}
 .gt-cat{height:32px;padding:0 12px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font-size:12.5px;font-weight:700;cursor:pointer}
 .gt-cat small{margin-left:6px;font-size:11px;color:#94a3b8;font-weight:700}.gt-cat.on{background:#1d4ed8;border-color:#1d4ed8;color:#fff}.gt-cat.on small{color:#c7d7fe}
@@ -1508,11 +1508,11 @@ function gtRender(keep){const P=document.getElementById('ganttPanel');if(!P||P.h
       <label class="gt-ck"><input type="checkbox" id="gtShip"${GT.ship?' checked':''}> 출고된 주문도 보기</label>
       <select id="gtSort" title="정렬"><option value="due"${S==='due'?' selected':''}>납기 빠른 순</option><option value="od"${S==='od'?' selected':''}>주문일 순</option><option value="cust"${S==='cust'?' selected':''}>고객 순</option></select>
       <label class="gt-cap-in" title="하루에 처리할 수 있는 양 · 넣으면 넘는 날 부하 막대 빨강·과부하 날 표시 (이 PC에 기억)">하루 처리 가능 <input type="number" id="gtCap" min="0" step="1" value="${cap||''}" placeholder="—"><select id="gtUnit"><option value="line"${GT.unit==='line'?' selected':''}>줄</option><option value="qty"${GT.unit==='qty'?' selected':''}>수량</option></select></label>
-      <button type="button" class="btn small" id="gtToday">오늘로</button><div class="gt-sum"><span>출고 전 주문 <b>${sum.n.toLocaleString()}</b>건 · ${sum.lines.toLocaleString()}줄 · 수량 ${fmt(sum.qty)}</span><span class="late">지연 <b>${sum.late}</b></span><span class="soon">임박(2영업일) <b>${sum.soon}</b></span><span>이번 7일 납기 <b>${sum.wk}</b></span><span class="urg">긴급 <b>${sum.urg}</b></span><span class="adj">납기 조정 <b>${sum.adj}</b></span><span class="none">납기 없음 <b>${sum.none}</b>${sum.none?' <button type="button" class="gt-chip" id="gtDdFill" title="이 PC에 보관된 주문현황 원시 줄의 출하예정일로 납기요청일 채움 · 없으면 그 원시파일 다시 올리기">출하예정일 다시 찾기</button>':''}</span>
+      <button type="button" class="btn small" id="gtToday">오늘로</button>${gtFz?'<button type="button" class="btn small" id="gtResort" title="끌어서 바꾼 줄은 제자리에 둠 · 누르면 정렬 기준대로 다시 줄 세움">다시 정렬</button>':''}
+      <span class="gt-sp"></span>${gtPend.size?`<span class="gt-pn">저장 안 한 조정 ${gtPend.size}건</span><button type="button" class="btn small" id="gtUndo">조정 취소</button>`:''}<button type="button" class="btn small primary" id="gtSave"${gtPend.size?'':' disabled'}>저장</button></div></div>
+    <div class="gt-legend"><span><i class="lg ok"></i>여유</span><span><i class="lg soon"></i>임박 (2영업일 이내)</span><span><i class="lg late"></i>지연</span><span><i class="lg adj"></i>납기 조정</span><span><i class="lg pend"></i>저장 전</span><span><i class="lg done"></i>출고 완료</span><span><i class="lg req"></i>요청 납기</span><span><i class="lg ship"></i>출고일</span><span><i class="lg off"></i>토·일·공휴일</span><div class="gt-sum"><span>출고 전 주문 <b>${sum.n.toLocaleString()}</b>건 · ${sum.lines.toLocaleString()}줄 · 수량 ${fmt(sum.qty)}</span><span class="late">지연 <b>${sum.late}</b></span><span class="soon">임박(2영업일) <b>${sum.soon}</b></span><span>이번 7일 납기 <b>${sum.wk}</b></span><span class="urg">긴급 <b>${sum.urg}</b></span><span class="adj">납기 조정 <b>${sum.adj}</b></span><span class="none">납기 없음 <b>${sum.none}</b>${sum.none?' <button type="button" class="gt-chip" id="gtDdFill" title="이 PC에 보관된 주문현황 원시 줄의 출하예정일로 납기요청일 채움 · 없으면 그 원시파일 다시 올리기">출하예정일 다시 찾기</button>':''}</span>
       ${cap>0?`<span class="${over.length?'late':''}" title="${over.map(([d,v])=>`${md(d)} ${fmt(v)}`).join(' · ')}">과부하 <b>${over.length}</b>일${over.length?` (${over.slice(0,4).map(([d])=>md(d)).join(', ')}${over.length>4?' …':''})`:''}</span>`:''}
-      ${GT.day?`<button type="button" class="gt-chip" id="gtDayX">${md(GT.day)} 납기만 보는 중 ×</button>`:''}</div>${gtFz?'<button type="button" class="btn small" id="gtResort" title="끌어서 바꾼 줄은 제자리에 둠 · 누르면 정렬 기준대로 다시 줄 세움">다시 정렬</button>':''}
-      <span class="gt-sp"></span><div class="gt-svb"><div class="gt-svr">${gtPend.size?`<span class="gt-pn">저장 안 한 조정 ${gtPend.size}건</span>`:''}<button type="button" class="btn small primary" id="gtSave"${gtPend.size?'':' disabled'}>저장</button></div>${gtPend.size?'<button type="button" class="btn small" id="gtUndo">조정 취소</button>':''}</div></div></div>
-    <div class="gt-legend"><span><i class="lg ok"></i>여유</span><span><i class="lg soon"></i>임박 (2영업일 이내)</span><span><i class="lg late"></i>지연</span><span><i class="lg adj"></i>납기 조정</span><span><i class="lg pend"></i>저장 전</span><span><i class="lg done"></i>출고 완료</span><span><i class="lg req"></i>요청 납기</span><span><i class="lg ship"></i>출고일</span><span><i class="lg off"></i>토·일·공휴일</span></div>
+      ${GT.day?`<button type="button" class="gt-chip" id="gtDayX">${md(GT.day)} 납기만 보는 중 ×</button>`:''}</div></div>
     <div class="gt-scroll"><div class="gt-inner" style="width:${LW+W}px">${head}<div class="gt-body">${grid}${rows.map(rowHtml).join('')}${noRows}</div></div></div>
     <div class="gt-foot">막대 = 주문일자 → 납기일 (조정했으면 조정일) · 주문번호 단위 (같은 주문의 ${escapeHtml(GT.cat)} 줄 묶음, 줄마다 납기가 다르면 가장 늦은 날) · 부하 = 그날 납기인 출고 전 ${GT.unit==='qty'?'수량':'줄 수'} · 부하 막대 누르면 그날 납기 주문만 · 저장한 납기조정일은 모든 PC에 같이 보임 (주문현황 표 납기요청일 칸에 «조정»)</div>`;
   gtLast={rows,lo,dw,LW,today};const nsc=P.querySelector('.gt-scroll');
