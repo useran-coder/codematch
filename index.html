@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="sm-ver" content="v136">
+  <meta name="sm-ver" content="v137">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>출고현황 제품번호 매칭</title>
   <meta name="robots" content="noindex">
@@ -50,7 +50,7 @@
     .summary{display:grid;grid-template-columns:repeat(2,minmax(208px,1.5fr)) repeat(6,minmax(88px,1fr)) minmax(250px,2.4fr);gap:10px;margin-bottom:14px}.metric{padding:14px 16px}.metric .label{font-size:12px;color:var(--muted);margin-bottom:4px}.metric .value{font-size:25px;font-weight:800;color:#1d2b44}.metric.ok .value{color:var(--ok)}.metric.bad .value{color:var(--bad)}.metric.warn .value{color:#b45309}.metric .label .badge{font-size:12px;padding:3px 10px}#missingLbl,.field:has(#statusFilter){display:none!important}#suRealDel{align-items:center;justify-content:center}.metric .label .badge{white-space:nowrap}@media(max-width:1500px){.metric .label .badge{padding:3px 7px}.metric{padding:14px 12px}}.metric .label .badge.hid{background:#eef2f7;color:#475569}.metric.click{cursor:pointer;transition:box-shadow .15s,border-color .15s}.metric.click:hover{border-color:#94a3b8;box-shadow:0 2px 8px #0f172a14}.metric.click.on{border-color:#2f6ac6;background:#eef4ff;box-shadow:0 0 0 2px #2f6ac655}.metric.click.on .label::after{content:'선택됨';margin-left:6px;font-size:11px;color:#2f6ac6;font-weight:700}.metric.click:focus{outline:none}.metric .sub{font-size:11px;color:#94a3b8;margin-top:3px}.metric.period .value{font-size:16px;line-height:30px;white-space:nowrap}
     /* v134 : 간트 내부보강 — 기간 카드 2개 대신 규격·타입별 출고 전 수량 카드 */
     .gt-spec{display:none;min-width:0;padding:12px 14px}
-    body.gt-inner .summary .metric.period,body.gt-inner #cardMatched,body.gt-inner #cardAuto,body.gt-inner #cardNoCode{display:none!important}body.gt-inner .summary{grid-template-columns:minmax(300px,2.4fr) minmax(300px,2.6fr) repeat(3,minmax(88px,1fr)) minmax(250px,2.4fr)}body.gt-inner .gt-spec{display:flex;flex-direction:column;gap:8px}
+    body.gt-inner .summary .metric.period,body.gt-inner #cardMatched,body.gt-inner #cardAuto,body.gt-inner #cardNoCode,body.gt-inner #cardShipped{display:none!important}body.gt-inner .summary{grid-template-columns:minmax(420px,3.6fr) minmax(300px,2.6fr) repeat(2,minmax(88px,1fr)) minmax(250px,2.4fr)}body.gt-inner .gt-spec{display:flex;flex-direction:column;gap:8px}
     .gs-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.gs-h .label{margin:0}.gs-tot{font-size:12px;color:#475569;font-weight:700}.gs-hint{margin-top:auto;font-size:10.5px;color:#94a3b8}
     .gs-sz{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px}
     .gs-b{border:1px solid #e2e8f0;background:#f8fafc;border-radius:8px;padding:5px 6px;text-align:center;cursor:pointer;font:inherit;color:#334155;min-width:0}
